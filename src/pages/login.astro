@@ -21,11 +21,11 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-        <button id="login-btn"
+        <button onclick="window.netlifyIdentity && window.netlifyIdentity.open('login')"
           class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors mb-3">
           Sign In
         </button>
-        <button id="signup-btn"
+        <button onclick="window.netlifyIdentity && window.netlifyIdentity.open('signup')"
           class="w-full border-2 border-[#ea580c] text-[#ea580c] hover:bg-[#ea580c] hover:text-white font-bold py-3.5 rounded-xl transition-colors">
           Create Account
         </button>
@@ -49,12 +49,6 @@ import Footer from '../components/Footer.astro';
 </Layout>
 
 <script is:inline>
-  document.getElementById('login-btn').addEventListener('click', function() {
-    window.netlifyIdentity && window.netlifyIdentity.open('login');
-  });
-  document.getElementById('signup-btn').addEventListener('click', function() {
-    window.netlifyIdentity && window.netlifyIdentity.open('signup');
-  });
   if (window.netlifyIdentity) {
     window.netlifyIdentity.on('init', function(user) {
       if (user) window.location.href = '/dashboard';
