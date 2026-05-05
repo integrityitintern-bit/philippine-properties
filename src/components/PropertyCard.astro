@@ -3,6 +3,7 @@ const { property } = Astro.props;
 const acf = property.acf || {};
 const title = property.title?.rendered || 'Property';
 const slug = property.slug;
+const propertyId = property.id;
 const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
 const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
 const listingType = acf.listing_type || '';
@@ -25,6 +26,15 @@ const badgeColor = listingType === 'For Rent'
         {listingType}
       </span>
     )}
+    <button
+      class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
+      data-id={propertyId}
+      aria-label="Save property"
+    >
+      <svg class="save-icon w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+      </svg>
+    </button>
   </div>
 
   <div class="p-4 flex flex-col flex-1">
@@ -48,3 +58,39 @@ const badgeColor = listingType === 'For Rent'
     </div>
   </div>
 </a>
+
+<script>
+  const saved = () => JSON.parse(localStorage.getItem('saved_properties') || '[]');
+
+  document.querySelectorAll('.save-btn').forEach(btn => {
+    const id = Number((btn as HTMLElement).dataset.id);
+    const icon = btn.querySelector('.save-icon') as SVGElement;
+
+    const setActive = (active: boolean) => {
+      if (active) {
+        icon.setAttribute('fill', '#ea580c');
+        icon.setAttribute('stroke', '#ea580c');
+      } else {
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', 'currentColor');
+        icon.classList.add('text-gray-400');
+      }
+    };
+
+    setActive(saved().includes(id));
+
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      let s = saved();
+      if (s.includes(id)) {
+        s = s.filter((x: number) => x !== id);
+        setActive(false);
+      } else {
+        s.push(id);
+        setActive(true);
+      }
+      localStorage.setItem('saved_properties', JSON.stringify(s));
+    });
+  });
+</script>

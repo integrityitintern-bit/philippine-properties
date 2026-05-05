@@ -45,6 +45,7 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
       <a href="/search" class="hidden sm:inline text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">
         Search
       </a>
+      <div id="nav-auth-area" class="hidden sm:flex items-center"></div>
       <button id="mobile-menu-btn" class="md:hidden ml-1 text-white p-2">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -61,6 +62,7 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
     <a href="/list-property" class="block text-center bg-[#ea580c] text-white font-semibold py-3 rounded-lg text-sm mt-3">
       + List Property
     </a>
+    <div id="mobile-auth-area" class="pt-2"></div>
   </div>
 </nav>
 
@@ -83,4 +85,40 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
   }
 
   btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+
+  const navAuthArea = document.getElementById('nav-auth-area');
+  const mobileAuthArea = document.getElementById('mobile-auth-area');
+
+  function updateNavAuth(user: any) {
+    if (user) {
+      const name = user.user_metadata?.full_name || user.email;
+      const initial = name[0].toUpperCase();
+      if (navAuthArea) navAuthArea.innerHTML = `
+        <a href="/dashboard" class="flex items-center gap-2 text-sm font-medium border border-white/40 hover:border-white text-white px-3 py-2 rounded-lg transition-colors">
+          <span class="w-6 h-6 bg-[#ea580c] rounded-full flex items-center justify-center text-xs font-bold">${initial}</span>
+          <span>Account</span>
+        </a>
+      `;
+      if (mobileAuthArea) mobileAuthArea.innerHTML = `
+        <a href="/dashboard" class="block text-white/80 hover:text-white py-2.5 text-sm font-medium border-b border-white/5">My Dashboard</a>
+        <button id="mobile-logout" class="block text-white/60 hover:text-white py-2.5 text-sm font-medium w-full text-left">Logout</button>
+      `;
+      document.getElementById('mobile-logout')?.addEventListener('click', () => (window as any).netlifyIdentity?.logout());
+    } else {
+      if (navAuthArea) navAuthArea.innerHTML = `
+        <button id="nav-login-btn" class="text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">Login</button>
+      `;
+      if (mobileAuthArea) mobileAuthArea.innerHTML = `
+        <a href="/login" class="block text-center bg-white/10 text-white font-semibold py-3 rounded-lg text-sm mt-2">Login / Register</a>
+      `;
+      document.getElementById('nav-login-btn')?.addEventListener('click', () => (window as any).netlifyIdentity?.open('login'));
+    }
+  }
+
+  const ni = (window as any).netlifyIdentity;
+  if (ni) {
+    ni.on('init', updateNavAuth);
+    ni.on('login', (user: any) => { updateNavAuth(user); ni.close(); });
+    ni.on('logout', () => updateNavAuth(null));
+  }
 </script>

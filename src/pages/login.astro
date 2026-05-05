@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Login | Real Estate Portal">
+  <Navbar />
+
+  <div class="min-h-[80vh] flex items-center justify-center px-4 py-16">
+    <div class="max-w-md w-full">
+
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-[#ea580c] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Welcome Back</h1>
+        <p class="text-gray-500 mt-2 text-sm">Sign in to save properties and manage your listings</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <button id="login-btn"
+          class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors mb-3">
+          Sign In
+        </button>
+        <button id="signup-btn"
+          class="w-full border-2 border-[#ea580c] text-[#ea580c] hover:bg-[#ea580c] hover:text-white font-bold py-3.5 rounded-xl transition-colors">
+          Create Account
+        </button>
+        <p class="mt-6 text-center text-xs text-gray-400">
+          By continuing, you agree to our
+          <a href="#" class="text-[#ea580c] hover:underline">Terms</a> &
+          <a href="#" class="text-[#ea580c] hover:underline">Privacy Policy</a>
+        </p>
+      </div>
+
+      <div class="mt-6 text-center">
+        <a href="/search" class="text-gray-400 text-sm hover:text-gray-600 transition-colors">
+          ← Continue browsing without an account
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script>
+  const ni = (window as any).netlifyIdentity;
+
+  document.getElementById('login-btn')?.addEventListener('click', () => ni?.open('login'));
+  document.getElementById('signup-btn')?.addEventListener('click', () => ni?.open('signup'));
+
+  ni?.on('init', (user: any) => {
+    if (user) window.location.href = '/dashboard';
+  });
+  ni?.on('login', () => {
+    ni.close();
+    window.location.href = '/dashboard';
+  });
+</script>

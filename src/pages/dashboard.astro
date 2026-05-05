@@ -1,0 +1,159 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { WP_API } from '../config.js';
+---
+
+<Layout title="My Dashboard">
+  <Navbar />
+
+  <!-- Loading state -->
+  <div id="auth-loading" class="min-h-[60vh] flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-8 h-8 border-2 border-[#ea580c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-400 text-sm">Loading your dashboard...</p>
+    </div>
+  </div>
+
+  <!-- Dashboard content (hidden until auth confirmed) -->
+  <div id="dashboard-content" class="hidden">
+
+    <!-- Header -->
+    <div class="bg-gray-900 text-white py-12">
+      <div class="max-w-6xl mx-auto px-4 flex items-center gap-5">
+        <div id="user-avatar"
+          class="w-16 h-16 bg-[#ea580c] rounded-2xl flex items-center justify-center text-2xl font-bold shrink-0">
+        </div>
+        <div class="flex-1 min-w-0">
+          <h1 id="user-name" class="text-xl font-bold truncate"></h1>
+          <p id="user-email" class="text-white/50 text-sm mt-0.5 truncate"></p>
+        </div>
+        <button id="logout-btn"
+          class="text-sm border border-white/30 hover:border-white text-white px-4 py-2 rounded-lg transition-colors shrink-0">
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 py-12">
+
+      <!-- Quick Actions -->
+      <div class="grid sm:grid-cols-3 gap-4 mb-14">
+        {[
+          { href: '/search', icon: '🔍', label: 'Search Properties', sub: 'Browse all listings' },
+          { href: '/list-property', icon: '➕', label: 'List a Property', sub: 'Submit your property' },
+          { href: '/contact', icon: '💬', label: 'Contact Us', sub: 'Get in touch with us' },
+        ].map(item => (
+          <a href={item.href}
+            class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md hover:border-[#ea580c] transition-all text-center group">
+            <span class="text-3xl">{item.icon}</span>
+            <p class="font-semibold text-gray-900 mt-3 group-hover:text-[#ea580c] transition-colors">{item.label}</p>
+            <p class="text-gray-400 text-xs mt-1">{item.sub}</p>
+          </a>
+        ))}
+      </div>
+
+      <!-- Saved Properties -->
+      <div>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-900">Saved Properties</h2>
+          <a href="/search" class="text-[#ea580c] text-sm font-semibold hover:underline">Browse more →</a>
+        </div>
+
+        <div id="saved-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div id="no-saved" class="hidden text-center py-16 bg-gray-50 rounded-2xl border border-gray-100">
+          <p class="text-5xl mb-4">🏠</p>
+          <p class="text-gray-500 font-medium">No saved properties yet</p>
+          <p class="text-gray-400 text-sm mt-1 mb-6">Tap the heart icon on any listing to save it here</p>
+          <a href="/search"
+            class="inline-block bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+            Browse Properties
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script define:vars={{ WP_API }}>
+  const ni = window.netlifyIdentity;
+  const loading = document.getElementById('auth-loading');
+  const content = document.getElementById('dashboard-content');
+
+  ni?.on('init', async (user) => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+    await showDashboard(user);
+  });
+
+  ni?.on('logout', () => { window.location.href = '/'; });
+
+  document.getElementById('logout-btn')?.addEventListener('click', () => ni?.logout());
+
+  async function showDashboard(user) {
+    loading?.classList.add('hidden');
+    content?.classList.remove('hidden');
+
+    const name = user.user_metadata?.full_name || user.email.split('@')[0];
+    document.getElementById('user-avatar').textContent = name[0].toUpperCase();
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('user-email').textContent = user.email;
+
+    const saved = JSON.parse(localStorage.getItem('saved_properties') || '[]');
+    const savedList = document.getElementById('saved-list');
+    const noSaved = document.getElementById('no-saved');
+
+    if (saved.length === 0) {
+      noSaved?.classList.remove('hidden');
+      return;
+    }
+
+    for (const id of saved) {
+      try {
+        const res = await fetch(`${WP_API}/property/${id}?_embed`);
+        const prop = await res.json();
+        const image = prop._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+        const price = prop.acf?.price ? `₱${Number(prop.acf.price).toLocaleString()}` : 'Price on Request';
+        const city = [prop.acf?.location_city, prop.acf?.location_province].filter(Boolean).join(', ');
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow';
+        card.dataset.propertyId = id;
+        card.innerHTML = `
+          <div class="h-48 bg-gray-100 overflow-hidden relative">
+            ${image
+              ? `<img src="${image}" alt="${prop.title?.rendered}" class="w-full h-full object-cover" loading="lazy" />`
+              : `<div class="w-full h-full flex items-center justify-center text-5xl">🏠</div>`}
+            <button class="unsave-btn absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow text-red-500 hover:bg-red-50 transition-colors" data-id="${id}">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="p-4">
+            <p class="font-bold text-[#ea580c] text-lg">${price}</p>
+            <p class="font-semibold text-gray-900 mt-1 text-sm">${prop.title?.rendered || ''}</p>
+            ${city ? `<p class="text-gray-400 text-xs mt-1">📍 ${city}</p>` : ''}
+            <a href="/property/${prop.slug}" class="mt-3 inline-block text-[#ea580c] font-semibold text-sm hover:underline">View Details →</a>
+          </div>
+        `;
+        savedList?.appendChild(card);
+
+        card.querySelector('.unsave-btn')?.addEventListener('click', () => {
+          let s = JSON.parse(localStorage.getItem('saved_properties') || '[]');
+          s = s.filter(x => x !== id);
+          localStorage.setItem('saved_properties', JSON.stringify(s));
+          card.remove();
+          if (s.length === 0) noSaved?.classList.remove('hidden');
+        });
+      } catch {}
+    }
+  }
+</script>
