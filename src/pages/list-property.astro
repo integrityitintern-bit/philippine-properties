@@ -300,10 +300,10 @@ import Footer from '../components/Footer.astro';
       document.getElementById('step-success')?.classList.remove('hidden');
       const ref = 'IRC-' + Date.now().toString(36).toUpperCase();
       document.getElementById('ref-number')!.textContent = `Reference: ${ref}`;
-    } catch {
+    } catch(err: any) {
       btn.textContent = 'Submit Listing ✓';
       btn.disabled = false;
-      alert('Error submitting. Please try again.');
+      alert('Error: ' + (err.message || 'Please try again.'));
     }
   }
 
