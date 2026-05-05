@@ -77,8 +77,8 @@ exports.handler = async (event) => {
   try {
     const result = await wpRequest('/wp-json/wp/v2/property', credentials, payload);
     if (result.status < 200 || result.status >= 300) {
-      const msg = (result.body && result.body.message) || 'WordPress rejected the request.';
-      return { statusCode: result.status, headers, body: JSON.stringify({ error: msg }) };
+      const msg = (result.body && (result.body.message || result.body.code || JSON.stringify(result.body))) || 'WordPress rejected the request.';
+      return { statusCode: result.status, headers, body: JSON.stringify({ error: `WP ${result.status}: ${msg}` }) };
     }
     return { statusCode: 200, headers, body: JSON.stringify({ success: true, id: result.body.id }) };
   } catch (err) {
