@@ -34,9 +34,13 @@ const content = property.content?.rendered || '';
 const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
 const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
 const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700' : acf.listing_type === 'Pre-Selling' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-[#ea580c]';
+const locationQuery = encodeURIComponent([acf.address, acf.location_city, acf.location_province, 'Philippines'].filter(Boolean).join(', '));
+const whatsappPhone = acf.agent_phone ? acf.agent_phone.replace(/\D/g, '').replace(/^0/, '63') : '';
+const whatsappMsg = encodeURIComponent(`Hi! I'm interested in this property: ${title} — ${price}`);
+const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} — ${title} in ${acf.location_city || 'Philippines'}`;
 ---
 
-<Layout title={title}>
+<Layout title={title} description={description} ogImage={image || '/hero-bg.jpg'} ogType="article">
   <Navbar />
 
   <div class="max-w-7xl mx-auto px-4 py-8">
@@ -63,20 +67,43 @@ const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700'
           }
         </div>
 
-        <!-- Title & Price -->
-        <div class="mb-6">
+        <!-- Title, Price & Share -->
+        <div class="mb-4">
           {acf.listing_type && (
             <span class={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 ${badgeColor}`}>
               {acf.listing_type}
             </span>
           )}
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{title}</h1>
-          <p class="text-3xl font-bold text-[#ea580c]">{price}</p>
-          {(acf.location_city || acf.location_province) && (
-            <p class="text-gray-500 text-sm mt-2">
-              📍 {[acf.full_address, acf.location_city, acf.location_province].filter(Boolean).join(', ')}
-            </p>
-          )}
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="flex-1">
+              <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{title}</h1>
+              <p class="text-3xl font-bold text-[#ea580c]">{price}</p>
+              {(acf.location_city || acf.location_province) && (
+                <p class="text-gray-500 text-sm mt-2">
+                  📍 {[acf.address, acf.location_city, acf.location_province].filter(Boolean).join(', ')}
+                </p>
+              )}
+            </div>
+            <!-- Share buttons -->
+            <div class="flex items-center gap-2 shrink-0 mt-1">
+              <button id="share-copy" title="Copy link"
+                class="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors text-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+              <a id="share-facebook" href="#" target="_blank" rel="noopener" title="Share on Facebook"
+                class="w-9 h-9 bg-[#1877F2] hover:bg-[#1565d8] rounded-xl flex items-center justify-center transition-colors text-white font-bold text-sm">
+                f
+              </a>
+              <a id="share-whatsapp" href="#" target="_blank" rel="noopener" title="Share on WhatsApp"
+                class="w-9 h-9 bg-[#25D366] hover:bg-[#1da850] rounded-xl flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- Details Grid -->
@@ -113,8 +140,35 @@ const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700'
 
         <!-- Description -->
         {content && (
-          <div class="prose max-w-none text-gray-700 text-sm leading-relaxed" set:html={content} />
+          <div class="prose max-w-none text-gray-700 text-sm leading-relaxed mb-8" set:html={content} />
         )}
+
+        <!-- Map -->
+        {(acf.location_city || acf.address) && (
+          <div class="mb-8">
+            <h3 class="font-bold text-gray-900 mb-3">Location</h3>
+            <div class="rounded-2xl overflow-hidden border border-gray-200 h-64">
+              <iframe
+                src={`https://maps.google.com/maps?q=${locationQuery}&output=embed&z=14`}
+                class="w-full h-full"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Property Location"
+              ></iframe>
+            </div>
+          </div>
+        )}
+
+        <!-- Related Properties -->
+        <div id="related-section">
+          <h3 class="font-bold text-gray-900 mb-4">Similar Properties</h3>
+          <div id="related-grid" class="grid sm:grid-cols-3 gap-4">
+            <div class="h-40 bg-gray-100 rounded-xl animate-pulse"></div>
+            <div class="h-40 bg-gray-100 rounded-xl animate-pulse"></div>
+            <div class="h-40 bg-gray-100 rounded-xl animate-pulse"></div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Sidebar -->
@@ -135,12 +189,25 @@ const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700'
           )}
 
           {acf.agent_phone && (
-            <a href={`tel:${acf.agent_phone}`} class="flex items-center justify-center gap-2 w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-3 px-4 rounded-xl mb-3 text-sm transition-colors">
+            <a href={`tel:${acf.agent_phone}`}
+              class="flex items-center justify-center gap-2 w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-3 px-4 rounded-xl mb-3 text-sm transition-colors">
               📞 {acf.agent_phone}
             </a>
           )}
+
+          {whatsappPhone && (
+            <a href={`https://wa.me/${whatsappPhone}?text=${whatsappMsg}`} target="_blank" rel="noopener"
+              class="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1da850] text-white font-semibold py-3 px-4 rounded-xl mb-3 text-sm transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              WhatsApp Agent
+            </a>
+          )}
+
           {acf.agent_email && (
-            <a href={`mailto:${acf.agent_email}?subject=Inquiry: ${title}`} class="flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition-colors mb-6">
+            <a href={`mailto:${acf.agent_email}?subject=Inquiry: ${title}`}
+              class="flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition-colors mb-6">
               ✉️ Send Email
             </a>
           )}
@@ -160,7 +227,8 @@ const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700'
               <textarea name="message" rows="3" placeholder="I'm interested in this property..."
                 class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none"
               ></textarea>
-              <button type="submit" id="inquiry-submit" class="w-full bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold py-3 rounded-xl text-sm transition-colors">
+              <button type="submit" id="inquiry-submit"
+                class="w-full bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold py-3 rounded-xl text-sm transition-colors">
                 Send Inquiry
               </button>
               <p id="inquiry-success" class="hidden text-green-600 text-xs text-center font-medium">
@@ -176,11 +244,25 @@ const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700'
   <Footer />
 </Layout>
 
-<script>
-  const form = document.getElementById('inquiry-form') as HTMLFormElement;
-  const btn = document.getElementById('inquiry-submit') as HTMLButtonElement;
-  const success = document.getElementById('inquiry-success');
+<script define:vars={{ WP_API, propertyId, propAcf: property.acf }}>
+  // Share buttons
+  const shareUrl = window.location.href;
+  document.getElementById('share-copy')?.addEventListener('click', () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      const btn = document.getElementById('share-copy');
+      btn.style.background = '#dcfce7';
+      setTimeout(() => { btn.style.background = ''; }, 2000);
+    });
+  });
+  const fbShare = document.getElementById('share-facebook');
+  if (fbShare) fbShare.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+  const waShare = document.getElementById('share-whatsapp');
+  if (waShare) waShare.href = `https://wa.me/?text=${encodeURIComponent(document.title + ' ' + shareUrl)}`;
 
+  // Inquiry form
+  const form = document.getElementById('inquiry-form');
+  const btn = document.getElementById('inquiry-submit');
+  const successMsg = document.getElementById('inquiry-success');
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     btn.textContent = 'Sending...';
@@ -191,12 +273,42 @@ const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700'
         body: new FormData(form),
       });
       form.reset();
-      success?.classList.remove('hidden');
+      successMsg?.classList.remove('hidden');
       btn.classList.add('hidden');
     } catch {
       btn.textContent = 'Send Inquiry';
       btn.disabled = false;
-      alert('Error sending message. Please try again.');
     }
   });
+
+  // Related properties
+  async function loadRelated() {
+    const grid = document.getElementById('related-grid');
+    const section = document.getElementById('related-section');
+    if (!grid) return;
+    try {
+      const res = await fetch(`${WP_API}/property?_embed&per_page=20&status=publish`);
+      const all = await res.json();
+      const city = propAcf?.location_city || '';
+      const type = propAcf?.property_type || '';
+      const related = all
+        .filter(p => p.id !== propertyId && ((city && p.acf?.location_city === city) || (type && p.acf?.property_type === type)))
+        .slice(0, 3);
+      if (related.length === 0) { section?.remove(); return; }
+      grid.innerHTML = related.map(p => {
+        const img = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+        const pr = p.acf?.price ? '₱' + Number(p.acf.price).toLocaleString('en-PH') : 'Price on Request';
+        return `<a href="/property/${p.slug}" class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+          <div class="h-32 bg-gray-100 overflow-hidden">
+            ${img ? `<img src="${img}" alt="${p.title?.rendered}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-3xl">🏠</div>'}
+          </div>
+          <div class="p-3">
+            <p class="text-[#ea580c] font-bold text-sm">${pr}</p>
+            <p class="text-gray-800 text-xs font-medium mt-1 line-clamp-2">${p.title?.rendered || ''}</p>
+          </div>
+        </a>`;
+      }).join('');
+    } catch { section?.remove(); }
+  }
+  loadRelated();
 </script>

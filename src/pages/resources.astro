@@ -83,6 +83,78 @@ try {
     )}
   </section>
 
+  <!-- Mortgage Calculator -->
+  <section class="py-16 bg-gray-900 text-white">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <span class="inline-block bg-[#ea580c] text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">Free Tool</span>
+        <h2 class="text-2xl font-bold mb-2">Mortgage Calculator</h2>
+        <p class="text-white/60 text-sm">Estimate your monthly payment in seconds</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8 items-start">
+        <!-- Inputs -->
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5 block">Property Price (₱)</label>
+            <input id="mc-price" type="number" value="5000000" min="0"
+              class="w-full px-4 py-3 text-sm bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5 block">Down Payment (%)</label>
+            <div class="flex gap-2">
+              <input id="mc-downpct" type="number" value="20" min="0" max="100"
+                class="w-24 px-4 py-3 text-sm bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+              <input id="mc-downamt" type="number" readonly
+                class="flex-1 px-4 py-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white/50 cursor-not-allowed" placeholder="Amount" />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5 block">Loan Term</label>
+            <select id="mc-term" class="w-full px-4 py-3 text-sm bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#ea580c]">
+              <option value="10">10 years</option>
+              <option value="15">15 years</option>
+              <option value="20" selected>20 years</option>
+              <option value="25">25 years</option>
+              <option value="30">30 years</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5 block">Annual Interest Rate (%)</label>
+            <input id="mc-rate" type="number" value="6.5" min="0" step="0.1"
+              class="w-full px-4 py-3 text-sm bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+          </div>
+          <button id="mc-calculate" class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors">
+            Calculate Monthly Payment
+          </button>
+        </div>
+        <!-- Results -->
+        <div id="mc-results" class="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+          <div class="text-center pb-4 border-b border-white/10">
+            <p class="text-xs text-white/50 mb-1">Estimated Monthly Payment</p>
+            <p id="mc-monthly" class="text-4xl font-bold text-[#ea580c]">₱0</p>
+          </div>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-white/60">Loan Amount</span>
+              <span id="mc-loan" class="font-semibold">₱0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60">Total Payment</span>
+              <span id="mc-total" class="font-semibold">₱0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60">Total Interest</span>
+              <span id="mc-interest" class="font-semibold text-yellow-400">₱0</span>
+            </div>
+          </div>
+          <p class="text-xs text-white/30 pt-2 border-t border-white/10">
+            * Estimates only. Actual rates may vary. Consult a licensed bank or broker for official quotes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Newsletter CTA -->
   <section class="py-16 bg-gray-50">
     <div class="max-w-xl mx-auto px-4 text-center">
@@ -101,3 +173,47 @@ try {
 
   <Footer />
 </Layout>
+
+<script>
+  function fmt(n: number) {
+    return '₱' + Math.round(n).toLocaleString('en-PH');
+  }
+
+  function calculate() {
+    const price    = parseFloat((document.getElementById('mc-price') as HTMLInputElement).value) || 0;
+    const downPct  = parseFloat((document.getElementById('mc-downpct') as HTMLInputElement).value) || 0;
+    const termYrs  = parseInt((document.getElementById('mc-term') as HTMLSelectElement).value) || 20;
+    const annRate  = parseFloat((document.getElementById('mc-rate') as HTMLInputElement).value) || 0;
+
+    const downAmt  = price * (downPct / 100);
+    const loan     = price - downAmt;
+    const r        = annRate / 100 / 12;
+    const n        = termYrs * 12;
+
+    (document.getElementById('mc-downamt') as HTMLInputElement).value = Math.round(downAmt).toLocaleString('en-PH');
+
+    if (loan <= 0 || annRate <= 0) {
+      document.getElementById('mc-monthly')!.textContent = fmt(loan / n || 0);
+      document.getElementById('mc-loan')!.textContent    = fmt(loan);
+      document.getElementById('mc-total')!.textContent   = fmt(loan);
+      document.getElementById('mc-interest')!.textContent = fmt(0);
+      return;
+    }
+
+    const monthly = loan * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const total   = monthly * n;
+    const interest = total - loan;
+
+    document.getElementById('mc-monthly')!.textContent  = fmt(monthly);
+    document.getElementById('mc-loan')!.textContent     = fmt(loan);
+    document.getElementById('mc-total')!.textContent    = fmt(total);
+    document.getElementById('mc-interest')!.textContent = fmt(interest);
+  }
+
+  document.getElementById('mc-calculate')?.addEventListener('click', calculate);
+  ['mc-price','mc-downpct','mc-term','mc-rate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('keydown', (e: any) => e.key === 'Enter' && calculate());
+  });
+
+  calculate();
+</script>

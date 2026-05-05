@@ -189,7 +189,8 @@ import Footer from '../components/Footer.astro';
 </Layout>
 
 <script is:inline>
-  // Redirect if already logged in
+  var WP_URL = 'https://philippine-properties.com';
+
   if (window.ppAuth && window.ppAuth.getUser()) window.location.href = '/dashboard';
 
   function showTab(tab) {
@@ -222,7 +223,7 @@ import Footer from '../components/Footer.astro';
   }
 
   function signInWithGoogle() {
-    window.location.href = '/.netlify/identity/authorize?provider=google&site_url=' + encodeURIComponent(window.location.origin);
+    alert('Google sign-in coming soon. Please use email and password for now.');
   }
 
   async function handleSignIn(e) {
@@ -233,21 +234,14 @@ import Footer from '../components/Footer.astro';
     btn.textContent = 'Signing in...'; btn.disabled = true;
     hideMessages();
     try {
-      var form = new URLSearchParams();
-      form.append('grant_type', 'password');
-      form.append('username', email);
-      form.append('password', password);
-      var res = await fetch('/.netlify/identity/token', {
+      var res = await fetch(WP_URL + '/wp-json/jwt-auth/v1/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: form.toString()
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password: password })
       });
       var data = await res.json();
-      if (!res.ok) throw new Error(data.error_description || data.msg || 'Invalid email or password.');
-      // Get user metadata
-      var userRes = await fetch('/.netlify/identity/user', { headers: { 'Authorization': 'Bearer ' + data.access_token } });
-      var meta = await userRes.json();
-      window.ppAuth.setUser(data, meta);
+      if (!res.ok) throw new Error(data.message || 'Invalid email or password.');
+      window.ppAuth.setUser(data.token, data.user_email, data.user_display_name);
       window.location.href = '/dashboard';
     } catch(err) {
       showError(err.message);
@@ -268,7 +262,6 @@ import Footer from '../components/Footer.astro';
       number:  /[0-9]/.test(val),
       special: /[^A-Za-z0-9]/.test(val)
     };
-    // Update checklist
     document.querySelectorAll('.req').forEach(function(item) {
       var ok = rules[item.dataset.rule];
       item.querySelector('.req-icon').textContent = ok ? '✓' : '○';
@@ -299,14 +292,16 @@ import Footer from '../components/Footer.astro';
     btn.textContent = 'Creating account...'; btn.disabled = true;
     hideMessages();
     try {
-      var res = await fetch('/.netlify/identity/signup', {
+      var res = await fetch(WP_URL + '/wp-json/pp/v1/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password, data: { full_name: name } })
+        body: JSON.stringify({ email: email, password: password, name: name })
       });
       var data = await res.json();
-      if (!res.ok) throw new Error(data.msg || data.error_description || 'Registration failed.');
-      showSuccess('Account created! Check your email to confirm your account, then sign in.');
+      if (!res.ok) throw new Error(data.message || 'Registration failed.');
+      showSuccess('Account created! You can now sign in.');
+      showTab('signin');
+      document.getElementById('signin-email').value = email;
       btn.textContent = 'Create Account'; btn.disabled = false;
     } catch(err) {
       showError(err.message);

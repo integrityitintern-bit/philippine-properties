@@ -1,6 +1,13 @@
 ---
 import '../styles/global.css';
-const { title = 'Real Estate Portal', description = 'Find your dream property in the Philippines' } = Astro.props;
+const {
+  title = 'Real Estate Portal',
+  description = 'Find your dream property in the Philippines',
+  ogImage = '/hero-bg.jpg',
+  ogType = 'website',
+} = Astro.props;
+const siteName = 'Integrity Real Estate Corp';
+const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Properties` : `${title} | ${siteName}`;
 ---
 <!doctype html>
 <html lang="en">
@@ -9,7 +16,17 @@ const { title = 'Real Estate Portal', description = 'Find your dream property in
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="description" content={description} />
-    <title>{title}</title>
+    <title>{fullTitle}</title>
+    <!-- Open Graph -->
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content={siteName} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -17,7 +34,6 @@ const { title = 'Real Estate Portal', description = 'Find your dream property in
   <body class="bg-white text-gray-900 min-h-screen">
     <slot />
     <script is:inline>
-      // Auth utility on window
       window.ppAuth = {
         getUser: function() {
           try {
@@ -28,33 +44,18 @@ const { title = 'Real Estate Portal', description = 'Find your dream property in
             return u;
           } catch(e) { return null; }
         },
-        setUser: function(token, meta) {
+        setUser: function(token, email, name) {
           var u = {
-            access_token: token.access_token,
-            refresh_token: token.refresh_token,
-            expires_at: Date.now() + (token.expires_in || 3600) * 1000,
-            email: meta ? meta.email : '',
-            name: meta ? ((meta.user_metadata && meta.user_metadata.full_name) || meta.email.split('@')[0]) : ''
+            token: token,
+            email: email,
+            name: name || email.split('@')[0],
+            expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000
           };
           localStorage.setItem('pp_user', JSON.stringify(u));
           return u;
         },
         logout: function() { localStorage.removeItem('pp_user'); window.location.href = '/'; }
       };
-      // Handle Google OAuth callback (#access_token=... in URL hash)
-      (function() {
-        var h = window.location.hash;
-        if (h && h.includes('access_token=')) {
-          var p = {};
-          h.slice(1).split('&').forEach(function(x) { var kv = x.split('='); p[kv[0]] = decodeURIComponent(kv[1] || ''); });
-          if (p.access_token) {
-            fetch('/.netlify/identity/user', { headers: { 'Authorization': 'Bearer ' + p.access_token } })
-              .then(function(r) { return r.json(); })
-              .then(function(meta) { window.ppAuth.setUser(p, meta); history.replaceState(null,'',location.pathname); location.href='/dashboard'; })
-              .catch(function() { window.ppAuth.setUser(p, { email: '', user_metadata: {} }); history.replaceState(null,'',location.pathname); location.href='/dashboard'; });
-          }
-        }
-      })();
     </script>
   </body>
 </html>

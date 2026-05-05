@@ -15,36 +15,63 @@ import { WP_API } from '../config.js';
     </div>
 
     <!-- Filters -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-      <input id="filter-city" type="text" placeholder="City or Area"
-        class="col-span-2 sm:col-span-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
-      />
-      <select id="filter-listing-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
-        <option value="">All Types</option>
-        <option value="For Sale">For Sale</option>
-        <option value="For Rent">For Rent</option>
-        <option value="Pre-Selling">Pre-Selling</option>
-      </select>
-      <select id="filter-property-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
-        <option value="">All Properties</option>
-        <option value="house">House</option>
-        <option value="condo">Condo</option>
-        <option value="townhouse">Townhouse</option>
-        <option value="apartment">Apartment</option>
-        <option value="studio">Studio</option>
-        <option value="land">Land & Lot</option>
-        <option value="commercial">Commercial</option>
-      </select>
-      <select id="filter-bedrooms" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
-        <option value="">Any Beds</option>
-        <option value="1">1+ Bed</option>
-        <option value="2">2+ Beds</option>
-        <option value="3">3+ Beds</option>
-        <option value="4">4+ Beds</option>
-      </select>
-      <button id="filter-btn" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-2.5 px-6 rounded-xl transition-colors text-sm">
-        Search
-      </button>
+    <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-8 space-y-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <input id="filter-city" type="text" placeholder="City or Area"
+          class="col-span-2 sm:col-span-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+        />
+        <select id="filter-listing-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+          <option value="">All Types</option>
+          <option value="For Sale">For Sale</option>
+          <option value="For Rent">For Rent</option>
+          <option value="Pre-Selling">Pre-Selling</option>
+        </select>
+        <select id="filter-property-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+          <option value="">All Properties</option>
+          <option value="House">House</option>
+          <option value="Condo">Condo</option>
+          <option value="Townhouse">Townhouse</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Studio">Studio</option>
+          <option value="Land & Lot">Land & Lot</option>
+          <option value="Commercial">Commercial</option>
+        </select>
+        <select id="filter-bedrooms" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+          <option value="">Any Beds</option>
+          <option value="1">1+ Bed</option>
+          <option value="2">2+ Beds</option>
+          <option value="3">3+ Beds</option>
+          <option value="4">4+ Beds</option>
+        </select>
+        <button id="filter-btn" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-2.5 px-6 rounded-xl transition-colors text-sm">
+          Search
+        </button>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 pt-1">
+        <span class="text-xs font-medium text-gray-500">Price Range:</span>
+        <select id="filter-price-min" class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+          <option value="">No Min</option>
+          <option value="500000">₱500K</option>
+          <option value="1000000">₱1M</option>
+          <option value="2000000">₱2M</option>
+          <option value="5000000">₱5M</option>
+          <option value="10000000">₱10M</option>
+          <option value="20000000">₱20M</option>
+        </select>
+        <span class="text-gray-400 text-sm">–</span>
+        <select id="filter-price-max" class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+          <option value="">No Max</option>
+          <option value="1000000">₱1M</option>
+          <option value="2000000">₱2M</option>
+          <option value="5000000">₱5M</option>
+          <option value="10000000">₱10M</option>
+          <option value="20000000">₱20M</option>
+          <option value="50000000">₱50M</option>
+        </select>
+        <button id="clear-filters" class="text-xs text-gray-400 hover:text-[#ea580c] transition-colors underline ml-auto">
+          Clear all filters
+        </button>
+      </div>
     </div>
 
     <p id="results-count" class="text-sm text-gray-500 mb-4"></p>
@@ -120,13 +147,18 @@ import { WP_API } from '../config.js';
     const listingType = document.getElementById('filter-listing-type').value;
     const propertyType = document.getElementById('filter-property-type').value;
     const minBeds = parseInt(document.getElementById('filter-bedrooms').value) || 0;
+    const priceMin = parseInt(document.getElementById('filter-price-min').value) || 0;
+    const priceMax = parseInt(document.getElementById('filter-price-max').value) || Infinity;
 
     filteredProperties = allProperties.filter(p => {
       const acf = p.acf || {};
+      const price = parseFloat(acf.price) || 0;
       if (city && !acf.location_city?.toLowerCase().includes(city)) return false;
       if (listingType && acf.listing_type !== listingType) return false;
       if (propertyType && acf.property_type !== propertyType) return false;
       if (minBeds && (parseInt(acf.bedrooms) || 0) < minBeds) return false;
+      if (priceMin && price < priceMin) return false;
+      if (priceMax !== Infinity && price > priceMax) return false;
       return true;
     });
 
@@ -182,6 +214,15 @@ import { WP_API } from '../config.js';
   document.getElementById('filter-btn').addEventListener('click', applyFilters);
   document.getElementById('filter-city').addEventListener('keydown', e => e.key === 'Enter' && applyFilters());
   loadMoreBtn.addEventListener('click', () => { currentPage++; renderProperties(); });
+  document.getElementById('clear-filters').addEventListener('click', () => {
+    document.getElementById('filter-city').value = '';
+    document.getElementById('filter-listing-type').value = '';
+    document.getElementById('filter-property-type').value = '';
+    document.getElementById('filter-bedrooms').value = '';
+    document.getElementById('filter-price-min').value = '';
+    document.getElementById('filter-price-max').value = '';
+    applyFilters();
+  });
 
   fetchProperties();
 </script>
