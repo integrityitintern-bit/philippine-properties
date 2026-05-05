@@ -12,7 +12,7 @@ import { WP_API } from '../config.js';
   <div id="auth-loading" class="min-h-[60vh] flex items-center justify-center">
     <div class="text-center">
       <div class="w-8 h-8 border-2 border-[#ea580c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p class="text-gray-400 text-sm">Loading your dashboard...</p>
+      <p class="text-white/40 text-sm">Loading your dashboard...</p>
     </div>
   </div>
 
@@ -20,7 +20,7 @@ import { WP_API } from '../config.js';
   <div id="dashboard-content" class="hidden">
 
     <!-- Header -->
-    <div class="bg-gray-900 text-white py-12">
+    <div class="bg-[#0f0f0f] text-white py-12">
       <div class="max-w-6xl mx-auto px-4 flex items-center gap-5">
         <div id="user-avatar"
           class="w-16 h-16 bg-[#ea580c] rounded-2xl flex items-center justify-center text-2xl font-bold shrink-0">
@@ -46,10 +46,10 @@ import { WP_API } from '../config.js';
           { href: '/contact', icon: '💬', label: 'Contact Us', sub: 'Get in touch with us' },
         ].map(item => (
           <a href={item.href}
-            class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md hover:border-[#ea580c] transition-all text-center group">
+            class="bg-[#141414] border border-white/[0.07] rounded-2xl p-6 hover:shadow-md hover:border-[#ea580c] transition-all text-center group">
             <span class="text-3xl">{item.icon}</span>
-            <p class="font-semibold text-gray-900 mt-3 group-hover:text-[#ea580c] transition-colors">{item.label}</p>
-            <p class="text-gray-400 text-xs mt-1">{item.sub}</p>
+            <p class="font-semibold text-white mt-3 group-hover:text-[#ea580c] transition-colors">{item.label}</p>
+            <p class="text-white/40 text-xs mt-1">{item.sub}</p>
           </a>
         ))}
       </div>
@@ -57,16 +57,16 @@ import { WP_API } from '../config.js';
       <!-- Saved Properties -->
       <div>
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-gray-900">Saved Properties</h2>
+          <h2 class="text-xl font-bold text-white">Saved Properties</h2>
           <a href="/search" class="text-[#ea580c] text-sm font-semibold hover:underline">Browse more →</a>
         </div>
 
         <div id="saved-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-        <div id="no-saved" class="hidden text-center py-16 bg-gray-50 rounded-2xl border border-gray-100">
+        <div id="no-saved" class="hidden text-center py-16 bg-[#0f0f0f] rounded-2xl border border-white/[0.06]">
           <p class="text-5xl mb-4">🏠</p>
-          <p class="text-gray-500 font-medium">No saved properties yet</p>
-          <p class="text-gray-400 text-sm mt-1 mb-6">Tap the heart icon on any listing to save it here</p>
+          <p class="text-white/50 font-medium">No saved properties yet</p>
+          <p class="text-white/40 text-sm mt-1 mb-6">Tap the heart icon on any listing to save it here</p>
           <a href="/search"
             class="inline-block bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
             Browse Properties
@@ -119,14 +119,14 @@ import { WP_API } from '../config.js';
         const city = [prop.acf?.location_city, prop.acf?.location_province].filter(Boolean).join(', ');
 
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow';
+        card.className = 'bg-[#141414] rounded-xl border border-white/[0.07] overflow-hidden hover:shadow-md transition-shadow';
         card.dataset.propertyId = id;
         card.innerHTML = `
-          <div class="h-48 bg-gray-100 overflow-hidden relative">
+          <div class="h-48 bg-white/[0.05] overflow-hidden relative">
             ${image
               ? `<img src="${image}" alt="${prop.title?.rendered}" class="w-full h-full object-cover" loading="lazy" />`
               : `<div class="w-full h-full flex items-center justify-center text-5xl">🏠</div>`}
-            <button class="unsave-btn absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow text-red-500 hover:bg-red-50 transition-colors" data-id="${id}">
+            <button class="unsave-btn absolute top-3 right-3 w-8 h-8 bg-[#141414] rounded-full flex items-center justify-center shadow text-red-500 hover:bg-white/10 transition-colors" data-id="${id}">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
               </svg>
@@ -134,8 +134,8 @@ import { WP_API } from '../config.js';
           </div>
           <div class="p-4">
             <p class="font-bold text-[#ea580c] text-lg">${price}</p>
-            <p class="font-semibold text-gray-900 mt-1 text-sm">${prop.title?.rendered || ''}</p>
-            ${city ? `<p class="text-gray-400 text-xs mt-1">📍 ${city}</p>` : ''}
+            <p class="font-semibold text-white mt-1 text-sm">${prop.title?.rendered || ''}</p>
+            ${city ? `<p class="text-white/40 text-xs mt-1">📍 ${city}</p>` : ''}
             <a href="/property/${prop.slug}" class="mt-3 inline-block text-[#ea580c] font-semibold text-sm hover:underline">View Details →</a>
           </div>
         `;
