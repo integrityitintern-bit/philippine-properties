@@ -80,22 +80,21 @@ import { WP_API } from '../config.js';
   <Footer />
 </Layout>
 
-<script define:vars={{ WP_API }}>
-  const ni = window.netlifyIdentity;
-  const loading = document.getElementById('auth-loading');
-  const content = document.getElementById('dashboard-content');
+<script define:vars={{ WP_API }} is:inline>
+  var loading = document.getElementById('auth-loading');
+  var content = document.getElementById('dashboard-content');
 
-  ni?.on('init', async (user) => {
-    if (!user) {
-      window.location.href = '/login';
-      return;
-    }
-    await showDashboard(user);
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on('init', function(user) {
+      if (!user) { window.location.href = '/login'; return; }
+      showDashboard(user);
+    });
+    window.netlifyIdentity.on('logout', function() { window.location.href = '/'; });
+  }
+
+  document.getElementById('logout-btn') && document.getElementById('logout-btn').addEventListener('click', function() {
+    window.netlifyIdentity && window.netlifyIdentity.logout();
   });
-
-  ni?.on('logout', () => { window.location.href = '/'; });
-
-  document.getElementById('logout-btn')?.addEventListener('click', () => ni?.logout());
 
   async function showDashboard(user) {
     loading?.classList.add('hidden');
