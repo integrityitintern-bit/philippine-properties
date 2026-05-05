@@ -77,7 +77,14 @@ import { WP_API } from '../config.js';
       </div>
     </div>
 
-    <p id="results-count" class="text-sm text-white/50 mb-4"></p>
+    <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+      <p id="results-count" class="text-sm text-white/50"></p>
+      <select id="sort-select" class="px-3 py-2 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+        <option value="newest">Newest First</option>
+        <option value="price_asc">Price: Low → High</option>
+        <option value="price_desc">Price: High → Low</option>
+      </select>
+    </div>
 
     <!-- Loading Skeletons -->
     <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -164,6 +171,11 @@ import { WP_API } from '../config.js';
       if (priceMax !== Infinity && price > priceMax) return false;
       return true;
     });
+
+    const sort = document.getElementById('sort-select').value;
+    if (sort === 'price_asc') filteredProperties.sort((a, b) => (parseFloat(a.acf?.price) || 0) - (parseFloat(b.acf?.price) || 0));
+    else if (sort === 'price_desc') filteredProperties.sort((a, b) => (parseFloat(b.acf?.price) || 0) - (parseFloat(a.acf?.price) || 0));
+    else filteredProperties.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     currentPage = 1;
     renderProperties();
@@ -253,6 +265,7 @@ import { WP_API } from '../config.js';
 
   document.getElementById('filter-btn').addEventListener('click', applyFilters);
   document.getElementById('filter-city').addEventListener('keydown', e => e.key === 'Enter' && applyFilters());
+  document.getElementById('sort-select').addEventListener('change', applyFilters);
   loadMoreBtn.addEventListener('click', () => { currentPage++; renderProperties(); bindSaveButtons(); });
   document.getElementById('clear-filters').addEventListener('click', () => {
     document.getElementById('filter-city').value = '';

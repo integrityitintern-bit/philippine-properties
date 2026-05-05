@@ -34,7 +34,7 @@ const content = property.content?.rendered || '';
 const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
 const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
 const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-500/20 text-blue-300' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/20 text-purple-300' : 'bg-[#ea580c]/20 text-[#f97316]';
-const locationQuery = encodeURIComponent([acf.address, acf.location_city, acf.location_province, 'Philippines'].filter(Boolean).join(', '));
+const locationQuery = encodeURIComponent([acf.full_address, acf.location_city, acf.location_province, 'Philippines'].filter(Boolean).join(', '));
 const whatsappPhone = acf.agent_phone ? acf.agent_phone.replace(/\D/g, '').replace(/^0/, '63') : '';
 const whatsappMsg = encodeURIComponent(`Hi! I'm interested in this property: ${title} — ${price}`);
 const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} — ${title} in ${acf.location_city || 'Philippines'}`;
@@ -130,7 +130,7 @@ if (Array.isArray(acf.gallery)) {
               <p class="text-3xl font-bold text-[#ea580c]">{price}</p>
               {(acf.location_city || acf.location_province) && (
                 <p class="text-white/50 text-sm mt-2">
-                  📍 {[acf.address, acf.location_city, acf.location_province].filter(Boolean).join(', ')}
+                  📍 {[acf.full_address, acf.location_city, acf.location_province].filter(Boolean).join(', ')}
                 </p>
               )}
             </div>
@@ -194,7 +194,7 @@ if (Array.isArray(acf.gallery)) {
         )}
 
         <!-- Map -->
-        {(acf.location_city || acf.address) && (
+        {(acf.location_city || acf.full_address) && (
           <div class="mb-8">
             <h3 class="font-bold text-white mb-3">Location</h3>
             <div class="rounded-2xl overflow-hidden border border-white/[0.08] h-64">
@@ -288,6 +288,54 @@ if (Array.isArray(acf.gallery)) {
             </form>
           </div>
         </div>
+
+        <!-- Mortgage Calculator -->
+        <div class="bg-[#141414] border border-white/[0.08] rounded-2xl p-5 mt-4">
+          <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+            🏦 Mortgage Calculator
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-white/50 mb-1 block">Property Price</label>
+              <input type="text" id="mc-price" readonly
+                class="w-full px-3 py-2 text-sm bg-white/[0.03] text-white/60 border border-white/[0.07] rounded-xl cursor-default" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-white/50 mb-1 block">Down Payment %</label>
+                <input type="number" id="mc-down" value="20" min="5" max="80"
+                  class="w-full px-3 py-2 text-sm bg-white/[0.05] text-white border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+              </div>
+              <div>
+                <label class="text-xs text-white/50 mb-1 block">Interest Rate %</label>
+                <input type="number" id="mc-rate" value="6.5" min="1" max="20" step="0.1"
+                  class="w-full px-3 py-2 text-sm bg-white/[0.05] text-white border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-white/50 mb-1 block">Loan Term</label>
+              <select id="mc-term" class="w-full px-3 py-2 text-sm bg-[#1a1a1a] text-white border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]">
+                <option value="10">10 years</option>
+                <option value="15">15 years</option>
+                <option value="20" selected>20 years</option>
+                <option value="25">25 years</option>
+                <option value="30">30 years</option>
+              </select>
+            </div>
+            <div class="bg-[#ea580c]/10 border border-[#ea580c]/20 rounded-xl p-4 text-center">
+              <p class="text-xs text-white/40 mb-1">Est. Monthly Payment</p>
+              <p id="mc-result" class="text-2xl font-bold text-[#f97316]">—</p>
+              <p class="text-xs text-white/25 mt-1">Principal + Interest only</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recently Viewed -->
+        <div id="recently-viewed-section" class="bg-[#141414] border border-white/[0.08] rounded-2xl p-5 mt-4 hidden">
+          <h3 class="font-bold text-white mb-3 text-sm">Recently Viewed</h3>
+          <div id="recently-viewed-list" class="space-y-2"></div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -328,7 +376,7 @@ if (Array.isArray(acf.gallery)) {
   <Footer />
 </Layout>
 
-<script define:vars={{ WP_API, propertyId, propAcf: property.acf, galleryImages }}>
+<script define:vars={{ WP_API, propertyId, propAcf: property.acf, galleryImages, currentSlug: slug, currentTitle: title, currentPrice: price, currentImage: image }}>
   // Lightbox
   var lbIdx = 0;
 
@@ -445,4 +493,49 @@ if (Array.isArray(acf.gallery)) {
     } catch { section?.remove(); }
   }
   loadRelated();
+
+  // Mortgage Calculator
+  const rawPrice = propAcf?.price ? parseFloat(propAcf.price) : 0;
+  const mcPriceEl = document.getElementById('mc-price');
+  if (mcPriceEl) mcPriceEl.value = rawPrice > 0 ? '₱' + rawPrice.toLocaleString('en-PH') : 'Price on Request';
+
+  function calcMortgage() {
+    const result = document.getElementById('mc-result');
+    if (!result || rawPrice <= 0) return;
+    const down = parseFloat(document.getElementById('mc-down').value) || 20;
+    const rate = parseFloat(document.getElementById('mc-rate').value) || 6.5;
+    const term = parseInt(document.getElementById('mc-term').value) || 20;
+    const principal = rawPrice * (1 - down / 100);
+    const r = rate / 100 / 12;
+    const n = term * 12;
+    const monthly = principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    result.textContent = isFinite(monthly) && monthly > 0 ? '₱' + Math.round(monthly).toLocaleString('en-PH') : '—';
+  }
+  calcMortgage();
+  ['mc-down', 'mc-rate', 'mc-term'].forEach(id => document.getElementById(id)?.addEventListener('input', calcMortgage));
+
+  // Recently Viewed
+  try {
+    var viewed = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
+    viewed = viewed.filter(function(v) { return v.id !== propertyId; });
+    viewed.unshift({ id: propertyId, slug: currentSlug, title: currentTitle, price: currentPrice, image: currentImage });
+    viewed = viewed.slice(0, 10);
+    localStorage.setItem('recently_viewed', JSON.stringify(viewed));
+    var prev = viewed.slice(1, 6);
+    var rvSection = document.getElementById('recently-viewed-section');
+    var rvList = document.getElementById('recently-viewed-list');
+    if (prev.length > 0 && rvSection && rvList) {
+      rvList.innerHTML = prev.map(function(v) {
+        return '<a href="/property/' + v.slug + '" class="flex gap-3 items-center group hover:bg-white/[0.03] -mx-2 px-2 py-1.5 rounded-lg transition-colors">' +
+          '<div class="w-14 h-12 rounded-lg overflow-hidden bg-[#1a1a1a] shrink-0">' +
+          (v.image ? '<img src="' + v.image + '" class="w-full h-full object-cover" loading="lazy"/>' : '<div class="w-full h-full flex items-center justify-center text-lg opacity-30">🏠</div>') +
+          '</div>' +
+          '<div class="min-w-0">' +
+          '<p class="text-xs text-[#f97316] font-semibold">' + v.price + '</p>' +
+          '<p class="text-xs text-white/60 font-medium truncate group-hover:text-white transition-colors">' + v.title + '</p>' +
+          '</div></a>';
+      }).join('');
+      rvSection.classList.remove('hidden');
+    }
+  } catch(e) {}
 </script>
