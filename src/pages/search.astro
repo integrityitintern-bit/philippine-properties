@@ -28,13 +28,16 @@ import { WP_API } from '../config.js';
         </select>
         <select id="filter-property-type" class="px-4 py-2.5 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
           <option value="">All Properties</option>
-          <option value="House">House</option>
+          <option value="House & Lot">House &amp; Lot</option>
           <option value="Condo">Condo</option>
+          <option value="Condominium">Condominium</option>
           <option value="Townhouse">Townhouse</option>
           <option value="Apartment">Apartment</option>
           <option value="Studio">Studio</option>
-          <option value="Land & Lot">Land & Lot</option>
+          <option value="Land & Lot">Land &amp; Lot</option>
+          <option value="Lot Only">Lot Only</option>
           <option value="Commercial">Commercial</option>
+          <option value="Warehouse">Warehouse</option>
         </select>
         <select id="filter-bedrooms" class="px-4 py-2.5 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
           <option value="">Any Beds</option>
@@ -155,7 +158,7 @@ import { WP_API } from '../config.js';
       const price = parseFloat(acf.price) || 0;
       if (city && !acf.location_city?.toLowerCase().includes(city)) return false;
       if (listingType && acf.listing_type !== listingType) return false;
-      if (propertyType && acf.property_type !== propertyType) return false;
+      if (propertyType && (acf.property_type || '').toLowerCase() !== propertyType.toLowerCase()) return false;
       if (minBeds && (parseInt(acf.bedrooms) || 0) < minBeds) return false;
       if (priceMin && price < priceMin) return false;
       if (priceMax !== Infinity && price > priceMax) return false;
