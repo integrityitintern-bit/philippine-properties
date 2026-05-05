@@ -12,33 +12,33 @@ import Footer from '../components/Footer.astro';
     <!-- Header -->
     <div class="text-center mb-10">
       <span class="inline-block bg-yellow-400 text-[#ea580c] text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">Free Listing</span>
-      <h1 class="text-3xl font-bold text-white mb-2">List Your Property</h1>
-      <p class="text-white/50">Reach thousands of buyers and renters across the Philippines.</p>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">List Your Property</h1>
+      <p class="text-gray-500">Reach thousands of buyers and renters across the Philippines.</p>
     </div>
 
     <!-- Progress Steps -->
     <div class="flex items-center justify-center gap-2 mb-10" id="step-indicators">
       {['Property Info', 'Details', 'Photos', 'Contact'].map((label, i) => (
         <div class="flex items-center gap-2">
-          <div class={`step-dot flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-colors ${i === 0 ? 'bg-[#ea580c] text-white' : 'bg-white/10 text-white/50'}`} data-step={i + 1}>
+          <div class={`step-dot flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-colors ${i === 0 ? 'bg-[#ea580c] text-white' : 'bg-gray-100 text-gray-400'}`} data-step={i + 1}>
             {i + 1}
           </div>
-          <span class={`hidden sm:block text-xs font-medium ${i === 0 ? 'text-[#ea580c]' : 'text-white/40'}`}>{label}</span>
-          {i < 3 && <div class="w-6 h-px bg-white/10 hidden sm:block"></div>}
+          <span class={`hidden sm:block text-xs font-medium ${i === 0 ? 'text-[#ea580c]' : 'text-gray-400'}`}>{label}</span>
+          {i < 3 && <div class="w-6 h-px bg-gray-200 hidden sm:block"></div>}
         </div>
       ))}
     </div>
 
-    <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-8 shadow-sm">
+    <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-8">
 
       <!-- Step 1: Property Info -->
       <div id="step-1" class="step-content">
-        <h2 class="text-lg font-bold text-white mb-6">Step 1: Property Information</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-6">Step 1: Property Information</h2>
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Listing Type *</label>
-              <select id="p-listing-type" class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Listing Type *</label>
+              <select id="p-listing-type" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
                 <option value="">Select...</option>
                 <option>For Sale</option>
                 <option>For Rent</option>
@@ -46,8 +46,8 @@ import Footer from '../components/Footer.astro';
               </select>
             </div>
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Property Type *</label>
-              <select id="p-property-type" class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Property Type *</label>
+              <select id="p-property-type" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
                 <option value="">Select...</option>
                 <option>House</option>
                 <option>Condo</option>
@@ -62,28 +62,28 @@ import Footer from '../components/Footer.astro';
             </div>
           </div>
           <div>
-            <label class="text-xs font-medium text-white/60 mb-1 block">Property Title / Listing Name *</label>
+            <label class="text-xs font-medium text-gray-500 mb-1 block">Property Title / Listing Name *</label>
             <input type="text" id="p-title" placeholder="e.g. 3BR House for Sale in Makati"
-              class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
             />
           </div>
           <div>
-            <label class="text-xs font-medium text-white/60 mb-1 block">Price (PHP) *</label>
+            <label class="text-xs font-medium text-gray-500 mb-1 block">Price (PHP) *</label>
             <input type="number" id="p-price" placeholder="e.g. 5000000"
-              class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
             />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">City *</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">City *</label>
               <input type="text" id="p-city" placeholder="e.g. Makati"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Province / Region</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Province / Region</label>
               <input type="text" id="p-province" placeholder="e.g. Metro Manila"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
           </div>
@@ -95,43 +95,43 @@ import Footer from '../components/Footer.astro';
 
       <!-- Step 2: Details -->
       <div id="step-2" class="step-content hidden">
-        <h2 class="text-lg font-bold text-white mb-6">Step 2: Property Details</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-6">Step 2: Property Details</h2>
         <div class="space-y-4">
           <div class="grid grid-cols-3 gap-4">
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Bedrooms</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Bedrooms</label>
               <input type="number" id="p-bedrooms" min="0" placeholder="0"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Bathrooms</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Bathrooms</label>
               <input type="number" id="p-bathrooms" min="0" placeholder="0"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Floor Area (m²)</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Floor Area (m²)</label>
               <input type="number" id="p-floor-area" min="0" placeholder="0"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
           </div>
           <div>
-            <label class="text-xs font-medium text-white/60 mb-1 block">Full Address</label>
+            <label class="text-xs font-medium text-gray-500 mb-1 block">Full Address</label>
             <input type="text" id="p-address" placeholder="Street address, subdivision, barangay"
-              class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
             />
           </div>
           <div>
-            <label class="text-xs font-medium text-white/60 mb-1 block">Property Description</label>
+            <label class="text-xs font-medium text-gray-500 mb-1 block">Property Description</label>
             <textarea id="p-description" rows="5" placeholder="Describe the property — features, amenities, nearby landmarks..."
-              class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none bg-white/[0.05] text-white placeholder-white/30"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none bg-gray-50 text-gray-900 placeholder-gray-400"
             ></textarea>
           </div>
         </div>
         <div class="flex gap-3 mt-6">
-          <button onclick="goToStep(1)" class="flex-1 border-2 border-white/[0.08] text-white/60 font-semibold py-3 rounded-xl hover:border-white/20 transition-colors">
+          <button onclick="goToStep(1)" class="flex-1 border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:border-gray-400 transition-colors">
             ← Back
           </button>
           <button onclick="goToStep(3)" class="flex-1 bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3 rounded-xl transition-colors">
@@ -142,21 +142,21 @@ import Footer from '../components/Footer.astro';
 
       <!-- Step 3: Photos -->
       <div id="step-3" class="step-content hidden">
-        <h2 class="text-lg font-bold text-white mb-2">Step 3: Property Photos</h2>
-        <p class="text-white/50 text-sm mb-6">Upload up to 10 photos. First photo will be the main listing image.</p>
+        <h2 class="text-lg font-bold text-gray-900 mb-2">Step 3: Property Photos</h2>
+        <p class="text-gray-500 text-sm mb-6">Upload up to 10 photos. First photo will be the main listing image.</p>
 
-        <div id="photo-upload-area" class="border-2 border-dashed border-white/[0.08] rounded-2xl p-8 text-center hover:border-[#ea580c] transition-colors cursor-pointer" onclick="document.getElementById('photo-input').click()">
+        <div id="photo-upload-area" class="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-[#ea580c] transition-colors cursor-pointer" onclick="document.getElementById('photo-input').click()">
           <p class="text-4xl mb-3">📸</p>
-          <p class="text-white/80 font-semibold text-sm">Click to upload photos</p>
-          <p class="text-white/40 text-xs mt-1">JPG, PNG up to 10MB each</p>
+          <p class="text-gray-700 font-semibold text-sm">Click to upload photos</p>
+          <p class="text-gray-400 text-xs mt-1">JPG, PNG up to 10MB each</p>
           <input type="file" id="photo-input" accept="image/*" multiple class="hidden" />
         </div>
 
         <div id="photo-preview" class="grid grid-cols-3 gap-3 mt-4"></div>
-        <p id="photo-status" class="text-xs text-white/40 mt-2 text-center"></p>
+        <p id="photo-status" class="text-xs text-gray-400 mt-2 text-center"></p>
 
         <div class="flex gap-3 mt-6">
-          <button onclick="goToStep(2)" class="flex-1 border-2 border-white/[0.08] text-white/60 font-semibold py-3 rounded-xl hover:border-white/20 transition-colors">
+          <button onclick="goToStep(2)" class="flex-1 border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:border-gray-400 transition-colors">
             ← Back
           </button>
           <button onclick="goToStep(4)" class="flex-1 bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3 rounded-xl transition-colors">
@@ -167,26 +167,26 @@ import Footer from '../components/Footer.astro';
 
       <!-- Step 4: Contact -->
       <div id="step-4" class="step-content hidden">
-        <h2 class="text-lg font-bold text-white mb-6">Step 4: Your Contact Details</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-6">Step 4: Your Contact Details</h2>
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Full Name *</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Full Name *</label>
               <input type="text" id="p-name" placeholder="Your full name"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-white/60 mb-1 block">Phone Number *</label>
+              <label class="text-xs font-medium text-gray-500 mb-1 block">Phone Number *</label>
               <input type="tel" id="p-phone" placeholder="+63 9XX XXX XXXX"
-                class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
               />
             </div>
           </div>
           <div>
-            <label class="text-xs font-medium text-white/60 mb-1 block">Email Address *</label>
+            <label class="text-xs font-medium text-gray-500 mb-1 block">Email Address *</label>
             <input type="email" id="p-email" placeholder="your@email.com"
-              class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
             />
           </div>
           <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-xl p-4 text-xs text-yellow-300">
@@ -194,7 +194,7 @@ import Footer from '../components/Footer.astro';
           </div>
         </div>
         <div class="flex gap-3 mt-6">
-          <button onclick="goToStep(3)" class="flex-1 border-2 border-white/[0.08] text-white/60 font-semibold py-3 rounded-xl hover:border-white/20 transition-colors">
+          <button onclick="goToStep(3)" class="flex-1 border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:border-gray-400 transition-colors">
             ← Back
           </button>
           <button onclick="submitListing()" id="submit-btn" class="flex-1 bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold py-3 rounded-xl transition-colors">
@@ -210,14 +210,14 @@ import Footer from '../components/Footer.astro';
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-white mb-2">Listing Submitted!</h2>
-        <p class="text-white/50 mb-2">Your property has been submitted for review.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Listing Submitted!</h2>
+        <p class="text-gray-500 mb-2">Your property has been submitted for review.</p>
         <p id="ref-number" class="text-sm font-semibold text-[#ea580c] mb-8"></p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <a href="/search" class="bg-[#ea580c] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#c2410c] transition-colors text-sm">
             Browse Properties
           </a>
-          <button onclick="window.location.reload()" class="border-2 border-white/[0.08] text-white/60 font-semibold px-6 py-3 rounded-xl hover:border-white/20 transition-colors text-sm">
+          <button onclick="window.location.reload()" class="border border-gray-200 text-gray-600 font-semibold px-6 py-3 rounded-xl hover:border-gray-400 transition-colors text-sm">
             Submit Another
           </button>
         </div>
@@ -238,11 +238,11 @@ import Footer from '../components/Footer.astro';
 
     document.querySelectorAll('.step-dot').forEach((dot: any, i) => {
       if (i + 1 === step) {
-        dot.classList.remove('bg-white/10', 'text-white/50');
+        dot.classList.remove('bg-gray-100', 'text-gray-400');
         dot.classList.add('bg-[#ea580c]', 'text-white');
       } else {
         dot.classList.remove('bg-[#ea580c]', 'text-white');
-        dot.classList.add('bg-white/10', 'text-white/50');
+        dot.classList.add('bg-gray-100', 'text-gray-400');
       }
     });
   }

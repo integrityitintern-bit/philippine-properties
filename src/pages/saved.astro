@@ -8,11 +8,11 @@ import { WP_API } from '../config.js';
 <Layout title="Saved Properties">
   <Navbar />
 
-  <section class="bg-[#0f0f0f] border-b border-white/[0.06] py-10">
+  <section class="bg-gray-50 border-b border-gray-200 py-10">
     <div class="max-w-6xl mx-auto px-4 flex items-center justify-between flex-wrap gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-white">Saved Properties</h1>
-        <p id="saved-count" class="text-white/40 text-sm mt-1">Loading...</p>
+        <h1 class="text-2xl font-bold text-gray-900">Saved Properties</h1>
+        <p id="saved-count" class="text-gray-400 text-sm mt-1">Loading...</p>
       </div>
       <a href="/search" class="text-sm text-[#ea580c] font-semibold hover:underline">Browse more →</a>
     </div>
@@ -22,11 +22,11 @@ import { WP_API } from '../config.js';
   <div id="loading-state" class="max-w-6xl mx-auto px-4 py-10">
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array(3).fill(0).map(() => (
-        <div class="bg-[#141414] rounded-xl border border-white/[0.06] overflow-hidden animate-pulse">
-          <div class="h-48 bg-white/10"></div>
+        <div class="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+          <div class="h-48 bg-gray-100"></div>
           <div class="p-4 space-y-3">
-            <div class="h-5 bg-white/10 rounded w-1/2"></div>
-            <div class="h-4 bg-white/10 rounded w-3/4"></div>
+            <div class="h-5 bg-gray-200 rounded w-1/2"></div>
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
           </div>
         </div>
       ))}
@@ -41,8 +41,8 @@ import { WP_API } from '../config.js';
   <!-- Empty state -->
   <div id="empty-state" class="hidden max-w-6xl mx-auto px-4 py-24 text-center">
     <p class="text-6xl mb-4 opacity-20">🏠</p>
-    <p class="text-white/50 text-lg font-medium">No saved properties yet</p>
-    <p class="text-white/30 text-sm mt-2 mb-8">Tap the ♡ heart icon on any listing to save it here</p>
+    <p class="text-gray-500 text-lg font-medium">No saved properties yet</p>
+    <p class="text-gray-400 text-sm mt-2 mb-8">Tap the ♡ heart icon on any listing to save it here</p>
     <a href="/search" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3 rounded-xl transition-colors">
       Browse Properties
     </a>
@@ -78,18 +78,18 @@ import { WP_API } from '../config.js';
         var price = acf.price ? '&#8369;' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
         var city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
         var badge = acf.listing_type === 'For Rent' ? 'bg-blue-500/90' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/90' : 'bg-[#ea580c]';
-        return '<div class="bg-[#141414] rounded-xl border border-white/[0.07] overflow-hidden hover:border-[#ea580c]/40 hover:shadow-xl hover:shadow-[#ea580c]/5 transition-all flex flex-col" data-id="' + p.id + '">' +
-          '<div class="relative h-48 overflow-hidden bg-[#1a1a1a]">' +
+        return '<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:border-[#ea580c]/40 hover:shadow-xl hover:shadow-[#ea580c]/5 transition-all flex flex-col" data-id="' + p.id + '">' +
+          '<div class="relative h-48 overflow-hidden bg-gray-100">' +
           (img ? '<img src="' + img + '" alt="' + (p.title && p.title.rendered || '') + '" class="w-full h-full object-cover" loading="lazy"/>' : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">&#127968;</div>') +
           (acf.listing_type ? '<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white ' + badge + '">' + acf.listing_type + '</span>' : '') +
-          '<button class="unsave-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-red-500/80 transition-colors" data-id="' + p.id + '" title="Remove from saved">' +
-          '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>' +
+          '<button class="unsave-btn absolute top-3 right-3 w-8 h-8 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-500/80 transition-colors" data-id="' + p.id + '" title="Remove from saved">' +
+          '<svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>' +
           '</button></div>' +
           '<div class="p-4 flex flex-col flex-1">' +
           '<p class="text-[#f97316] font-bold text-lg mb-1">' + price + '</p>' +
-          '<h3 class="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2">' + (p.title && p.title.rendered || '') + '</h3>' +
-          (city ? '<p class="text-white/40 text-xs mb-3">&#128205; ' + city + '</p>' : '') +
-          '<a href="/property/' + p.slug + '" class="mt-auto pt-3 border-t border-white/[0.06] text-[#ea580c] text-sm font-semibold hover:underline">View Details &#8594;</a>' +
+          '<h3 class="text-gray-700 font-semibold text-sm leading-snug mb-2 line-clamp-2 group-hover:text-gray-900">' + (p.title && p.title.rendered || '') + '</h3>' +
+          (city ? '<p class="text-gray-400 text-xs mb-3">&#128205; ' + city + '</p>' : '') +
+          '<a href="/property/' + p.slug + '" class="mt-auto pt-3 border-t border-gray-100 text-[#ea580c] text-sm font-semibold hover:underline">View Details &#8594;</a>' +
           '</div></div>';
       }).join('');
 

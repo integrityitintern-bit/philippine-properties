@@ -1,5 +1,4 @@
 ---
-const { transparent = false } = Astro.props;
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Buy & Rent', href: '/search' },
@@ -8,30 +7,28 @@ const navLinks = [
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
-const solidClass = 'bg-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-lg';
-const initClass = transparent ? 'bg-transparent' : solidClass;
 ---
 
-<nav id="main-nav" data-transparent={transparent} class={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${initClass}`}>
+<nav class="fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-100 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
     <!-- Logo -->
     <a href="/" class="flex items-center gap-3 hover:opacity-90 transition-opacity">
-      <span class="w-9 h-9 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+      <span class="w-9 h-9 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-[#ea580c]" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
         </svg>
       </span>
       <div>
-        <span class="text-white font-bold text-base sm:text-lg leading-none tracking-widest uppercase" style="font-family: 'Playfair Display', serif;">[YOUR BRAND]</span>
-        <span class="block text-[10px] sm:text-xs text-white/60 tracking-widest uppercase leading-none mt-0.5">Real Estate Portal</span>
+        <span class="text-gray-900 font-bold text-base sm:text-lg leading-none tracking-widest uppercase" style="font-family: 'Playfair Display', serif;">[YOUR BRAND]</span>
+        <span class="block text-[10px] sm:text-xs text-gray-400 tracking-widest uppercase leading-none mt-0.5">Real Estate Portal</span>
       </div>
     </a>
 
     <!-- Desktop Nav -->
-    <div class="hidden md:flex items-center gap-7 text-sm font-medium text-white/80 tracking-wide">
+    <div class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600 tracking-wide">
       {navLinks.map(link => (
-        <a href={link.href} class="hover:text-white transition-colors relative group">
+        <a href={link.href} class="hover:text-[#ea580c] transition-colors relative group">
           {link.label}
           <span class="absolute -bottom-1 left-0 w-0 h-px bg-[#ea580c] group-hover:w-full transition-all duration-300"></span>
         </a>
@@ -40,14 +37,14 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
 
     <!-- CTA -->
     <div class="flex items-center gap-2">
-      <a href="/list-property" class="hidden sm:inline text-sm font-semibold bg-[#ea580c] hover:bg-[#c2410c] text-white px-5 py-2.5 rounded-lg transition-colors shadow-lg whitespace-nowrap">
+      <a href="/list-property" class="hidden sm:inline text-sm font-semibold bg-[#ea580c] hover:bg-[#c2410c] text-white px-5 py-2.5 rounded-lg transition-colors shadow-sm whitespace-nowrap">
         + List Property
       </a>
-      <a href="/search" class="hidden sm:inline text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">
+      <a href="/search" class="hidden sm:inline text-sm font-medium border border-gray-200 hover:border-[#ea580c] hover:text-[#ea580c] text-gray-600 px-4 py-2.5 rounded-lg transition-colors">
         Search
       </a>
       <div id="nav-auth-area" class="hidden sm:flex items-center"></div>
-      <button id="mobile-menu-btn" class="md:hidden ml-1 text-white p-2">
+      <button id="mobile-menu-btn" class="md:hidden ml-1 text-gray-700 p-2">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
@@ -56,37 +53,23 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
   </div>
 
   <!-- Mobile Menu -->
-  <div id="mobile-menu" class="hidden md:hidden bg-gray-900/98 backdrop-blur-xl border-t border-white/10 px-4 py-4 space-y-1">
+  <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-1 shadow-lg">
     {navLinks.map(link => (
-      <a href={link.href} class="block text-white/80 hover:text-white py-2.5 text-sm font-medium border-b border-white/5">{link.label}</a>
+      <a href={link.href} class="block text-gray-700 hover:text-[#ea580c] py-2.5 text-sm font-medium border-b border-gray-50 transition-colors">{link.href === '/list-property' ? '' : link.label}</a>
     ))}
-    <a href="/list-property" class="block text-center bg-[#ea580c] text-white font-semibold py-3 rounded-lg text-sm mt-3">
+    <a href="/list-property" class="block text-center bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-3 rounded-lg text-sm mt-3 transition-colors">
       + List Property
     </a>
     <div id="mobile-auth-area" class="pt-2"></div>
   </div>
 </nav>
 
-{!transparent && <div class="h-16"></div>}
+<div class="h-16"></div>
 
 <script>
-  const nav = document.getElementById('main-nav') as HTMLElement;
   const btn = document.getElementById('mobile-menu-btn');
   const menu = document.getElementById('mobile-menu');
-  const isTransparent = nav?.dataset.transparent === 'true';
-
-  if (isTransparent) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 60) {
-        nav.className = nav.className.replace('bg-transparent', 'bg-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-lg');
-      } else {
-        nav.className = nav.className.replace('bg-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-lg', 'bg-transparent');
-      }
-    });
-  }
-
   btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
-
 </script>
 
 <script is:inline>
@@ -97,17 +80,17 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
     if (user) {
       var initial = (user.name || user.email)[0].toUpperCase();
       if (nav) nav.innerHTML =
-        '<a href="/dashboard" class="flex items-center gap-2 text-sm font-medium border border-white/40 hover:border-white text-white px-3 py-2 rounded-lg transition-colors">' +
-        '<span class="w-6 h-6 bg-[#ea580c] rounded-full flex items-center justify-center text-xs font-bold">' + initial + '</span>' +
+        '<a href="/dashboard" class="flex items-center gap-2 text-sm font-medium border border-gray-200 hover:border-[#ea580c] text-gray-700 hover:text-[#ea580c] px-3 py-2 rounded-lg transition-colors">' +
+        '<span class="w-6 h-6 bg-[#ea580c] rounded-full flex items-center justify-center text-xs font-bold text-white">' + initial + '</span>' +
         '<span>Account</span></a>';
       if (mob) mob.innerHTML =
-        '<a href="/dashboard" class="block text-white/80 hover:text-white py-2.5 text-sm font-medium border-b border-white/5">My Dashboard</a>' +
-        '<button onclick="window.ppAuth.logout()" class="block text-white/60 hover:text-white py-2.5 text-sm font-medium w-full text-left">Logout</button>';
+        '<a href="/dashboard" class="block text-gray-700 hover:text-[#ea580c] py-2.5 text-sm font-medium border-b border-gray-50">My Dashboard</a>' +
+        '<button onclick="window.ppAuth.logout()" class="block text-gray-500 hover:text-[#ea580c] py-2.5 text-sm font-medium w-full text-left">Logout</button>';
     } else {
       if (nav) nav.innerHTML =
-        '<a href="/login" class="text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">Login</a>';
+        '<a href="/login" class="text-sm font-medium border border-gray-200 hover:border-[#ea580c] hover:text-[#ea580c] text-gray-600 px-4 py-2.5 rounded-lg transition-colors">Login</a>';
       if (mob) mob.innerHTML =
-        '<a href="/login" class="block text-center bg-white/10 text-white font-semibold py-3 rounded-lg text-sm mt-2">Login / Register</a>';
+        '<a href="/login" class="block text-center bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-3 rounded-lg text-sm mt-2 transition-colors">Login / Register</a>';
     }
   })();
 </script>

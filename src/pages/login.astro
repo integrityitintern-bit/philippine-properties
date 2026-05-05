@@ -7,7 +7,7 @@ import Footer from '../components/Footer.astro';
 <Layout title="Sign In | Real Estate Portal">
   <Navbar />
 
-  <div class="min-h-screen bg-[#0f0f0f] flex items-center justify-center px-4 py-16">
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-16">
     <div class="w-full max-w-md">
 
       <!-- Logo -->
@@ -18,21 +18,21 @@ import Footer from '../components/Footer.astro';
               <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
             </svg>
           </span>
-          <span class="text-xl font-bold text-white">[YOUR BRAND]</span>
+          <span class="text-xl font-bold text-gray-900">[YOUR BRAND]</span>
         </a>
       </div>
 
       <!-- Card -->
-      <div class="bg-[#141414] rounded-2xl shadow-xl border border-white/[0.07] overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
 
         <!-- Tabs -->
-        <div class="flex border-b border-white/[0.06]">
+        <div class="flex border-b border-gray-100">
           <button id="tab-signin" onclick="showTab('signin')"
             class="flex-1 py-4 text-sm font-semibold text-[#ea580c] border-b-2 border-[#ea580c] transition-all">
             Sign In
           </button>
           <button id="tab-register" onclick="showTab('register')"
-            class="flex-1 py-4 text-sm font-semibold text-white/40 border-b-2 border-transparent transition-all">
+            class="flex-1 py-4 text-sm font-semibold text-gray-400 border-b-2 border-transparent transition-all">
             Create Account
           </button>
         </div>
@@ -41,7 +41,7 @@ import Footer from '../components/Footer.astro';
 
           <!-- Google Button -->
           <button onclick="signInWithGoogle()"
-            class="w-full flex items-center justify-center gap-3 border-2 border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] text-white/80 font-semibold py-3 rounded-xl transition-all mb-6">
+            class="w-full flex items-center justify-center gap-3 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl transition-all mb-6">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -53,9 +53,9 @@ import Footer from '../components/Footer.astro';
 
           <!-- Divider -->
           <div class="flex items-center gap-4 mb-6">
-            <div class="flex-1 h-px bg-white/10"></div>
-            <span class="text-xs text-white/40 font-medium">or continue with email</span>
-            <div class="flex-1 h-px bg-white/10"></div>
+            <div class="flex-1 h-px bg-gray-200"></div>
+            <span class="text-xs text-gray-400 font-medium">or continue with email</span>
+            <div class="flex-1 h-px bg-gray-200"></div>
           </div>
 
           <!-- Error -->
@@ -67,22 +67,22 @@ import Footer from '../components/Footer.astro';
           <form id="signin-form" onsubmit="handleSignIn(event)">
             <div class="space-y-4">
               <div>
-                <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Email Address</label>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email Address</label>
                 <input type="email" id="signin-email" required autocomplete="email"
-                  class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-white/[0.05] text-white placeholder-white/30"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-gray-50 text-gray-900 placeholder-gray-400"
                   placeholder="you@example.com"/>
               </div>
               <div>
                 <div class="flex items-center justify-between mb-1.5">
-                  <label class="block text-xs font-semibold text-white/50 uppercase tracking-wide">Password</label>
+                  <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Password</label>
                   <a href="#" class="text-xs text-[#ea580c] hover:underline">Forgot password?</a>
                 </div>
                 <div class="relative">
                   <input type="password" id="signin-password" required autocomplete="current-password"
-                    class="w-full px-4 py-3 pr-12 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-white/[0.05] text-white placeholder-white/30"
+                    class="w-full px-4 py-3 pr-12 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-gray-50 text-gray-900 placeholder-gray-400"
                     placeholder="Your password"/>
                   <button type="button" onclick="togglePass('signin-password',this)"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 p-1">
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
@@ -102,46 +102,46 @@ import Footer from '../components/Footer.astro';
 
               <!-- Account Type Selector -->
               <div>
-                <label class="block text-xs font-semibold text-white/50 mb-2 uppercase tracking-wide">I am a...</label>
+                <label class="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">I am a...</label>
                 <div class="grid grid-cols-2 gap-3">
                   <button type="button" id="role-buyer"
                     onclick="selectRole('buyer')"
                     class="role-btn selected flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-[#ea580c] bg-[#ea580c]/10 transition-all">
                     <span class="text-2xl">🔍</span>
-                    <span class="text-xs font-bold text-white">Buyer / Renter</span>
-                    <span class="text-[10px] text-white/50 text-center leading-tight">Looking for a property</span>
+                    <span class="text-xs font-bold text-gray-900">Buyer / Renter</span>
+                    <span class="text-[10px] text-gray-500 text-center leading-tight">Looking for a property</span>
                   </button>
                   <button type="button" id="role-lister"
                     onclick="selectRole('lister')"
-                    class="role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-white/[0.08] bg-white/[0.03] hover:border-white/20 transition-all">
+                    class="role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all">
                     <span class="text-2xl">🏢</span>
-                    <span class="text-xs font-bold text-white">Agent / Owner</span>
-                    <span class="text-[10px] text-white/50 text-center leading-tight">Listing a property</span>
+                    <span class="text-xs font-bold text-gray-900">Agent / Owner</span>
+                    <span class="text-[10px] text-gray-500 text-center leading-tight">Listing a property</span>
                   </button>
                 </div>
                 <input type="hidden" id="reg-role" value="buyer" />
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Full Name</label>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Full Name</label>
                 <input type="text" id="reg-name" required autocomplete="name"
-                  class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-white/[0.05] text-white placeholder-white/30"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-gray-50 text-gray-900 placeholder-gray-400"
                   placeholder="Juan dela Cruz"/>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Email Address</label>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email Address</label>
                 <input type="email" id="reg-email" required autocomplete="email"
-                  class="w-full px-4 py-3 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-white/[0.05] text-white placeholder-white/30"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-gray-50 text-gray-900 placeholder-gray-400"
                   placeholder="you@example.com"/>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Password</label>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Password</label>
                 <div class="relative">
                   <input type="password" id="reg-password" required oninput="checkStrength(this.value)" autocomplete="new-password"
-                    class="w-full px-4 py-3 pr-12 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-white/[0.05] text-white placeholder-white/30"
+                    class="w-full px-4 py-3 pr-12 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-gray-50 text-gray-900 placeholder-gray-400"
                     placeholder="Create a strong password"/>
                   <button type="button" onclick="togglePass('reg-password',this)"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 p-1">
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
@@ -150,37 +150,37 @@ import Footer from '../components/Footer.astro';
                 <!-- Strength bars -->
                 <div id="strength-wrap" class="hidden mt-2.5">
                   <div class="flex gap-1 mb-1.5">
-                    <div class="s-bar flex-1 h-1.5 rounded-full bg-white/10 transition-colors duration-300"></div>
-                    <div class="s-bar flex-1 h-1.5 rounded-full bg-white/10 transition-colors duration-300"></div>
-                    <div class="s-bar flex-1 h-1.5 rounded-full bg-white/10 transition-colors duration-300"></div>
-                    <div class="s-bar flex-1 h-1.5 rounded-full bg-white/10 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
                   </div>
-                  <p id="strength-text" class="text-xs font-semibold text-white/40"></p>
+                  <p id="strength-text" class="text-xs font-semibold text-gray-400"></p>
                 </div>
                 <!-- Requirements checklist -->
                 <ul class="mt-3 space-y-1.5">
-                  <li class="req flex items-center gap-2 text-xs text-white/40" data-rule="length">
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="length">
                     <span class="req-icon">○</span> At least 8 characters
                   </li>
-                  <li class="req flex items-center gap-2 text-xs text-white/40" data-rule="upper">
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="upper">
                     <span class="req-icon">○</span> One uppercase letter (A–Z)
                   </li>
-                  <li class="req flex items-center gap-2 text-xs text-white/40" data-rule="number">
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="number">
                     <span class="req-icon">○</span> One number (0–9)
                   </li>
-                  <li class="req flex items-center gap-2 text-xs text-white/40" data-rule="special">
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="special">
                     <span class="req-icon">○</span> One special character (!@#$...)
                   </li>
                 </ul>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Confirm Password</label>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Confirm Password</label>
                 <div class="relative">
                   <input type="password" id="reg-confirm" required autocomplete="new-password"
-                    class="w-full px-4 py-3 pr-12 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-white/[0.05] text-white placeholder-white/30"
+                    class="w-full px-4 py-3 pr-12 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all bg-gray-50 text-gray-900 placeholder-gray-400"
                     placeholder="Repeat your password"/>
                   <button type="button" onclick="togglePass('reg-confirm',this)"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 p-1">
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
@@ -197,13 +197,13 @@ import Footer from '../components/Footer.astro';
         </div>
       </div>
 
-      <p class="text-center text-xs text-white/40 mt-5">
+      <p class="text-center text-xs text-gray-400 mt-5">
         By continuing, you agree to our
         <a href="#" class="text-[#ea580c] hover:underline">Terms</a> &
         <a href="#" class="text-[#ea580c] hover:underline">Privacy Policy</a>
       </p>
       <div class="text-center mt-3">
-        <a href="/search" class="text-white/40 text-sm hover:text-white/60 transition-colors">← Continue browsing without an account</a>
+        <a href="/search" class="text-gray-400 text-sm hover:text-gray-600 transition-colors">← Continue browsing without an account</a>
       </div>
     </div>
   </div>
@@ -220,8 +220,8 @@ import Footer from '../components/Footer.astro';
     var isSignin = tab === 'signin';
     document.getElementById('signin-form').classList.toggle('hidden', !isSignin);
     document.getElementById('register-form').classList.toggle('hidden', isSignin);
-    document.getElementById('tab-signin').className = 'flex-1 py-4 text-sm font-semibold transition-all border-b-2 ' + (isSignin ? 'text-[#ea580c] border-[#ea580c]' : 'text-white/40 border-transparent');
-    document.getElementById('tab-register').className = 'flex-1 py-4 text-sm font-semibold transition-all border-b-2 ' + (!isSignin ? 'text-[#ea580c] border-[#ea580c]' : 'text-white/40 border-transparent');
+    document.getElementById('tab-signin').className = 'flex-1 py-4 text-sm font-semibold transition-all border-b-2 ' + (isSignin ? 'text-[#ea580c] border-[#ea580c]' : 'text-gray-400 border-transparent');
+    document.getElementById('tab-register').className = 'flex-1 py-4 text-sm font-semibold transition-all border-b-2 ' + (!isSignin ? 'text-[#ea580c] border-[#ea580c]' : 'text-gray-400 border-transparent');
     hideMessages();
   }
 
@@ -255,10 +255,10 @@ import Footer from '../components/Footer.astro';
     var lister = document.getElementById('role-lister');
     if (role === 'buyer') {
       buyer.className = 'role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-[#ea580c] bg-[#ea580c]/10 transition-all';
-      lister.className = 'role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-white/[0.08] bg-white/[0.03] hover:border-white/20 transition-all';
+      lister.className = 'role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all';
     } else {
       lister.className = 'role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-[#ea580c] bg-[#ea580c]/10 transition-all';
-      buyer.className = 'role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-white/[0.08] bg-white/[0.03] hover:border-white/20 transition-all';
+      buyer.className = 'role-btn flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all';
     }
   }
 
@@ -307,9 +307,9 @@ import Footer from '../components/Footer.astro';
     var score = Object.values(rules).filter(Boolean).length;
     var colors = ['#ef4444','#f97316','#eab308','#22c55e'];
     var labels = ['Weak','Fair','Good','Strong'];
-    bars.forEach(function(b, i) { b.style.backgroundColor = i < score ? colors[score-1] : 'rgba(255,255,255,0.1)'; });
+    bars.forEach(function(b, i) { b.style.backgroundColor = i < score ? colors[score-1] : '#e5e7eb'; });
     label.textContent = labels[score-1] || '';
-    label.style.color = colors[score-1] || 'rgba(255,255,255,0.4)';
+    label.style.color = colors[score-1] || '#9ca3af';
   }
 
   async function handleRegister(e) {

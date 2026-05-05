@@ -33,7 +33,7 @@ const title = property.title?.rendered || 'Property';
 const content = property.content?.rendered || '';
 const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
 const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
-const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-500/20 text-blue-300' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/20 text-purple-300' : 'bg-[#ea580c]/20 text-[#f97316]';
+const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-50 text-blue-600' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-[#ea580c]';
 const locationQuery = encodeURIComponent([acf.full_address, acf.location_city, acf.location_province, 'Philippines'].filter(Boolean).join(', '));
 const whatsappPhone = acf.agent_phone ? acf.agent_phone.replace(/\D/g, '').replace(/^0/, '63') : '';
 const whatsappMsg = encodeURIComponent(`Hi! I'm interested in this property: ${title} — ${price}`);
@@ -64,12 +64,12 @@ if (Array.isArray(acf.gallery)) {
   <div class="max-w-7xl mx-auto px-4 py-8">
 
     <!-- Breadcrumb -->
-    <nav class="text-xs text-white/50 mb-6 flex items-center gap-2">
+    <nav class="text-xs text-gray-400 mb-6 flex items-center gap-2">
       <a href="/" class="hover:text-[#ea580c]">Home</a>
       <span>›</span>
       <a href="/search" class="hover:text-[#ea580c]">Properties</a>
       <span>›</span>
-      <span class="text-white/80">{title}</span>
+      <span class="text-gray-700">{title}</span>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -79,7 +79,7 @@ if (Array.isArray(acf.gallery)) {
 
         <!-- Gallery -->
         <div class="mb-6">
-          <div class="rounded-2xl overflow-hidden bg-[#1a1a1a] h-72 md:h-[420px] relative group cursor-pointer"
+          <div class="rounded-2xl overflow-hidden bg-gray-100 h-72 md:h-[420px] relative group cursor-pointer"
                onclick="openLightbox(0)">
             {galleryImages.length > 0
               ? <img src={galleryImages[0]} alt={title} class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
@@ -106,7 +106,7 @@ if (Array.isArray(acf.gallery)) {
             <div class="grid grid-cols-5 gap-2 mt-2">
               {galleryImages.slice(0, 5).map((img, i) => (
                 <button
-                  class={`thumb-btn h-16 rounded-xl overflow-hidden border-2 transition-all ${i === 0 ? 'border-[#ea580c]' : 'border-transparent hover:border-white/30'}`}
+                  class={`thumb-btn h-16 rounded-xl overflow-hidden border-2 transition-all ${i === 0 ? 'border-[#ea580c]' : 'border-transparent hover:border-gray-300'}`}
                   data-idx={i}
                   onclick={`openLightbox(${i})`}
                 >
@@ -126,10 +126,10 @@ if (Array.isArray(acf.gallery)) {
           )}
           <div class="flex items-start justify-between gap-4 flex-wrap">
             <div class="flex-1">
-              <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">{title}</h1>
+              <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{title}</h1>
               <p class="text-3xl font-bold text-[#ea580c]">{price}</p>
               {(acf.location_city || acf.location_province) && (
-                <p class="text-white/50 text-sm mt-2">
+                <p class="text-gray-500 text-sm mt-2">
                   📍 {[acf.full_address, acf.location_city, acf.location_province].filter(Boolean).join(', ')}
                 </p>
               )}
@@ -137,7 +137,7 @@ if (Array.isArray(acf.gallery)) {
             <!-- Share buttons -->
             <div class="flex items-center gap-2 shrink-0 mt-1">
               <button id="share-copy" title="Copy link"
-                class="w-9 h-9 bg-[#1a1a1a] hover:bg-[#222222] rounded-xl flex items-center justify-center transition-colors text-white/60">
+                class="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors text-gray-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                 </svg>
@@ -153,7 +153,7 @@ if (Array.isArray(acf.gallery)) {
                 </svg>
               </a>
               <button onclick="window.print()" title="Print listing"
-                class="w-9 h-9 bg-[#1a1a1a] hover:bg-[#222222] rounded-xl flex items-center justify-center transition-colors text-white/60 print:hidden">
+                class="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors text-gray-500 print:hidden">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                 </svg>
@@ -163,47 +163,47 @@ if (Array.isArray(acf.gallery)) {
         </div>
 
         <!-- Details Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-[#0f0f0f] rounded-2xl mb-6">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-gray-50 border border-gray-100 rounded-2xl mb-6">
           {acf.bedrooms && (
             <div class="text-center">
               <p class="text-2xl mb-1">🛏</p>
-              <p class="text-lg font-bold text-white">{acf.bedrooms}</p>
-              <p class="text-xs text-white/50">Bedrooms</p>
+              <p class="text-lg font-bold text-gray-900">{acf.bedrooms}</p>
+              <p class="text-xs text-gray-500">Bedrooms</p>
             </div>
           )}
           {acf.bathrooms && (
             <div class="text-center">
               <p class="text-2xl mb-1">🚿</p>
-              <p class="text-lg font-bold text-white">{acf.bathrooms}</p>
-              <p class="text-xs text-white/50">Bathrooms</p>
+              <p class="text-lg font-bold text-gray-900">{acf.bathrooms}</p>
+              <p class="text-xs text-gray-500">Bathrooms</p>
             </div>
           )}
           {acf.floor_area && (
             <div class="text-center">
               <p class="text-2xl mb-1">📐</p>
-              <p class="text-lg font-bold text-white">{acf.floor_area}</p>
-              <p class="text-xs text-white/50">Floor Area m²</p>
+              <p class="text-lg font-bold text-gray-900">{acf.floor_area}</p>
+              <p class="text-xs text-gray-500">Floor Area m²</p>
             </div>
           )}
           {acf.lot_area && (
             <div class="text-center">
               <p class="text-2xl mb-1">🌿</p>
-              <p class="text-lg font-bold text-white">{acf.lot_area}</p>
-              <p class="text-xs text-white/50">Lot Area m²</p>
+              <p class="text-lg font-bold text-gray-900">{acf.lot_area}</p>
+              <p class="text-xs text-gray-500">Lot Area m²</p>
             </div>
           )}
         </div>
 
         <!-- Description -->
         {content && (
-          <div class="prose max-w-none text-white/80 text-sm leading-relaxed mb-8" set:html={content} />
+          <div class="prose max-w-none text-gray-700 text-sm leading-relaxed mb-8" set:html={content} />
         )}
 
         <!-- Map -->
         {(acf.location_city || acf.full_address) && (
           <div class="mb-8">
-            <h3 class="font-bold text-white mb-3">Location</h3>
-            <div class="rounded-2xl overflow-hidden border border-white/[0.08] h-64">
+            <h3 class="font-bold text-gray-900 mb-3">Location</h3>
+            <div class="rounded-2xl overflow-hidden border border-gray-200 h-64">
               <iframe
                 src={`https://maps.google.com/maps?q=${locationQuery}&output=embed&z=14`}
                 class="w-full h-full"
@@ -217,11 +217,11 @@ if (Array.isArray(acf.gallery)) {
 
         <!-- Related Properties -->
         <div id="related-section">
-          <h3 class="font-bold text-white mb-4">Similar Properties</h3>
+          <h3 class="font-bold text-gray-900 mb-4">Similar Properties</h3>
           <div id="related-grid" class="grid sm:grid-cols-3 gap-4">
-            <div class="h-40 bg-[#1a1a1a] rounded-xl animate-pulse"></div>
-            <div class="h-40 bg-[#1a1a1a] rounded-xl animate-pulse"></div>
-            <div class="h-40 bg-[#1a1a1a] rounded-xl animate-pulse"></div>
+            <div class="h-40 bg-gray-100 rounded-xl animate-pulse"></div>
+            <div class="h-40 bg-gray-100 rounded-xl animate-pulse"></div>
+            <div class="h-40 bg-gray-100 rounded-xl animate-pulse"></div>
           </div>
         </div>
 
@@ -229,8 +229,8 @@ if (Array.isArray(acf.gallery)) {
 
       <!-- Sidebar -->
       <div class="lg:col-span-1">
-        <div class="bg-[#141414] border border-white/[0.08] rounded-2xl p-6 sticky top-20">
-          <h3 class="font-bold text-white mb-4">Contact Agent</h3>
+        <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 sticky top-20">
+          <h3 class="font-bold text-gray-900 mb-4">Contact Agent</h3>
 
           {acf.agent_name && (
             <a href={`/agent/${acf.agent_name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}`}
@@ -239,8 +239,8 @@ if (Array.isArray(acf.gallery)) {
                 {acf.agent_name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p class="font-semibold text-white group-hover:text-[#ea580c] transition-colors">{acf.agent_name}</p>
-                <p class="text-xs text-white/50">View all listings →</p>
+                <p class="font-semibold text-gray-900 group-hover:text-[#ea580c] transition-colors">{acf.agent_name}</p>
+                <p class="text-xs text-gray-400">View all listings →</p>
               </div>
             </a>
           )}
@@ -264,31 +264,31 @@ if (Array.isArray(acf.gallery)) {
 
           {acf.agent_email && (
             <a href={`mailto:${acf.agent_email}?subject=Inquiry: ${title}`}
-              class="flex items-center justify-center gap-2 w-full bg-[#1a1a1a] hover:bg-[#222222] text-white/80 font-semibold py-3 px-4 rounded-xl text-sm transition-colors mb-6">
+              class="flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition-colors mb-6">
               ✉️ Send Email
             </a>
           )}
 
           <!-- Quick Inquiry -->
-          <div class="pt-4 border-t border-white/[0.06]">
-            <p class="text-sm font-semibold text-white/80 mb-3">Send a Message</p>
+          <div class="pt-4 border-t border-gray-100">
+            <p class="text-sm font-semibold text-gray-700 mb-3">Send a Message</p>
             <form id="inquiry-form" class="space-y-3">
               <input type="hidden" name="_subject" value={`Property Inquiry: ${title}`} />
               <input type="hidden" name="property" value={title} />
               <input type="text" name="name" placeholder="Your Name" required
-                class="w-full px-3 py-2.5 text-sm bg-white/[0.05] text-white placeholder-white/30 border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+                class="w-full px-3 py-2.5 text-sm bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
               />
               <input type="tel" name="phone" placeholder="Phone Number" required
-                class="w-full px-3 py-2.5 text-sm bg-white/[0.05] text-white placeholder-white/30 border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+                class="w-full px-3 py-2.5 text-sm bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
               />
               <textarea name="message" rows="3" placeholder="I'm interested in this property..."
-                class="w-full px-3 py-2.5 text-sm bg-white/[0.05] text-white placeholder-white/30 border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none"
+                class="w-full px-3 py-2.5 text-sm bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none"
               ></textarea>
               <button type="submit" id="inquiry-submit"
-                class="w-full bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold py-3 rounded-xl text-sm transition-colors">
+                class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3 rounded-xl text-sm transition-colors">
                 Send Inquiry
               </button>
-              <p id="inquiry-success" class="hidden text-green-400 text-xs text-center font-medium">
+              <p id="inquiry-success" class="hidden text-green-600 text-xs text-center font-medium">
                 ✅ Message sent! We'll contact you soon.
               </p>
             </form>
@@ -296,31 +296,31 @@ if (Array.isArray(acf.gallery)) {
         </div>
 
         <!-- Mortgage Calculator -->
-        <div class="bg-[#141414] border border-white/[0.08] rounded-2xl p-5 mt-4">
-          <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+        <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 mt-4">
+          <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
             🏦 Mortgage Calculator
           </h3>
           <div class="space-y-3">
             <div>
-              <label class="text-xs text-white/50 mb-1 block">Property Price</label>
+              <label class="text-xs text-gray-500 mb-1 block">Property Price</label>
               <input type="text" id="mc-price" readonly
-                class="w-full px-3 py-2 text-sm bg-white/[0.03] text-white/60 border border-white/[0.07] rounded-xl cursor-default" />
+                class="w-full px-3 py-2 text-sm bg-gray-50 text-gray-500 border border-gray-200 rounded-xl cursor-default" />
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs text-white/50 mb-1 block">Down Payment %</label>
+                <label class="text-xs text-gray-500 mb-1 block">Down Payment %</label>
                 <input type="number" id="mc-down" value="20" min="5" max="80"
-                  class="w-full px-3 py-2 text-sm bg-white/[0.05] text-white border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+                  class="w-full px-3 py-2 text-sm bg-white text-gray-900 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
               </div>
               <div>
-                <label class="text-xs text-white/50 mb-1 block">Interest Rate %</label>
+                <label class="text-xs text-gray-500 mb-1 block">Interest Rate %</label>
                 <input type="number" id="mc-rate" value="6.5" min="1" max="20" step="0.1"
-                  class="w-full px-3 py-2 text-sm bg-white/[0.05] text-white border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
+                  class="w-full px-3 py-2 text-sm bg-white text-gray-900 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]" />
               </div>
             </div>
             <div>
-              <label class="text-xs text-white/50 mb-1 block">Loan Term</label>
-              <select id="mc-term" class="w-full px-3 py-2 text-sm bg-[#1a1a1a] text-white border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]">
+              <label class="text-xs text-gray-500 mb-1 block">Loan Term</label>
+              <select id="mc-term" class="w-full px-3 py-2 text-sm bg-white text-gray-900 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]">
                 <option value="10">10 years</option>
                 <option value="15">15 years</option>
                 <option value="20" selected>20 years</option>
@@ -328,17 +328,17 @@ if (Array.isArray(acf.gallery)) {
                 <option value="30">30 years</option>
               </select>
             </div>
-            <div class="bg-[#ea580c]/10 border border-[#ea580c]/20 rounded-xl p-4 text-center">
-              <p class="text-xs text-white/40 mb-1">Est. Monthly Payment</p>
-              <p id="mc-result" class="text-2xl font-bold text-[#f97316]">—</p>
-              <p class="text-xs text-white/25 mt-1">Principal + Interest only</p>
+            <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center">
+              <p class="text-xs text-gray-500 mb-1">Est. Monthly Payment</p>
+              <p id="mc-result" class="text-2xl font-bold text-[#ea580c]">—</p>
+              <p class="text-xs text-gray-400 mt-1">Principal + Interest only</p>
             </div>
           </div>
         </div>
 
         <!-- Recently Viewed -->
-        <div id="recently-viewed-section" class="bg-[#141414] border border-white/[0.08] rounded-2xl p-5 mt-4 hidden">
-          <h3 class="font-bold text-white mb-3 text-sm">Recently Viewed</h3>
+        <div id="recently-viewed-section" class="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 mt-4 hidden">
+          <h3 class="font-bold text-gray-900 mb-3 text-sm">Recently Viewed</h3>
           <div id="recently-viewed-list" class="space-y-2"></div>
         </div>
 
@@ -491,13 +491,13 @@ if (Array.isArray(acf.gallery)) {
       grid.innerHTML = related.map(p => {
         const img = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
         const pr = p.acf?.price ? '₱' + Number(p.acf.price).toLocaleString('en-PH') : 'Price on Request';
-        return `<a href="/property/${p.slug}" class="group bg-[#141414] rounded-xl border border-white/[0.08] overflow-hidden hover:shadow-md transition-shadow">
-          <div class="h-32 bg-[#1a1a1a] overflow-hidden">
-            ${img ? `<img src="${img}" alt="${p.title?.rendered}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-3xl">🏠</div>'}
+        return `<a href="/property/${p.slug}" class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+          <div class="h-32 bg-gray-100 overflow-hidden">
+            ${img ? `<img src="${img}" alt="${p.title?.rendered}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-3xl opacity-30">🏠</div>'}
           </div>
           <div class="p-3">
             <p class="text-[#ea580c] font-bold text-sm">${pr}</p>
-            <p class="text-white/80 text-xs font-medium mt-1 line-clamp-2">${p.title?.rendered || ''}</p>
+            <p class="text-gray-700 text-xs font-medium mt-1 line-clamp-2">${p.title?.rendered || ''}</p>
           </div>
         </a>`;
       }).join('');
@@ -537,13 +537,13 @@ if (Array.isArray(acf.gallery)) {
     var rvList = document.getElementById('recently-viewed-list');
     if (prev.length > 0 && rvSection && rvList) {
       rvList.innerHTML = prev.map(function(v) {
-        return '<a href="/property/' + v.slug + '" class="flex gap-3 items-center group hover:bg-white/[0.03] -mx-2 px-2 py-1.5 rounded-lg transition-colors">' +
-          '<div class="w-14 h-12 rounded-lg overflow-hidden bg-[#1a1a1a] shrink-0">' +
+        return '<a href="/property/' + v.slug + '" class="flex gap-3 items-center group hover:bg-gray-50 -mx-2 px-2 py-1.5 rounded-lg transition-colors">' +
+          '<div class="w-14 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">' +
           (v.image ? '<img src="' + v.image + '" class="w-full h-full object-cover" loading="lazy"/>' : '<div class="w-full h-full flex items-center justify-center text-lg opacity-30">🏠</div>') +
           '</div>' +
           '<div class="min-w-0">' +
-          '<p class="text-xs text-[#f97316] font-semibold">' + v.price + '</p>' +
-          '<p class="text-xs text-white/60 font-medium truncate group-hover:text-white transition-colors">' + v.title + '</p>' +
+          '<p class="text-xs text-[#ea580c] font-semibold">' + v.price + '</p>' +
+          '<p class="text-xs text-gray-600 font-medium truncate group-hover:text-gray-900 transition-colors">' + v.title + '</p>' +
           '</div></a>';
       }).join('');
       rvSection.classList.remove('hidden');

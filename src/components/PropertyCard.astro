@@ -16,8 +16,8 @@ const badgeColor = listingType === 'For Rent'
 const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
 ---
 
-<a href={`/property/${slug}`} class="group bg-[#141414] rounded-2xl overflow-hidden border border-white/[0.07] hover:border-[#ea580c]/40 hover:shadow-xl hover:shadow-[#ea580c]/5 transition-all duration-300 flex flex-col card-enter">
-  <div class="relative h-48 overflow-hidden bg-[#1a1a1a]">
+<a href={`/property/${slug}`} class="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-[#ea580c]/40 hover:shadow-lg transition-all duration-300 flex flex-col card-enter shadow-sm">
+  <div class="relative h-48 overflow-hidden bg-gray-100">
     {image
       ? <img src={image} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       : <div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>
@@ -35,11 +35,11 @@ const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 6
       )}
     </div>
     <button
-      class="save-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-black/70 transition-colors"
+      class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
       data-id={propertyId}
       aria-label="Save property"
     >
-      <svg class="save-icon w-4 h-4 text-white/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <svg class="save-icon w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
       </svg>
     </button>
@@ -47,21 +47,21 @@ const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 6
 
   <div class="p-4 flex flex-col flex-1">
     <p class="text-[#f97316] font-bold text-lg leading-tight mb-1">{price}</p>
-    <h3 class="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2">{title}</h3>
+    <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-2 line-clamp-2">{title}</h3>
     {city && (
-      <p class="text-white/40 text-xs mb-3 flex items-center gap-1">
+      <p class="text-gray-400 text-xs mb-3 flex items-center gap-1">
         <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
         </svg>
         {city}
       </p>
     )}
-    <div class="flex items-center gap-3 text-white/40 text-xs mt-auto pt-3 border-t border-white/[0.06]">
+    <div class="flex items-center gap-3 text-gray-400 text-xs mt-auto pt-3 border-t border-gray-100">
       {acf.bedrooms && <span>🛏 {acf.bedrooms}</span>}
       {acf.bathrooms && <span>🚿 {acf.bathrooms}</span>}
       {acf.floor_area && <span>📐 {acf.floor_area}m²</span>}
       {acf.property_type && (
-        <span class="ml-auto capitalize text-[10px] bg-white/[0.06] text-white/50 px-2 py-0.5 rounded-full">{acf.property_type}</span>
+        <span class="ml-auto capitalize text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{acf.property_type}</span>
       )}
     </div>
   </div>

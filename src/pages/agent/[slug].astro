@@ -37,9 +37,9 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
   <Navbar />
 
   <!-- Agent Header -->
-  <section class="bg-[#0f0f0f] border-b border-white/[0.06] py-12">
+  <section class="bg-gray-50 border-b border-gray-200 py-12">
     <div class="max-w-5xl mx-auto px-4">
-      <a href="/agents" class="text-xs text-white/40 hover:text-[#ea580c] transition-colors mb-6 inline-flex items-center gap-1">
+      <a href="/agents" class="text-xs text-gray-400 hover:text-[#ea580c] transition-colors mb-6 inline-flex items-center gap-1">
         ← All Agents
       </a>
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mt-4">
@@ -47,8 +47,8 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
           {agent.name[0].toUpperCase()}
         </div>
         <div class="flex-1 min-w-0">
-          <h1 class="text-2xl md:text-3xl font-bold text-white">{agent.name}</h1>
-          <p class="text-white/40 text-sm mt-1">Integrity Real Estate Agent · {agent.listings.length} listing{agent.listings.length !== 1 ? 's' : ''}</p>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{agent.name}</h1>
+          <p class="text-gray-400 text-sm mt-1">Integrity Real Estate Agent · {agent.listings.length} listing{agent.listings.length !== 1 ? 's' : ''}</p>
           <div class="flex flex-wrap gap-3 mt-4">
             {agent.phone && (
               <a href={`tel:${agent.phone}`}
@@ -67,7 +67,7 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
             )}
             {agent.email && (
               <a href={`mailto:${agent.email}`}
-                class="inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#222222] text-white/80 font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors border border-white/[0.08]">
+                class="inline-flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors border border-gray-200">
                 ✉️ {agent.email}
               </a>
             )}
@@ -79,9 +79,9 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
 
   <!-- Listings -->
   <section class="max-w-6xl mx-auto px-4 py-12">
-    <h2 class="text-xl font-bold text-white mb-6">
+    <h2 class="text-xl font-bold text-gray-900 mb-6">
       Properties by {agent.name}
-      <span class="text-white/30 font-normal text-base ml-2">({agent.listings.length})</span>
+      <span class="text-gray-400 font-normal text-base ml-2">({agent.listings.length})</span>
     </h2>
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,8 +94,8 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
         const isNew = (Date.now() - new Date(p.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
         return (
           <a href={`/property/${p.slug}`}
-            class="group bg-[#141414] rounded-2xl overflow-hidden border border-white/[0.07] hover:border-[#ea580c]/40 hover:shadow-xl hover:shadow-[#ea580c]/5 transition-all flex flex-col card-enter">
-            <div class="relative h-48 overflow-hidden bg-[#1a1a1a]">
+            class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:border-[#ea580c]/40 hover:shadow-md transition-all flex flex-col card-enter">
+            <div class="relative h-48 overflow-hidden bg-gray-50">
               {img
                 ? <img src={img} alt={p.title?.rendered} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                 : <div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>
@@ -115,14 +115,14 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
             </div>
             <div class="p-4 flex flex-col flex-1">
               <p class="text-[#f97316] font-bold text-lg mb-1">{price}</p>
-              <h3 class="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2">{p.title?.rendered}</h3>
-              {city && <p class="text-white/40 text-xs mb-3">📍 {city}</p>}
-              <div class="flex items-center gap-3 text-white/40 text-xs mt-auto pt-3 border-t border-white/[0.06]">
+              <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-2 line-clamp-2">{p.title?.rendered}</h3>
+              {city && <p class="text-gray-400 text-xs mb-3">📍 {city}</p>}
+              <div class="flex items-center gap-3 text-gray-400 text-xs mt-auto pt-3 border-t border-gray-100">
                 {acf.bedrooms && <span>🛏 {acf.bedrooms}</span>}
                 {acf.bathrooms && <span>🚿 {acf.bathrooms}</span>}
                 {acf.floor_area && <span>📐 {acf.floor_area}m²</span>}
                 {acf.property_type && (
-                  <span class="ml-auto capitalize text-[10px] bg-white/[0.06] text-white/50 px-2 py-0.5 rounded-full">{acf.property_type}</span>
+                  <span class="ml-auto capitalize text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{acf.property_type}</span>
                 )}
               </div>
             </div>

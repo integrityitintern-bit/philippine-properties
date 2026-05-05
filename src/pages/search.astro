@@ -10,23 +10,23 @@ import { WP_API } from '../config.js';
 
   <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-white">Search Properties</h1>
-      <p class="text-white/50 text-sm mt-1">Find your perfect home, condo, or investment property</p>
+      <h1 class="text-2xl font-bold text-gray-900">Search Properties</h1>
+      <p class="text-gray-500 text-sm mt-1">Find your perfect home, condo, or investment property</p>
     </div>
 
     <!-- Filters -->
-    <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-4 mb-8 space-y-3">
+    <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-4 mb-8 space-y-3">
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         <input id="filter-city" type="text" placeholder="City or Area"
-          class="col-span-2 sm:col-span-1 px-4 py-2.5 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white/[0.05] text-white placeholder-white/30"
+          class="col-span-2 sm:col-span-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
         />
-        <select id="filter-listing-type" class="px-4 py-2.5 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+        <select id="filter-listing-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
           <option value="">All Types</option>
           <option value="For Sale">For Sale</option>
           <option value="For Rent">For Rent</option>
           <option value="Pre-Selling">Pre-Selling</option>
         </select>
-        <select id="filter-property-type" class="px-4 py-2.5 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+        <select id="filter-property-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
           <option value="">All Properties</option>
           <option value="House & Lot">House &amp; Lot</option>
           <option value="Condo">Condo</option>
@@ -39,7 +39,7 @@ import { WP_API } from '../config.js';
           <option value="Commercial">Commercial</option>
           <option value="Warehouse">Warehouse</option>
         </select>
-        <select id="filter-bedrooms" class="px-4 py-2.5 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+        <select id="filter-bedrooms" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
           <option value="">Any Beds</option>
           <option value="1">1+ Bed</option>
           <option value="2">2+ Beds</option>
@@ -51,8 +51,8 @@ import { WP_API } from '../config.js';
         </button>
       </div>
       <div class="flex flex-wrap items-center gap-3 pt-1">
-        <span class="text-xs font-medium text-white/50">Price Range:</span>
-        <select id="filter-price-min" class="px-3 py-2 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+        <span class="text-xs font-medium text-gray-500">Price Range:</span>
+        <select id="filter-price-min" class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
           <option value="">No Min</option>
           <option value="500000">₱500K</option>
           <option value="1000000">₱1M</option>
@@ -61,8 +61,8 @@ import { WP_API } from '../config.js';
           <option value="10000000">₱10M</option>
           <option value="20000000">₱20M</option>
         </select>
-        <span class="text-white/40 text-sm">–</span>
-        <select id="filter-price-max" class="px-3 py-2 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+        <span class="text-gray-400 text-sm">–</span>
+        <select id="filter-price-max" class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
           <option value="">No Max</option>
           <option value="1000000">₱1M</option>
           <option value="2000000">₱2M</option>
@@ -71,15 +71,15 @@ import { WP_API } from '../config.js';
           <option value="20000000">₱20M</option>
           <option value="50000000">₱50M</option>
         </select>
-        <button id="clear-filters" class="text-xs text-white/40 hover:text-[#ea580c] transition-colors underline ml-auto">
+        <button id="clear-filters" class="text-xs text-gray-400 hover:text-[#ea580c] transition-colors underline ml-auto">
           Clear all filters
         </button>
       </div>
     </div>
 
     <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
-      <p id="results-count" class="text-sm text-white/50"></p>
-      <select id="sort-select" class="px-3 py-2 text-sm border border-white/[0.1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-[#1a1a1a] text-white">
+      <p id="results-count" class="text-sm text-gray-500"></p>
+      <select id="sort-select" class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
         <option value="newest">Newest First</option>
         <option value="price_asc">Price: Low → High</option>
         <option value="price_desc">Price: High → Low</option>
@@ -89,12 +89,12 @@ import { WP_API } from '../config.js';
     <!-- Loading Skeletons -->
     <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array(6).fill(0).map(() => (
-        <div class="bg-[#141414] rounded-xl overflow-hidden shadow-sm border border-white/[0.06]">
-          <div class="skeleton h-48 bg-white/10"></div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+          <div class="skeleton h-48 bg-gray-100"></div>
           <div class="p-4 space-y-3">
-            <div class="skeleton h-5 bg-white/10 rounded w-1/2"></div>
-            <div class="skeleton h-4 bg-white/10 rounded w-3/4"></div>
-            <div class="skeleton h-3 bg-white/10 rounded w-1/3"></div>
+            <div class="skeleton h-5 bg-gray-100 rounded w-1/2"></div>
+            <div class="skeleton h-4 bg-gray-100 rounded w-3/4"></div>
+            <div class="skeleton h-3 bg-gray-100 rounded w-1/3"></div>
           </div>
         </div>
       ))}
@@ -106,15 +106,15 @@ import { WP_API } from '../config.js';
     <!-- No Results -->
     <div id="no-results" class="hidden text-center py-16">
       <p class="text-5xl mb-4">🏠</p>
-      <p class="text-white/50 text-lg font-medium">No properties found</p>
-      <p class="text-white/40 text-sm mt-1">Try adjusting your filters</p>
+      <p class="text-gray-500 text-lg font-medium">No properties found</p>
+      <p class="text-gray-400 text-sm mt-1">Try adjusting your filters</p>
       <a href="/list-property" class="mt-6 inline-block bg-[#ea580c] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#c2410c] transition-colors">
         + List a Property
       </a>
     </div>
 
     <div class="text-center mt-10">
-      <button id="load-more-btn" class="hidden bg-[#141414] border-2 border-[#ea580c] text-[#ea580c] font-semibold px-8 py-3 rounded-xl hover:bg-[#ea580c] hover:text-white transition-colors">
+      <button id="load-more-btn" class="hidden bg-white border-2 border-[#ea580c] text-[#ea580c] font-semibold px-8 py-3 rounded-xl hover:bg-[#ea580c] hover:text-white transition-colors">
         Load More Properties
       </button>
     </div>
@@ -195,14 +195,14 @@ import { WP_API } from '../config.js';
     const heartFill = saved ? '#ea580c' : 'none';
     const heartStroke = saved ? '#ea580c' : 'currentColor';
     return `
-      <a href="/property/${p.slug}" class="group bg-[#141414] rounded-xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-white/[0.06] flex flex-col card-enter">
-        <div class="relative h-48 overflow-hidden bg-white/[0.05]">
+      <a href="/property/${p.slug}" class="group bg-white rounded-xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-gray-100 flex flex-col card-enter">
+        <div class="relative h-48 overflow-hidden bg-gray-50">
           ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
           <div class="absolute top-3 left-3 flex flex-col gap-1.5">
             ${acf.listing_type ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
             ${isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : ''}
           </div>
-          <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-black/70 transition-colors" data-id="${p.id}" aria-label="Save property">
+          <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" data-id="${p.id}" aria-label="Save property">
             <svg class="save-icon w-4 h-4" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
@@ -210,13 +210,13 @@ import { WP_API } from '../config.js';
         </div>
         <div class="p-4 flex flex-col flex-1">
           <p class="text-[#ea580c] font-bold text-lg leading-tight mb-1">${price}</p>
-          <h3 class="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2">${title}</h3>
-          ${city ? `<p class="text-white/40 text-xs mb-3 flex items-center gap-1"><svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>${city}</p>` : ''}
-          <div class="flex items-center gap-3 text-white/40 text-xs mt-auto pt-3 border-t border-white/[0.06]">
+          <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-2 line-clamp-2">${title}</h3>
+          ${city ? `<p class="text-gray-400 text-xs mb-3 flex items-center gap-1"><svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>${city}</p>` : ''}
+          <div class="flex items-center gap-3 text-gray-400 text-xs mt-auto pt-3 border-t border-gray-100">
             ${acf.bedrooms ? `<span>🛏 ${acf.bedrooms}</span>` : ''}
             ${acf.bathrooms ? `<span>🚿 ${acf.bathrooms}</span>` : ''}
             ${acf.floor_area ? `<span>📐 ${acf.floor_area} m²</span>` : ''}
-            ${acf.property_type ? `<span class="ml-auto capitalize text-[10px] bg-white/[0.08] px-2 py-0.5 rounded-full">${acf.property_type}</span>` : ''}
+            ${acf.property_type ? `<span class="ml-auto capitalize text-[10px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">${acf.property_type}</span>` : ''}
           </div>
         </div>
       </a>`;
