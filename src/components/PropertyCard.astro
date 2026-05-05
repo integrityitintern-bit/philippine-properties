@@ -13,6 +13,7 @@ const badgeColor = listingType === 'For Rent'
   : listingType === 'Pre-Selling'
   ? 'bg-purple-500/90'
   : 'bg-[#ea580c]';
+const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
 ---
 
 <a href={`/property/${slug}`} class="group bg-[#141414] rounded-2xl overflow-hidden border border-white/[0.07] hover:border-[#ea580c]/40 hover:shadow-xl hover:shadow-[#ea580c]/5 transition-all duration-300 flex flex-col card-enter">
@@ -21,11 +22,18 @@ const badgeColor = listingType === 'For Rent'
       ? <img src={image} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       : <div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>
     }
-    {listingType && (
-      <span class={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badgeColor}`}>
-        {listingType}
-      </span>
-    )}
+    <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+      {listingType && (
+        <span class={`text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badgeColor} w-fit`}>
+          {listingType}
+        </span>
+      )}
+      {isNew && (
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider w-fit">
+          New
+        </span>
+      )}
+    </div>
     <button
       class="save-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-black/70 transition-colors"
       data-id={propertyId}

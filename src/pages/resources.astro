@@ -24,10 +24,21 @@ try {
 
   <!-- Topics -->
   <section class="py-8 border-b border-white/[0.06]">
-    <div class="max-w-5xl mx-auto px-4 flex flex-wrap gap-2 justify-center">
-      {['All Topics', 'Buying Guide', 'Renting Tips', 'Market Insights', 'OFW Investors', 'First-Time Buyers', 'Condo Living'].map(tag => (
-        <button class="px-4 py-2 text-sm rounded-full border border-white/[0.08] text-white/60 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors">
-          {tag}
+    <div class="max-w-5xl mx-auto px-4 flex flex-wrap gap-2 justify-center" id="topic-pills">
+      {[
+        { label: 'All Topics', filter: '' },
+        { label: 'Buying Guide', filter: 'buying guide' },
+        { label: 'Renting Tips', filter: 'renting rent' },
+        { label: 'Market Insights', filter: 'market insights' },
+        { label: 'OFW Investors', filter: 'ofw investor overseas' },
+        { label: 'First-Time Buyers', filter: 'first-time first time buyer' },
+        { label: 'Condo Living', filter: 'condo living' },
+      ].map((t, i) => (
+        <button
+          class={`topic-pill px-4 py-2 text-sm rounded-full border transition-colors ${i === 0 ? 'border-[#ea580c] text-[#ea580c] bg-[#ea580c]/10' : 'border-white/[0.08] text-white/60 hover:border-[#ea580c] hover:text-[#ea580c]'}`}
+          data-filter={t.filter}
+        >
+          {t.label}
         </button>
       ))}
     </div>
@@ -36,13 +47,14 @@ try {
   <!-- Articles -->
   <section class="py-16 max-w-6xl mx-auto px-4">
     {posts.length > 0 ? (
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="articles-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post: any) => {
           const image = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
           const excerpt = post.excerpt?.rendered?.replace(/<[^>]*>/g, '').slice(0, 120) + '...' || '';
           const date = new Date(post.date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+          const cats = (post._embedded?.['wp:term']?.[0] || []).map((c: any) => c.name).join(',').toLowerCase();
           return (
-            <article class="bg-[#141414] rounded-xl overflow-hidden border border-white/[0.06] hover:shadow-md transition-shadow group">
+            <article class="article-card bg-[#141414] rounded-xl overflow-hidden border border-white/[0.06] hover:shadow-md transition-shadow group" data-categories={cats}>
               <div class="h-48 bg-[#1a1a1a] overflow-hidden">
                 {image
                   ? <img src={image} alt={post.title?.rendered} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
@@ -63,22 +75,25 @@ try {
       </div>
     ) : (
       <!-- Static guide cards when no WP posts -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="articles-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
-          { icon: '🏠', title: 'First-Time Buyer\'s Complete Guide', desc: 'Everything you need to know before buying your first property in the Philippines — from financing to turnover.', tag: 'Buying Guide' },
+          { icon: '🏠', title: "First-Time Buyer's Complete Guide", desc: 'Everything you need to know before buying your first property in the Philippines — from financing to turnover.', tag: 'Buying Guide' },
           { icon: '📋', title: 'How to Rent a Property in the Philippines', desc: 'Step-by-step guide to renting safely — what to check in a lease contract, red flags, and tenant rights.', tag: 'Renting Tips' },
           { icon: '💰', title: 'Understanding Pag-IBIG Housing Loans', desc: 'A complete breakdown of Pag-IBIG Fund housing loan requirements, rates, and how to apply.', tag: 'Financing' },
           { icon: '🌏', title: 'OFW Real Estate Investment Guide', desc: 'How overseas Filipino workers can invest in Philippine real estate — legally, safely, and profitably.', tag: 'OFW Investors' },
           { icon: '📊', title: 'Philippine Real Estate Market 2026', desc: 'Key trends shaping the property market this year — rising condo demand, provincial growth, and more.', tag: 'Market Insights' },
           { icon: '🏢', title: 'Condo vs House: Which is Right for You?', desc: 'A practical comparison to help you decide between buying a condo or a house based on your lifestyle and budget.', tag: 'Buying Guide' },
         ].map(article => (
-          <article class="bg-[#141414] rounded-xl overflow-hidden border border-white/[0.06] hover:shadow-md transition-shadow p-6">
+          <article class="article-card bg-[#141414] rounded-xl overflow-hidden border border-white/[0.06] hover:shadow-md transition-shadow p-6" data-categories={article.tag.toLowerCase()}>
             <span class="text-3xl">{article.icon}</span>
-            <span class="inline-block mt-3 text-[10px] font-bold text-[#ea580c] bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wide">{article.tag}</span>
+            <span class="inline-block mt-3 text-[10px] font-bold text-[#ea580c] bg-[#ea580c]/10 px-2.5 py-0.5 rounded-full uppercase tracking-wide">{article.tag}</span>
             <h3 class="font-bold text-white mt-2 mb-2 leading-snug">{article.title}</h3>
             <p class="text-white/50 text-sm leading-relaxed">{article.desc}</p>
           </article>
         ))}
+      </div>
+      <div id="no-articles" class="hidden text-center py-16">
+        <p class="text-white/40">No articles in this category yet.</p>
       </div>
     )}
   </section>
@@ -173,6 +188,34 @@ try {
 
   <Footer />
 </Layout>
+
+<script is:inline>
+  document.querySelectorAll('.topic-pill').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var filter = btn.dataset.filter.toLowerCase();
+      document.querySelectorAll('.topic-pill').forEach(function(b) {
+        b.className = b.className
+          .replace('border-[#ea580c] text-[#ea580c] bg-[#ea580c]/10', '')
+          .replace('border-white/[0.08] text-white/60', '')
+          .trim() + ' border-white/[0.08] text-white/60';
+      });
+      btn.className = btn.className
+        .replace('border-white/[0.08] text-white/60', '')
+        .trim() + ' border-[#ea580c] text-[#ea580c] bg-[#ea580c]/10';
+
+      var cards = document.querySelectorAll('.article-card');
+      var visible = 0;
+      cards.forEach(function(card) {
+        var cats = (card.dataset.categories || '').toLowerCase();
+        var show = !filter || filter.split(' ').some(function(kw) { return cats.includes(kw); });
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      var noArticles = document.getElementById('no-articles');
+      if (noArticles) noArticles.style.display = visible === 0 ? 'block' : 'none';
+    });
+  });
+</script>
 
 <script>
   function fmt(n: number) {

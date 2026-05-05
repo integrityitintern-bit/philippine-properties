@@ -175,6 +175,7 @@ import { WP_API } from '../config.js';
     const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
     const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
     const badge = acf.listing_type === 'For Rent' ? 'bg-blue-500/90' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/90' : 'bg-[#ea580c]';
+    const isNew = (Date.now() - new Date(p.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
     const saved = getSaved().includes(p.id);
     const heartFill = saved ? '#ea580c' : 'none';
     const heartStroke = saved ? '#ea580c' : 'currentColor';
@@ -182,7 +183,10 @@ import { WP_API } from '../config.js';
       <a href="/property/${p.slug}" class="group bg-[#141414] rounded-xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-white/[0.06] flex flex-col card-enter">
         <div class="relative h-48 overflow-hidden bg-white/[0.05]">
           ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
-          ${acf.listing_type ? `<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
+          <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+            ${acf.listing_type ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
+            ${isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : ''}
+          </div>
           <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-black/70 transition-colors" data-id="${p.id}" aria-label="Save property">
             <svg class="save-icon w-4 h-4" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>

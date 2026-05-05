@@ -33,11 +33,21 @@ const title = property.title?.rendered || 'Property';
 const content = property.content?.rendered || '';
 const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
 const price = acf.price ? '‚Ç±' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
-const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700' : acf.listing_type === 'Pre-Selling' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-[#ea580c]';
+const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-500/20 text-blue-300' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/20 text-purple-300' : 'bg-[#ea580c]/20 text-[#f97316]';
 const locationQuery = encodeURIComponent([acf.address, acf.location_city, acf.location_province, 'Philippines'].filter(Boolean).join(', '));
 const whatsappPhone = acf.agent_phone ? acf.agent_phone.replace(/\D/g, '').replace(/^0/, '63') : '';
 const whatsappMsg = encodeURIComponent(`Hi! I'm interested in this property: ${title} ‚Äî ${price}`);
 const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} ‚Äî ${title} in ${acf.location_city || 'Philippines'}`;
+
+// Build gallery array: featured image first, then ACF gallery field
+const galleryImages: string[] = [];
+if (image) galleryImages.push(image);
+if (Array.isArray(acf.gallery)) {
+  acf.gallery.forEach((img: any) => {
+    const url = typeof img === 'string' ? img : (img?.url || img?.sizes?.large || '');
+    if (url && url !== image) galleryImages.push(url);
+  });
+}
 ---
 
 <Layout title={title} description={description} ogImage={image || '/hero-bg.jpg'} ogType="article">
@@ -59,12 +69,44 @@ const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} ‚
       <!-- Main -->
       <div class="lg:col-span-2">
 
-        <!-- Image -->
-        <div class="rounded-2xl overflow-hidden bg-[#1a1a1a] mb-6 h-72 md:h-96">
-          {image
-            ? <img src={image} alt={title} class="w-full h-full object-cover" />
-            : <div class="w-full h-full flex items-center justify-center text-6xl">üè†</div>
-          }
+        <!-- Gallery -->
+        <div class="mb-6">
+          <div class="rounded-2xl overflow-hidden bg-[#1a1a1a] h-72 md:h-[420px] relative group cursor-pointer"
+               onclick="openLightbox(0)">
+            {galleryImages.length > 0
+              ? <img src={galleryImages[0]} alt={title} class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+              : <div class="w-full h-full flex items-center justify-center text-6xl opacity-20">üè†</div>
+            }
+            {galleryImages.length > 1 && (
+              <div class="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full pointer-events-none">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                {galleryImages.length} photos
+              </div>
+            )}
+            {galleryImages.length > 0 && (
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 backdrop-blur-sm rounded-full px-5 py-2 text-white text-sm font-semibold">
+                  View Photos
+                </span>
+              </div>
+            )}
+          </div>
+
+          {galleryImages.length > 1 && (
+            <div class="grid grid-cols-5 gap-2 mt-2">
+              {galleryImages.slice(0, 5).map((img, i) => (
+                <button
+                  class={`thumb-btn h-16 rounded-xl overflow-hidden border-2 transition-all ${i === 0 ? 'border-[#ea580c]' : 'border-transparent hover:border-white/30'}`}
+                  data-idx={i}
+                  onclick={`openLightbox(${i})`}
+                >
+                  <img src={img} alt="" class="w-full h-full object-cover" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <!-- Title, Price & Share -->
@@ -177,15 +219,16 @@ const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} ‚
           <h3 class="font-bold text-white mb-4">Contact Agent</h3>
 
           {acf.agent_name && (
-            <div class="flex items-center gap-3 mb-4">
+            <a href={`/agent/${acf.agent_name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}`}
+              class="flex items-center gap-3 mb-4 group">
               <div class="w-12 h-12 bg-[#ea580c] rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
                 {acf.agent_name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p class="font-semibold text-white">{acf.agent_name}</p>
-                <p class="text-xs text-white/50">Integrity Real Estate Agent</p>
+                <p class="font-semibold text-white group-hover:text-[#ea580c] transition-colors">{acf.agent_name}</p>
+                <p class="text-xs text-white/50">View all listings ‚Üí</p>
               </div>
-            </div>
+            </a>
           )}
 
           {acf.agent_phone && (
@@ -231,7 +274,7 @@ const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} ‚
                 class="w-full bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold py-3 rounded-xl text-sm transition-colors">
                 Send Inquiry
               </button>
-              <p id="inquiry-success" class="hidden text-green-600 text-xs text-center font-medium">
+              <p id="inquiry-success" class="hidden text-green-400 text-xs text-center font-medium">
                 ‚úÖ Message sent! We'll contact you soon.
               </p>
             </form>
@@ -241,10 +284,93 @@ const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} ‚
     </div>
   </div>
 
+  <!-- Lightbox -->
+  <div id="lightbox" style="display:none"
+    class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md"
+    onclick="handleLightboxClick(event)">
+    <!-- Close -->
+    <button onclick="closeLightbox()"
+      class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-10 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <!-- Prev -->
+    <button id="lb-prev" onclick="shiftLightbox(-1)"
+      class="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-10 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <!-- Next -->
+    <button id="lb-next" onclick="shiftLightbox(1)"
+      class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-10 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+    <!-- Image -->
+    <div id="lb-content" class="absolute inset-0 flex items-center justify-center p-14">
+      <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl" />
+    </div>
+    <!-- Counter -->
+    <div id="lb-counter" class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-4 py-1.5 rounded-full pointer-events-none"></div>
+  </div>
+
   <Footer />
 </Layout>
 
-<script define:vars={{ WP_API, propertyId, propAcf: property.acf }}>
+<script define:vars={{ WP_API, propertyId, propAcf: property.acf, galleryImages }}>
+  // Lightbox
+  var lbIdx = 0;
+
+  window.openLightbox = function(idx) {
+    lbIdx = idx;
+    document.getElementById('lightbox').style.display = 'flex';
+    document.getElementById('lightbox').style.alignItems = 'center';
+    document.getElementById('lightbox').style.justifyContent = 'center';
+    document.body.style.overflow = 'hidden';
+    updateLightbox();
+    var prev = document.getElementById('lb-prev');
+    var next = document.getElementById('lb-next');
+    if (prev) prev.style.display = galleryImages.length > 1 ? 'flex' : 'none';
+    if (next) next.style.display = galleryImages.length > 1 ? 'flex' : 'none';
+  };
+
+  window.closeLightbox = function() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  window.shiftLightbox = function(dir) {
+    lbIdx = (lbIdx + dir + galleryImages.length) % galleryImages.length;
+    updateLightbox();
+  };
+
+  window.handleLightboxClick = function(e) {
+    var content = document.getElementById('lb-content');
+    if (e.target === document.getElementById('lightbox') || e.target === content) {
+      window.closeLightbox();
+    }
+  };
+
+  function updateLightbox() {
+    var img = document.getElementById('lightbox-img');
+    if (img && galleryImages[lbIdx]) img.src = galleryImages[lbIdx];
+    var counter = document.getElementById('lb-counter');
+    if (counter) counter.textContent = galleryImages.length > 1 ? (lbIdx + 1) + ' / ' + galleryImages.length : '';
+    document.querySelectorAll('.thumb-btn').forEach(function(t) {
+      t.style.borderColor = Number(t.dataset.idx) === lbIdx ? '#ea580c' : 'transparent';
+    });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (document.getElementById('lightbox').style.display === 'none') return;
+    if (e.key === 'Escape') window.closeLightbox();
+    if (e.key === 'ArrowLeft') window.shiftLightbox(-1);
+    if (e.key === 'ArrowRight') window.shiftLightbox(1);
+  });
+
   // Share buttons
   const shareUrl = window.location.href;
   document.getElementById('share-copy')?.addEventListener('click', () => {
