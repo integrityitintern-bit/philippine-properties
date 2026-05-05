@@ -166,31 +166,63 @@ import { WP_API } from '../config.js';
     renderProperties();
   }
 
+  const getSaved = () => JSON.parse(localStorage.getItem('saved_properties') || '[]');
+
   function cardHTML(p) {
     const acf = p.acf || {};
     const title = p.title?.rendered || 'Property';
     const image = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
     const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
     const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
-    const badge = acf.listing_type === 'For Rent' ? 'bg-blue-600' : acf.listing_type === 'Pre-Selling' ? 'bg-orange-500' : 'bg-[#ea580c]';
+    const badge = acf.listing_type === 'For Rent' ? 'bg-blue-500/90' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/90' : 'bg-[#ea580c]';
+    const saved = getSaved().includes(p.id);
+    const heartFill = saved ? '#ea580c' : 'none';
+    const heartStroke = saved ? '#ea580c' : 'currentColor';
     return `
-      <a href="/property/${p.slug}" class="group bg-[#141414] rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-white/[0.06] flex flex-col card-enter">
+      <a href="/property/${p.slug}" class="group bg-[#141414] rounded-xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-white/[0.06] flex flex-col card-enter">
         <div class="relative h-48 overflow-hidden bg-white/[0.05]">
-          ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl">🏠</div>'}
-          ${acf.listing_type ? `<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white ${badge}">${acf.listing_type}</span>` : ''}
+          ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
+          ${acf.listing_type ? `<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
+          <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-black/70 transition-colors" data-id="${p.id}" aria-label="Save property">
+            <svg class="save-icon w-4 h-4" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
         </div>
         <div class="p-4 flex flex-col flex-1">
           <p class="text-[#ea580c] font-bold text-lg leading-tight mb-1">${price}</p>
           <h3 class="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2">${title}</h3>
-          ${city ? `<p class="text-white/50 text-xs mb-3">📍 ${city}</p>` : ''}
-          <div class="flex items-center gap-3 text-white/50 text-xs mt-auto pt-3 border-t border-white/[0.06]">
-            ${acf.bedrooms ? `<span>🛏 ${acf.bedrooms} bed</span>` : ''}
-            ${acf.bathrooms ? `<span>🚿 ${acf.bathrooms} bath</span>` : ''}
+          ${city ? `<p class="text-white/40 text-xs mb-3 flex items-center gap-1"><svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>${city}</p>` : ''}
+          <div class="flex items-center gap-3 text-white/40 text-xs mt-auto pt-3 border-t border-white/[0.06]">
+            ${acf.bedrooms ? `<span>🛏 ${acf.bedrooms}</span>` : ''}
+            ${acf.bathrooms ? `<span>🚿 ${acf.bathrooms}</span>` : ''}
             ${acf.floor_area ? `<span>📐 ${acf.floor_area} m²</span>` : ''}
             ${acf.property_type ? `<span class="ml-auto capitalize text-[10px] bg-white/[0.08] px-2 py-0.5 rounded-full">${acf.property_type}</span>` : ''}
           </div>
         </div>
       </a>`;
+  }
+
+  function bindSaveButtons() {
+    document.querySelectorAll('.save-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = Number(btn.dataset.id);
+        const icon = btn.querySelector('.save-icon');
+        let s = getSaved();
+        if (s.includes(id)) {
+          s = s.filter(x => x !== id);
+          icon.setAttribute('fill', 'none');
+          icon.setAttribute('stroke', 'currentColor');
+        } else {
+          s.push(id);
+          icon.setAttribute('fill', '#ea580c');
+          icon.setAttribute('stroke', '#ea580c');
+        }
+        localStorage.setItem('saved_properties', JSON.stringify(s));
+      });
+    });
   }
 
   function renderProperties() {
@@ -206,6 +238,7 @@ import { WP_API } from '../config.js';
     resultsCount.textContent = `${filteredProperties.length} properties found`;
     const items = filteredProperties.slice(0, currentPage * ITEMS_PER_PAGE);
     grid.innerHTML = items.map(cardHTML).join('');
+    bindSaveButtons();
     currentPage * ITEMS_PER_PAGE < filteredProperties.length
       ? loadMoreBtn.classList.remove('hidden')
       : loadMoreBtn.classList.add('hidden');
@@ -213,7 +246,7 @@ import { WP_API } from '../config.js';
 
   document.getElementById('filter-btn').addEventListener('click', applyFilters);
   document.getElementById('filter-city').addEventListener('keydown', e => e.key === 'Enter' && applyFilters());
-  loadMoreBtn.addEventListener('click', () => { currentPage++; renderProperties(); });
+  loadMoreBtn.addEventListener('click', () => { currentPage++; renderProperties(); bindSaveButtons(); });
   document.getElementById('clear-filters').addEventListener('click', () => {
     document.getElementById('filter-city').value = '';
     document.getElementById('filter-listing-type').value = '';

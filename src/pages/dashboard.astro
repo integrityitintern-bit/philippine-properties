@@ -38,6 +38,26 @@ import { WP_API } from '../config.js';
 
     <div class="max-w-6xl mx-auto px-4 py-12">
 
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+        <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 text-center">
+          <p id="stat-saved" class="text-3xl font-bold text-[#ea580c]">0</p>
+          <p class="text-white/40 text-xs mt-1 uppercase tracking-wide">Saved</p>
+        </div>
+        <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 text-center">
+          <p id="stat-submitted" class="text-3xl font-bold text-[#ea580c]">0</p>
+          <p class="text-white/40 text-xs mt-1 uppercase tracking-wide">Submitted</p>
+        </div>
+        <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 text-center">
+          <p class="text-3xl font-bold text-[#ea580c]">—</p>
+          <p class="text-white/40 text-xs mt-1 uppercase tracking-wide">Views</p>
+        </div>
+        <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 text-center">
+          <p class="text-3xl font-bold text-[#ea580c]">—</p>
+          <p class="text-white/40 text-xs mt-1 uppercase tracking-wide">Inquiries</p>
+        </div>
+      </div>
+
       <!-- Quick Actions -->
       <div class="grid sm:grid-cols-3 gap-4 mb-14">
         {[
@@ -54,6 +74,24 @@ import { WP_API } from '../config.js';
         ))}
       </div>
 
+      <!-- My Submitted Listings -->
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-white">My Submitted Listings</h2>
+          <a href="/list-property" class="text-[#ea580c] text-sm font-semibold hover:underline">+ Submit New →</a>
+        </div>
+        <div id="submitted-list" class="space-y-3"></div>
+        <div id="no-submitted" class="hidden text-center py-12 bg-[#0f0f0f] rounded-2xl border border-white/[0.06]">
+          <p class="text-4xl mb-3">📋</p>
+          <p class="text-white/50 font-medium">No listings submitted yet</p>
+          <p class="text-white/40 text-sm mt-1 mb-6">Submit a property and track its review status here</p>
+          <a href="/list-property"
+            class="inline-block bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+            + List a Property
+          </a>
+        </div>
+      </div>
+
       <!-- Saved Properties -->
       <div>
         <div class="flex items-center justify-between mb-6">
@@ -66,7 +104,7 @@ import { WP_API } from '../config.js';
         <div id="no-saved" class="hidden text-center py-16 bg-[#0f0f0f] rounded-2xl border border-white/[0.06]">
           <p class="text-5xl mb-4">🏠</p>
           <p class="text-white/50 font-medium">No saved properties yet</p>
-          <p class="text-white/40 text-sm mt-1 mb-6">Tap the heart icon on any listing to save it here</p>
+          <p class="text-white/40 text-sm mt-1 mb-6">Tap the ♡ icon on any listing to save it here</p>
           <a href="/search"
             class="inline-block bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
             Browse Properties
@@ -101,7 +139,35 @@ import { WP_API } from '../config.js';
     document.getElementById('user-name').textContent = name;
     document.getElementById('user-email').textContent = user.email;
 
+    // Stats
     const saved = JSON.parse(localStorage.getItem('saved_properties') || '[]');
+    const submitted = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
+    document.getElementById('stat-saved').textContent = saved.length;
+    document.getElementById('stat-submitted').textContent = submitted.length;
+
+    // Submitted listings
+    const submittedList = document.getElementById('submitted-list');
+    const noSubmitted = document.getElementById('no-submitted');
+    if (submitted.length === 0) {
+      noSubmitted?.classList.remove('hidden');
+    } else {
+      submitted.slice().reverse().forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'flex items-center justify-between bg-[#141414] border border-white/[0.07] rounded-xl px-5 py-4';
+        const statusColor = item.status === 'approved' ? 'text-green-400 bg-green-400/10' : 'text-yellow-400 bg-yellow-400/10';
+        const statusLabel = item.status === 'approved' ? 'Live' : 'Pending Review';
+        el.innerHTML = `
+          <div class="min-w-0 flex-1">
+            <p class="text-white font-semibold text-sm truncate">${item.title || 'Property Listing'}</p>
+            <p class="text-white/40 text-xs mt-0.5">${item.city ? item.city + ' · ' : ''}Ref: ${item.ref}</p>
+          </div>
+          <div class="flex items-center gap-3 ml-4 shrink-0">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor}">${statusLabel}</span>
+            <span class="text-white/30 text-xs">${new Date(item.date).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}</span>
+          </div>`;
+        submittedList?.appendChild(el);
+      });
+    }
     const savedList = document.getElementById('saved-list');
     const noSaved = document.getElementById('no-saved');
 

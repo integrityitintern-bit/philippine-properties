@@ -300,6 +300,18 @@ import Footer from '../components/Footer.astro';
       document.getElementById('step-success')?.classList.remove('hidden');
       const ref = 'IRC-' + Date.now().toString(36).toUpperCase();
       document.getElementById('ref-number')!.textContent = `Reference: ${ref}`;
+
+      // Save to localStorage for dashboard tracking
+      const submittedArr = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
+      submittedArr.push({
+        ref,
+        title: data.title,
+        city: data.city,
+        price: data.price,
+        status: 'pending',
+        date: new Date().toISOString(),
+      });
+      localStorage.setItem('submitted_listings', JSON.stringify(submittedArr));
     } catch(err: any) {
       btn.textContent = 'Submit Listing ✓';
       btn.disabled = false;
