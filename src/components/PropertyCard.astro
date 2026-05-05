@@ -1,0 +1,50 @@
+---
+const { property } = Astro.props;
+const acf = property.acf || {};
+const title = property.title?.rendered || 'Property';
+const slug = property.slug;
+const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
+const listingType = acf.listing_type || '';
+const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
+const badgeColor = listingType === 'For Rent'
+  ? 'bg-blue-600'
+  : listingType === 'Pre-Selling'
+  ? 'bg-purple-600'
+  : 'bg-[#ea580c]';
+---
+
+<a href={`/property/${slug}`} class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 flex flex-col">
+  <div class="relative h-48 overflow-hidden bg-gray-100">
+    {image
+      ? <img src={image} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+      : <div class="w-full h-full flex items-center justify-center text-5xl">🏠</div>
+    }
+    {listingType && (
+      <span class={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white ${badgeColor}`}>
+        {listingType}
+      </span>
+    )}
+  </div>
+
+  <div class="p-4 flex flex-col flex-1">
+    <p class="text-[#ea580c] font-bold text-lg leading-tight mb-1">{price}</p>
+    <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-2 line-clamp-2">{title}</h3>
+    {city && (
+      <p class="text-gray-500 text-xs mb-3 flex items-center gap-1">
+        <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+        </svg>
+        {city}
+      </p>
+    )}
+    <div class="flex items-center gap-3 text-gray-500 text-xs mt-auto pt-3 border-t border-gray-100">
+      {acf.bedrooms && <span>🛏 {acf.bedrooms} bed</span>}
+      {acf.bathrooms && <span>🚿 {acf.bathrooms} bath</span>}
+      {acf.floor_area && <span>📐 {acf.floor_area} m²</span>}
+      {acf.property_type && (
+        <span class="ml-auto capitalize text-[10px] bg-orange-50 text-[#ea580c] px-2 py-0.5 rounded-full">{acf.property_type}</span>
+      )}
+    </div>
+  </div>
+</a>

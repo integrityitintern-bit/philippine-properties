@@ -1,0 +1,103 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { WP_API } from '../config.js';
+
+let posts = [];
+try {
+  const res = await fetch(`${WP_API}/posts?_embed&per_page=9&status=publish`);
+  posts = await res.json();
+} catch {}
+---
+
+<Layout title="Resources & Real Estate Guides">
+  <Navbar />
+
+  <!-- Hero -->
+  <section class="bg-[#ea580c] text-white py-16">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">Resources & Guides</h1>
+      <p class="text-white/80 text-lg">Expert tips, market insights, and real estate guides for Filipino buyers and renters.</p>
+    </div>
+  </section>
+
+  <!-- Topics -->
+  <section class="py-8 border-b border-gray-100">
+    <div class="max-w-5xl mx-auto px-4 flex flex-wrap gap-2 justify-center">
+      {['All Topics', 'Buying Guide', 'Renting Tips', 'Market Insights', 'OFW Investors', 'First-Time Buyers', 'Condo Living'].map(tag => (
+        <button class="px-4 py-2 text-sm rounded-full border border-gray-200 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors">
+          {tag}
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <!-- Articles -->
+  <section class="py-16 max-w-6xl mx-auto px-4">
+    {posts.length > 0 ? (
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post: any) => {
+          const image = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+          const excerpt = post.excerpt?.rendered?.replace(/<[^>]*>/g, '').slice(0, 120) + '...' || '';
+          const date = new Date(post.date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+          return (
+            <article class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow group">
+              <div class="h-48 bg-gray-100 overflow-hidden">
+                {image
+                  ? <img src={image} alt={post.title?.rendered} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                  : <div class="w-full h-full flex items-center justify-center text-4xl bg-gray-50">📰</div>
+                }
+              </div>
+              <div class="p-5">
+                <p class="text-xs text-gray-400 mb-2">{date}</p>
+                <h3 class="font-bold text-gray-900 leading-snug mb-2 line-clamp-2" set:html={post.title?.rendered} />
+                <p class="text-gray-500 text-xs leading-relaxed mb-4">{excerpt}</p>
+                <a href={post.link} target="_blank" rel="noopener" class="text-[#ea580c] font-semibold text-xs hover:underline">
+                  Read More →
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    ) : (
+      <!-- Static guide cards when no WP posts -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[
+          { icon: '🏠', title: 'First-Time Buyer\'s Complete Guide', desc: 'Everything you need to know before buying your first property in the Philippines — from financing to turnover.', tag: 'Buying Guide' },
+          { icon: '📋', title: 'How to Rent a Property in the Philippines', desc: 'Step-by-step guide to renting safely — what to check in a lease contract, red flags, and tenant rights.', tag: 'Renting Tips' },
+          { icon: '💰', title: 'Understanding Pag-IBIG Housing Loans', desc: 'A complete breakdown of Pag-IBIG Fund housing loan requirements, rates, and how to apply.', tag: 'Financing' },
+          { icon: '🌏', title: 'OFW Real Estate Investment Guide', desc: 'How overseas Filipino workers can invest in Philippine real estate — legally, safely, and profitably.', tag: 'OFW Investors' },
+          { icon: '📊', title: 'Philippine Real Estate Market 2026', desc: 'Key trends shaping the property market this year — rising condo demand, provincial growth, and more.', tag: 'Market Insights' },
+          { icon: '🏢', title: 'Condo vs House: Which is Right for You?', desc: 'A practical comparison to help you decide between buying a condo or a house based on your lifestyle and budget.', tag: 'Buying Guide' },
+        ].map(article => (
+          <article class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow p-6">
+            <span class="text-3xl">{article.icon}</span>
+            <span class="inline-block mt-3 text-[10px] font-bold text-[#ea580c] bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wide">{article.tag}</span>
+            <h3 class="font-bold text-gray-900 mt-2 mb-2 leading-snug">{article.title}</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{article.desc}</p>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <!-- Newsletter CTA -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-xl mx-auto px-4 text-center">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Stay Updated</h2>
+      <p class="text-gray-500 mb-6">Get the latest real estate news, market reports, and property tips delivered to your inbox.</p>
+      <form class="flex gap-3 max-w-md mx-auto">
+        <input type="email" placeholder="Your email address"
+          class="flex-1 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+        />
+        <button type="submit" class="bg-[#ea580c] hover:bg-[#6b0000] text-white font-semibold px-6 py-3 rounded-xl transition-colors whitespace-nowrap text-sm">
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

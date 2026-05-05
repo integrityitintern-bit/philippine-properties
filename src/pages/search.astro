@@ -1,0 +1,187 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { WP_API } from '../config.js';
+---
+
+<Layout title="Search Properties">
+  <Navbar />
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Search Properties</h1>
+      <p class="text-gray-500 text-sm mt-1">Find your perfect home, condo, or investment property</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <input id="filter-city" type="text" placeholder="City or Area"
+        class="col-span-2 sm:col-span-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+      />
+      <select id="filter-listing-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+        <option value="">All Types</option>
+        <option value="For Sale">For Sale</option>
+        <option value="For Rent">For Rent</option>
+        <option value="Pre-Selling">Pre-Selling</option>
+      </select>
+      <select id="filter-property-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+        <option value="">All Properties</option>
+        <option value="house">House</option>
+        <option value="condo">Condo</option>
+        <option value="townhouse">Townhouse</option>
+        <option value="apartment">Apartment</option>
+        <option value="studio">Studio</option>
+        <option value="land">Land & Lot</option>
+        <option value="commercial">Commercial</option>
+      </select>
+      <select id="filter-bedrooms" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+        <option value="">Any Beds</option>
+        <option value="1">1+ Bed</option>
+        <option value="2">2+ Beds</option>
+        <option value="3">3+ Beds</option>
+        <option value="4">4+ Beds</option>
+      </select>
+      <button id="filter-btn" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-2.5 px-6 rounded-xl transition-colors text-sm">
+        Search
+      </button>
+    </div>
+
+    <p id="results-count" class="text-sm text-gray-500 mb-4"></p>
+
+    <!-- Loading Skeletons -->
+    <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array(6).fill(0).map(() => (
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+          <div class="skeleton h-48 bg-gray-200"></div>
+          <div class="p-4 space-y-3">
+            <div class="skeleton h-5 bg-gray-200 rounded w-1/2"></div>
+            <div class="skeleton h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="skeleton h-3 bg-gray-200 rounded w-1/3"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Property Grid -->
+    <div id="property-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    <!-- No Results -->
+    <div id="no-results" class="hidden text-center py-16">
+      <p class="text-5xl mb-4">🏠</p>
+      <p class="text-gray-500 text-lg font-medium">No properties found</p>
+      <p class="text-gray-400 text-sm mt-1">Try adjusting your filters</p>
+      <a href="/list-property" class="mt-6 inline-block bg-[#ea580c] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#c2410c] transition-colors">
+        + List a Property
+      </a>
+    </div>
+
+    <div class="text-center mt-10">
+      <button id="load-more-btn" class="hidden bg-white border-2 border-[#ea580c] text-[#ea580c] font-semibold px-8 py-3 rounded-xl hover:bg-[#ea580c] hover:text-white transition-colors">
+        Load More Properties
+      </button>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script define:vars={{ WP_API }}>
+  const ITEMS_PER_PAGE = 12;
+  let currentPage = 1;
+  let allProperties = [];
+  let filteredProperties = [];
+
+  const grid = document.getElementById('property-grid');
+  const skeleton = document.getElementById('loading-skeleton');
+  const noResults = document.getElementById('no-results');
+  const resultsCount = document.getElementById('results-count');
+  const loadMoreBtn = document.getElementById('load-more-btn');
+
+  // Pre-fill filters from URL params
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('city')) document.getElementById('filter-city').value = params.get('city');
+  if (params.get('listing_type')) document.getElementById('filter-listing-type').value = params.get('listing_type');
+  if (params.get('property_type')) document.getElementById('filter-property-type').value = params.get('property_type');
+
+  async function fetchProperties() {
+    try {
+      const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish`);
+      allProperties = await res.json();
+      applyFilters();
+    } catch (err) {
+      skeleton.classList.add('hidden');
+      noResults.classList.remove('hidden');
+    }
+  }
+
+  function applyFilters() {
+    const city = document.getElementById('filter-city').value.trim().toLowerCase();
+    const listingType = document.getElementById('filter-listing-type').value;
+    const propertyType = document.getElementById('filter-property-type').value;
+    const minBeds = parseInt(document.getElementById('filter-bedrooms').value) || 0;
+
+    filteredProperties = allProperties.filter(p => {
+      const acf = p.acf || {};
+      if (city && !acf.location_city?.toLowerCase().includes(city)) return false;
+      if (listingType && acf.listing_type !== listingType) return false;
+      if (propertyType && acf.property_type !== propertyType) return false;
+      if (minBeds && (parseInt(acf.bedrooms) || 0) < minBeds) return false;
+      return true;
+    });
+
+    currentPage = 1;
+    renderProperties();
+  }
+
+  function cardHTML(p) {
+    const acf = p.acf || {};
+    const title = p.title?.rendered || 'Property';
+    const image = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+    const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
+    const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
+    const badge = acf.listing_type === 'For Rent' ? 'bg-blue-600' : acf.listing_type === 'Pre-Selling' ? 'bg-orange-500' : 'bg-[#ea580c]';
+    return `
+      <a href="/property/${p.slug}" class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 flex flex-col card-enter">
+        <div class="relative h-48 overflow-hidden bg-gray-100">
+          ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl">🏠</div>'}
+          ${acf.listing_type ? `<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white ${badge}">${acf.listing_type}</span>` : ''}
+        </div>
+        <div class="p-4 flex flex-col flex-1">
+          <p class="text-[#ea580c] font-bold text-lg leading-tight mb-1">${price}</p>
+          <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-2 line-clamp-2">${title}</h3>
+          ${city ? `<p class="text-gray-500 text-xs mb-3">📍 ${city}</p>` : ''}
+          <div class="flex items-center gap-3 text-gray-500 text-xs mt-auto pt-3 border-t border-gray-100">
+            ${acf.bedrooms ? `<span>🛏 ${acf.bedrooms} bed</span>` : ''}
+            ${acf.bathrooms ? `<span>🚿 ${acf.bathrooms} bath</span>` : ''}
+            ${acf.floor_area ? `<span>📐 ${acf.floor_area} m²</span>` : ''}
+            ${acf.property_type ? `<span class="ml-auto capitalize text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">${acf.property_type}</span>` : ''}
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function renderProperties() {
+    skeleton.classList.add('hidden');
+    if (filteredProperties.length === 0) {
+      grid.innerHTML = '';
+      noResults.classList.remove('hidden');
+      loadMoreBtn.classList.add('hidden');
+      resultsCount.textContent = '';
+      return;
+    }
+    noResults.classList.add('hidden');
+    resultsCount.textContent = `${filteredProperties.length} properties found`;
+    const items = filteredProperties.slice(0, currentPage * ITEMS_PER_PAGE);
+    grid.innerHTML = items.map(cardHTML).join('');
+    currentPage * ITEMS_PER_PAGE < filteredProperties.length
+      ? loadMoreBtn.classList.remove('hidden')
+      : loadMoreBtn.classList.add('hidden');
+  }
+
+  document.getElementById('filter-btn').addEventListener('click', applyFilters);
+  document.getElementById('filter-city').addEventListener('keydown', e => e.key === 'Enter' && applyFilters());
+  loadMoreBtn.addEventListener('click', () => { currentPage++; renderProperties(); });
+
+  fetchProperties();
+</script>

@@ -1,0 +1,86 @@
+---
+const { transparent = false } = Astro.props;
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Buy & Rent', href: '/search' },
+  { label: 'Resources', href: '/resources' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+];
+const solidClass = 'bg-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-lg';
+const initClass = transparent ? 'bg-transparent' : solidClass;
+---
+
+<nav id="main-nav" data-transparent={transparent} class={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${initClass}`}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 hover:opacity-90 transition-opacity">
+      <span class="w-9 h-9 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+        </svg>
+      </span>
+      <div>
+        <span class="text-white font-bold text-base sm:text-lg leading-none tracking-widest uppercase" style="font-family: 'Playfair Display', serif;">[YOUR BRAND]</span>
+        <span class="block text-[10px] sm:text-xs text-white/60 tracking-widest uppercase leading-none mt-0.5">Real Estate Portal</span>
+      </div>
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex items-center gap-7 text-sm font-medium text-white/80 tracking-wide">
+      {navLinks.map(link => (
+        <a href={link.href} class="hover:text-white transition-colors relative group">
+          {link.label}
+          <span class="absolute -bottom-1 left-0 w-0 h-px bg-[#ea580c] group-hover:w-full transition-all duration-300"></span>
+        </a>
+      ))}
+    </div>
+
+    <!-- CTA -->
+    <div class="flex items-center gap-2">
+      <a href="/list-property" class="hidden sm:inline text-sm font-semibold bg-[#ea580c] hover:bg-[#c2410c] text-white px-5 py-2.5 rounded-lg transition-colors shadow-lg whitespace-nowrap">
+        + List Property
+      </a>
+      <a href="/search" class="hidden sm:inline text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">
+        Search
+      </a>
+      <button id="mobile-menu-btn" class="md:hidden ml-1 text-white p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-gray-900/98 backdrop-blur-xl border-t border-white/10 px-4 py-4 space-y-1">
+    {navLinks.map(link => (
+      <a href={link.href} class="block text-white/80 hover:text-white py-2.5 text-sm font-medium border-b border-white/5">{link.label}</a>
+    ))}
+    <a href="/list-property" class="block text-center bg-[#ea580c] text-white font-semibold py-3 rounded-lg text-sm mt-3">
+      + List Property
+    </a>
+  </div>
+</nav>
+
+{!transparent && <div class="h-16"></div>}
+
+<script>
+  const nav = document.getElementById('main-nav') as HTMLElement;
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const isTransparent = nav?.dataset.transparent === 'true';
+
+  if (isTransparent) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        nav.className = nav.className.replace('bg-transparent', 'bg-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-lg');
+      } else {
+        nav.className = nav.className.replace('bg-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-lg', 'bg-transparent');
+      }
+    });
+  }
+
+  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+</script>

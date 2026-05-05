@@ -1,0 +1,135 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Contact Us">
+  <Navbar />
+
+  <!-- Hero -->
+  <section class="bg-[#ea580c] text-white py-16">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
+      <p class="text-white/80 text-lg">We'd love to hear from you. Reach out anytime.</p>
+    </div>
+  </section>
+
+  <section class="py-16 max-w-5xl mx-auto px-4">
+    <div class="grid md:grid-cols-2 gap-12">
+
+      <!-- Info -->
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Get In Touch</h2>
+        <div class="space-y-5">
+          {[
+            { icon: '📞', label: 'Phone', value: '+63 (2) 1234-5678' },
+            { icon: '✉️', label: 'Email', value: 'info@integrityrealty.ph' },
+            { icon: '📍', label: 'Head Office', value: 'Manila, Philippines' },
+            { icon: '⏰', label: 'Office Hours', value: 'Mon–Sat, 9AM–6PM' },
+          ].map(item => (
+            <div class="flex items-start gap-4">
+              <span class="text-2xl">{item.icon}</span>
+              <div>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">{item.label}</p>
+                <p class="text-gray-800 font-semibold mt-0.5">{item.value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-8 p-6 bg-[#ea580c] text-white rounded-2xl">
+          <p class="font-bold text-lg mb-2">Want to list a property?</p>
+          <p class="text-white/80 text-sm mb-4">Submit your listing and reach thousands of buyers and renters.</p>
+          <a href="/list-property" class="inline-block bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold px-6 py-2.5 rounded-xl text-sm transition-colors">
+            + List Your Property
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-8">
+        <h3 class="font-bold text-gray-900 text-xl mb-6">Send Us a Message</h3>
+        <form id="contact-form" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-medium text-gray-600 mb-1 block">First Name</label>
+              <input type="text" name="first_name" required
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+              />
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-600 mb-1 block">Last Name</label>
+              <input type="text" name="last_name" required
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-600 mb-1 block">Email Address</label>
+            <input type="email" name="email" required
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+            />
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-600 mb-1 block">Phone Number</label>
+            <input type="tel" name="phone"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+            />
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-600 mb-1 block">Subject</label>
+            <select name="subject" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-700">
+              <option>General Inquiry</option>
+              <option>Property Buying</option>
+              <option>Property Renting</option>
+              <option>List My Property</option>
+              <option>Partnership</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-600 mb-1 block">Message</label>
+            <textarea name="message" rows="4" required
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none"
+              placeholder="How can we help you?"
+            ></textarea>
+          </div>
+          <button type="submit" id="contact-submit" class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors">
+            Send Message
+          </button>
+          <p id="contact-success" class="hidden text-green-600 text-sm text-center font-medium">
+            ✅ Message sent! We'll get back to you within 24 hours.
+          </p>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const btn = document.getElementById('contact-submit') as HTMLButtonElement;
+  const success = document.getElementById('contact-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    try {
+      await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      form.reset();
+      success?.classList.remove('hidden');
+      btn.classList.add('hidden');
+    } catch {
+      btn.textContent = 'Send Message';
+      btn.disabled = false;
+    }
+  });
+</script>

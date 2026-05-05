@@ -1,0 +1,202 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { WP_API } from '../../config.js';
+
+export async function getStaticPaths() {
+  try {
+    const res = await fetch(`${WP_API}/property?per_page=100&status=publish`);
+    const properties = await res.json();
+    return properties.map((p: any) => ({
+      params: { slug: p.slug },
+      props: { propertyId: p.id },
+    }));
+  } catch {
+    return [];
+  }
+}
+
+const { slug } = Astro.params;
+const { propertyId } = Astro.props;
+
+let property: any = null;
+try {
+  const res = await fetch(`${WP_API}/property/${propertyId}?_embed`);
+  property = await res.json();
+} catch {}
+
+if (!property || property.code) return Astro.redirect('/search');
+
+const acf = property.acf || {};
+const title = property.title?.rendered || 'Property';
+const content = property.content?.rendered || '';
+const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
+const badgeColor = acf.listing_type === 'For Rent' ? 'bg-blue-100 text-blue-700' : acf.listing_type === 'Pre-Selling' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-[#ea580c]';
+---
+
+<Layout title={title}>
+  <Navbar />
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+
+    <!-- Breadcrumb -->
+    <nav class="text-xs text-gray-500 mb-6 flex items-center gap-2">
+      <a href="/" class="hover:text-[#ea580c]">Home</a>
+      <span>›</span>
+      <a href="/search" class="hover:text-[#ea580c]">Properties</a>
+      <span>›</span>
+      <span class="text-gray-700">{title}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Main -->
+      <div class="lg:col-span-2">
+
+        <!-- Image -->
+        <div class="rounded-2xl overflow-hidden bg-gray-100 mb-6 h-72 md:h-96">
+          {image
+            ? <img src={image} alt={title} class="w-full h-full object-cover" />
+            : <div class="w-full h-full flex items-center justify-center text-6xl">🏠</div>
+          }
+        </div>
+
+        <!-- Title & Price -->
+        <div class="mb-6">
+          {acf.listing_type && (
+            <span class={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 ${badgeColor}`}>
+              {acf.listing_type}
+            </span>
+          )}
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{title}</h1>
+          <p class="text-3xl font-bold text-[#ea580c]">{price}</p>
+          {(acf.location_city || acf.location_province) && (
+            <p class="text-gray-500 text-sm mt-2">
+              📍 {[acf.full_address, acf.location_city, acf.location_province].filter(Boolean).join(', ')}
+            </p>
+          )}
+        </div>
+
+        <!-- Details Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-gray-50 rounded-2xl mb-6">
+          {acf.bedrooms && (
+            <div class="text-center">
+              <p class="text-2xl mb-1">🛏</p>
+              <p class="text-lg font-bold text-gray-900">{acf.bedrooms}</p>
+              <p class="text-xs text-gray-500">Bedrooms</p>
+            </div>
+          )}
+          {acf.bathrooms && (
+            <div class="text-center">
+              <p class="text-2xl mb-1">🚿</p>
+              <p class="text-lg font-bold text-gray-900">{acf.bathrooms}</p>
+              <p class="text-xs text-gray-500">Bathrooms</p>
+            </div>
+          )}
+          {acf.floor_area && (
+            <div class="text-center">
+              <p class="text-2xl mb-1">📐</p>
+              <p class="text-lg font-bold text-gray-900">{acf.floor_area}</p>
+              <p class="text-xs text-gray-500">Floor Area m²</p>
+            </div>
+          )}
+          {acf.lot_area && (
+            <div class="text-center">
+              <p class="text-2xl mb-1">🌿</p>
+              <p class="text-lg font-bold text-gray-900">{acf.lot_area}</p>
+              <p class="text-xs text-gray-500">Lot Area m²</p>
+            </div>
+          )}
+        </div>
+
+        <!-- Description -->
+        {content && (
+          <div class="prose max-w-none text-gray-700 text-sm leading-relaxed" set:html={content} />
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 sticky top-20">
+          <h3 class="font-bold text-gray-900 mb-4">Contact Agent</h3>
+
+          {acf.agent_name && (
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 bg-[#ea580c] rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
+                {acf.agent_name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p class="font-semibold text-gray-900">{acf.agent_name}</p>
+                <p class="text-xs text-gray-500">Integrity Real Estate Agent</p>
+              </div>
+            </div>
+          )}
+
+          {acf.agent_phone && (
+            <a href={`tel:${acf.agent_phone}`} class="flex items-center justify-center gap-2 w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-3 px-4 rounded-xl mb-3 text-sm transition-colors">
+              📞 {acf.agent_phone}
+            </a>
+          )}
+          {acf.agent_email && (
+            <a href={`mailto:${acf.agent_email}?subject=Inquiry: ${title}`} class="flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition-colors mb-6">
+              ✉️ Send Email
+            </a>
+          )}
+
+          <!-- Quick Inquiry -->
+          <div class="pt-4 border-t border-gray-100">
+            <p class="text-sm font-semibold text-gray-700 mb-3">Send a Message</p>
+            <form id="inquiry-form" class="space-y-3">
+              <input type="hidden" name="_subject" value={`Property Inquiry: ${title}`} />
+              <input type="hidden" name="property" value={title} />
+              <input type="text" name="name" placeholder="Your Name" required
+                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+              />
+              <input type="tel" name="phone" placeholder="Phone Number" required
+                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
+              />
+              <textarea name="message" rows="3" placeholder="I'm interested in this property..."
+                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] resize-none"
+              ></textarea>
+              <button type="submit" id="inquiry-submit" class="w-full bg-yellow-400 hover:bg-yellow-300 text-[#ea580c] font-bold py-3 rounded-xl text-sm transition-colors">
+                Send Inquiry
+              </button>
+              <p id="inquiry-success" class="hidden text-green-600 text-xs text-center font-medium">
+                ✅ Message sent! We'll contact you soon.
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script>
+  const form = document.getElementById('inquiry-form') as HTMLFormElement;
+  const btn = document.getElementById('inquiry-submit') as HTMLButtonElement;
+  const success = document.getElementById('inquiry-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    try {
+      await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      form.reset();
+      success?.classList.remove('hidden');
+      btn.classList.add('hidden');
+    } catch {
+      btn.textContent = 'Send Inquiry';
+      btn.disabled = false;
+      alert('Error sending message. Please try again.');
+    }
+  });
+</script>

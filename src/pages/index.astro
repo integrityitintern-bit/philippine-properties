@@ -1,11 +1,200 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import { WP_API } from '../config.js';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+let featuredProperties = [];
+try {
+  const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish`);
+  featuredProperties = await res.json();
+} catch (e) {
+  console.error('Failed to fetch properties:', e);
+}
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Find Your Dream Property in the Philippines">
+  <Navbar transparent={true} />
+
+  <!-- ═══ HERO ═══ -->
+  <!-- HOW TO CHANGE HERO IMAGE: Put your photo in /public/hero-bg.jpg -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+    <!-- Background image layer — replace /hero-bg.jpg with your own photo in /public/ -->
+    <div
+      class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+      style="background-image: url('/hero-bg.jpg');"
+    ></div>
+
+    <!-- Fallback gradient if no image -->
+    <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-orange-950"></div>
+
+    <!-- Dark overlay for readability -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+
+    <!-- Decorative orange accent line -->
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 max-w-5xl mx-auto px-4 text-center text-white pt-24 pb-16">
+
+      <!-- Eyebrow label -->
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-medium px-4 py-2 rounded-full mb-8 tracking-widest uppercase">
+        <span class="w-1.5 h-1.5 bg-[#ea580c] rounded-full"></span>
+        Philippines Real Estate Portal
+      </div>
+
+      <!-- Main heading -->
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6" style="font-family: 'Playfair Display', serif;">
+        Find Your Dream<br />
+        <span class="italic text-[#fb923c]">Property</span> in the Philippines
+      </h1>
+
+      <p class="text-white/70 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed font-light">
+        Discover houses, condos, and lots for sale and rent across Metro Manila, Cebu, Davao, and beyond.
+      </p>
+
+      <!-- Search Bar — glassmorphism -->
+      <form action="/search" method="GET"
+        class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 max-w-3xl mx-auto shadow-2xl flex flex-col sm:flex-row gap-3"
+      >
+        <input
+          type="text"
+          name="city"
+          placeholder="City, area, or landmark..."
+          class="flex-1 px-5 py-3.5 text-white placeholder-white/50 text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] focus:bg-white/20 backdrop-blur-sm transition-all"
+        />
+        <select name="listing_type"
+          class="px-4 py-3.5 text-white text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] backdrop-blur-sm transition-all"
+          style="color-scheme: dark;"
+        >
+          <option value="" class="bg-gray-900">Buy or Rent?</option>
+          <option value="For Sale" class="bg-gray-900">For Sale</option>
+          <option value="For Rent" class="bg-gray-900">For Rent</option>
+          <option value="Pre-Selling" class="bg-gray-900">Pre-Selling</option>
+        </select>
+        <button type="submit"
+          class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-orange-900/30"
+        >
+          Search
+        </button>
+      </form>
+
+      <!-- Quick type pills -->
+      <div class="flex flex-wrap justify-center gap-2 mt-8 text-sm">
+        {[
+          { label: '🏠 For Sale', q: '?listing_type=For+Sale' },
+          { label: '🔑 For Rent', q: '?listing_type=For+Rent' },
+          { label: '🏢 Condos', q: '?property_type=condo' },
+          { label: '🏡 Houses', q: '?property_type=house' },
+          { label: '🌿 Land', q: '?property_type=land' },
+        ].map(p => (
+          <a href={`/search${p.q}`}
+            class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white/80 hover:text-white px-4 py-2 rounded-full transition-all text-xs tracking-wide"
+          >
+            {p.label}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 text-xs">
+      <span class="tracking-widest uppercase">Scroll</span>
+      <div class="w-px h-8 bg-gradient-to-b from-white/40 to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- ═══ STATS ═══ -->
+  <section class="bg-white border-b border-gray-100 py-10">
+    <div class="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      {[
+        { n: '5,000+', l: 'Active Listings' },
+        { n: '50+',    l: 'Cities Covered' },
+        { n: '10,000+',l: 'Happy Clients' },
+        { n: '15+',    l: 'Years Experience' },
+      ].map(s => (
+        <div>
+          <p class="text-3xl font-bold text-[#ea580c]" style="font-family:'Playfair Display',serif">{s.n}</p>
+          <p class="text-gray-500 text-xs mt-1 tracking-wide uppercase">{s.l}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ═══ FEATURED LISTINGS ═══ -->
+  <section class="py-20 max-w-7xl mx-auto px-4">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Hand-picked for you</p>
+        <h2 class="text-3xl font-bold text-gray-900" style="font-family:'Playfair Display',serif">Featured Properties</h2>
+      </div>
+      <a href="/search" class="text-[#ea580c] text-sm font-semibold hover:underline tracking-wide">View All →</a>
+    </div>
+
+    {featuredProperties.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {featuredProperties.map((property: any) => (
+          <PropertyCard property={property} />
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-20 text-gray-300">
+        <p class="text-6xl mb-4">🏠</p>
+        <p class="text-gray-400 text-lg">No properties yet.</p>
+        <a href="/list-property" class="mt-4 inline-block text-[#ea580c] font-semibold hover:underline">Be first to list →</a>
+      </div>
+    )}
+  </section>
+
+  <!-- ═══ BROWSE BY TYPE ═══ -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Browse by category</p>
+        <h2 class="text-3xl font-bold text-gray-900" style="font-family:'Playfair Display',serif">Property Types</h2>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        {[
+          { label: 'House',      icon: '🏡', value: 'house' },
+          { label: 'Condo',      icon: '🏢', value: 'condo' },
+          { label: 'Townhouse',  icon: '🏘', value: 'townhouse' },
+          { label: 'Apartment',  icon: '🏬', value: 'apartment' },
+          { label: 'Land & Lot', icon: '🌿', value: 'land' },
+          { label: 'Commercial', icon: '🏪', value: 'commercial' },
+        ].map(t => (
+          <a href={`/search?property_type=${t.value}`}
+            class="flex flex-col items-center py-6 px-2 bg-white rounded-2xl border border-gray-100 hover:border-[#ea580c] hover:shadow-md transition-all group"
+          >
+            <span class="text-3xl mb-3">{t.icon}</span>
+            <span class="text-xs font-semibold text-gray-600 group-hover:text-[#ea580c] tracking-wide">{t.label}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DARK CTA ═══ -->
+  <!-- HOW TO CHANGE THIS BG: replace /cta-bg.jpg in /public/ -->
+  <section class="relative py-24 overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/cta-bg.jpg');"></div>
+    <div class="absolute inset-0 bg-gray-900/85"></div>
+    <div class="relative z-10 max-w-2xl mx-auto px-4 text-center text-white">
+      <p class="text-[#fb923c] text-xs font-semibold tracking-widest uppercase mb-3">Free listing</p>
+      <h2 class="text-3xl md:text-4xl font-bold mb-4" style="font-family:'Playfair Display',serif;">
+        Ready to List Your Property?
+      </h2>
+      <p class="text-white/60 mb-10 text-lg font-light leading-relaxed">
+        Reach thousands of verified buyers and renters across the Philippines.
+      </p>
+      <a href="/list-property"
+        class="inline-block bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-10 py-4 rounded-xl text-lg transition-colors shadow-xl shadow-orange-900/40"
+      >
+        + List Your Property Free
+      </a>
+    </div>
+  </section>
+
+  <Footer />
 </Layout>
