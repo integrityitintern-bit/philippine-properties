@@ -6,12 +6,26 @@ import PropertyCard from '../components/PropertyCard.astro';
 import { WP_API } from '../config.js';
 
 let featuredProperties = [];
+let totalProperties = 0;
+let totalAgents = 0;
+let totalCities = 0;
 try {
   const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish`);
   featuredProperties = await res.json();
 } catch (e) {
   console.error('Failed to fetch properties:', e);
 }
+try {
+  const statsRes = await fetch(`${WP_API}/property?per_page=100&status=publish`);
+  const allProps = await statsRes.json();
+  if (Array.isArray(allProps)) {
+    totalProperties = allProps.length;
+    const agents = new Set(allProps.map((p: any) => p.acf?.agent_name?.trim()).filter(Boolean));
+    const cities = new Set(allProps.map((p: any) => p.acf?.location_city?.trim()).filter(Boolean));
+    totalAgents = agents.size;
+    totalCities = cities.size;
+  }
+} catch {}
 ---
 
 <Layout title="Find Your Dream Property in the Philippines">
@@ -169,6 +183,54 @@ try {
           </a>
         ))}
       </div>
+    </div>
+  </section>
+
+  <!-- ═══ STATS ═══ -->
+  <section class="py-16 bg-[#0a0a0a] border-y border-white/[0.04]">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        {[
+          { value: totalProperties > 0 ? totalProperties + '+' : '—', label: 'Properties Listed' },
+          { value: totalAgents > 0 ? totalAgents + '+' : '—', label: 'Active Agents' },
+          { value: totalCities > 0 ? totalCities + '+' : '—', label: 'Cities Covered' },
+          { value: '100%', label: 'Free to List' },
+        ].map(stat => (
+          <div>
+            <p class="text-4xl font-bold text-[#ea580c] mb-2">{stat.value}</p>
+            <p class="text-white/40 text-sm font-medium tracking-wide">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ TESTIMONIALS ═══ -->
+  <section class="py-20 max-w-7xl mx-auto px-4">
+    <div class="text-center mb-12">
+      <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">What our clients say</p>
+      <h2 class="text-3xl font-bold text-white">Client Stories</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      {[
+        { name: 'Maria Santos', role: 'First-Time Homebuyer', location: 'Metro Manila', text: 'Found my dream condo in Makati through this site. The agent was very responsive and the process was smooth from viewing to turnover.' },
+        { name: 'Jose Reyes', role: 'OFW Property Investor', location: 'Overseas', text: 'As an OFW, I was worried about investing from abroad. The detailed listings and direct agent contact made buying back home easy.' },
+        { name: 'Ana Cruz', role: 'Property Renter', location: 'Taguig City', text: 'Found a great apartment in BGC within my budget. The search filters saved me so much time compared to other Philippine real estate sites.' },
+      ].map(t => (
+        <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-7 flex flex-col">
+          <div class="flex gap-0.5 mb-5">
+            {[1,2,3,4,5].map(_ => <span class="text-[#ea580c] text-sm">★</span>)}
+          </div>
+          <p class="text-white/60 text-sm leading-relaxed flex-1 mb-6">"{t.text}"</p>
+          <div class="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+            <div class="w-10 h-10 bg-[#ea580c]/20 rounded-full flex items-center justify-center text-[#f97316] font-bold text-sm shrink-0">{t.name[0]}</div>
+            <div>
+              <p class="text-white font-semibold text-sm">{t.name}</p>
+              <p class="text-white/35 text-xs">{t.role} · {t.location}</p>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   </section>
 

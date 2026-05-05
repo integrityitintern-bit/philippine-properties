@@ -1,0 +1,112 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { WP_API } from '../config.js';
+---
+
+<Layout title="Saved Properties">
+  <Navbar />
+
+  <section class="bg-[#0f0f0f] border-b border-white/[0.06] py-10">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Saved Properties</h1>
+        <p id="saved-count" class="text-white/40 text-sm mt-1">Loading...</p>
+      </div>
+      <a href="/search" class="text-sm text-[#ea580c] font-semibold hover:underline">Browse more →</a>
+    </div>
+  </section>
+
+  <!-- Loading skeleton -->
+  <div id="loading-state" class="max-w-6xl mx-auto px-4 py-10">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array(3).fill(0).map(() => (
+        <div class="bg-[#141414] rounded-xl border border-white/[0.06] overflow-hidden animate-pulse">
+          <div class="h-48 bg-white/10"></div>
+          <div class="p-4 space-y-3">
+            <div class="h-5 bg-white/10 rounded w-1/2"></div>
+            <div class="h-4 bg-white/10 rounded w-3/4"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Property grid -->
+  <div id="saved-grid" class="hidden max-w-6xl mx-auto px-4 py-10">
+    <div id="property-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div id="empty-state" class="hidden max-w-6xl mx-auto px-4 py-24 text-center">
+    <p class="text-6xl mb-4 opacity-20">🏠</p>
+    <p class="text-white/50 text-lg font-medium">No saved properties yet</p>
+    <p class="text-white/30 text-sm mt-2 mb-8">Tap the ♡ heart icon on any listing to save it here</p>
+    <a href="/search" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+      Browse Properties
+    </a>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script define:vars={{ WP_API }} is:inline>
+  var ids = JSON.parse(localStorage.getItem('saved_properties') || '[]');
+  var loading = document.getElementById('loading-state');
+  var grid = document.getElementById('saved-grid');
+  var list = document.getElementById('property-list');
+  var empty = document.getElementById('empty-state');
+  var countEl = document.getElementById('saved-count');
+
+  if (ids.length === 0) {
+    loading.classList.add('hidden');
+    empty.classList.remove('hidden');
+    if (countEl) countEl.textContent = '0 saved properties';
+  } else {
+    if (countEl) countEl.textContent = ids.length + ' saved propert' + (ids.length === 1 ? 'y' : 'ies');
+    Promise.all(ids.map(function(id) {
+      return fetch(WP_API + '/property/' + id + '?_embed').then(function(r) { return r.json(); }).catch(function() { return null; });
+    })).then(function(props) {
+      loading.classList.add('hidden');
+      var valid = props.filter(function(p) { return p && !p.code; });
+      if (valid.length === 0) { empty.classList.remove('hidden'); return; }
+      grid.classList.remove('hidden');
+      list.innerHTML = valid.map(function(p) {
+        var acf = p.acf || {};
+        var img = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0] ? p._embedded['wp:featuredmedia'][0].source_url : '';
+        var price = acf.price ? '&#8369;' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
+        var city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
+        var badge = acf.listing_type === 'For Rent' ? 'bg-blue-500/90' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/90' : 'bg-[#ea580c]';
+        return '<div class="bg-[#141414] rounded-xl border border-white/[0.07] overflow-hidden hover:border-[#ea580c]/40 hover:shadow-xl hover:shadow-[#ea580c]/5 transition-all flex flex-col" data-id="' + p.id + '">' +
+          '<div class="relative h-48 overflow-hidden bg-[#1a1a1a]">' +
+          (img ? '<img src="' + img + '" alt="' + (p.title && p.title.rendered || '') + '" class="w-full h-full object-cover" loading="lazy"/>' : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">&#127968;</div>') +
+          (acf.listing_type ? '<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full text-white ' + badge + '">' + acf.listing_type + '</span>' : '') +
+          '<button class="unsave-btn absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-red-500/80 transition-colors" data-id="' + p.id + '" title="Remove from saved">' +
+          '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>' +
+          '</button></div>' +
+          '<div class="p-4 flex flex-col flex-1">' +
+          '<p class="text-[#f97316] font-bold text-lg mb-1">' + price + '</p>' +
+          '<h3 class="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2">' + (p.title && p.title.rendered || '') + '</h3>' +
+          (city ? '<p class="text-white/40 text-xs mb-3">&#128205; ' + city + '</p>' : '') +
+          '<a href="/property/' + p.slug + '" class="mt-auto pt-3 border-t border-white/[0.06] text-[#ea580c] text-sm font-semibold hover:underline">View Details &#8594;</a>' +
+          '</div></div>';
+      }).join('');
+
+      document.querySelectorAll('.unsave-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var id = Number(btn.dataset.id);
+          var s = JSON.parse(localStorage.getItem('saved_properties') || '[]');
+          s = s.filter(function(x) { return x !== id; });
+          localStorage.setItem('saved_properties', JSON.stringify(s));
+          var card = btn.closest('[data-id]');
+          if (card) card.remove();
+          var remaining = list.querySelectorAll('[data-id]').length;
+          if (countEl) countEl.textContent = remaining + ' saved propert' + (remaining === 1 ? 'y' : 'ies');
+          if (remaining === 0) { grid.classList.add('hidden'); empty.classList.remove('hidden'); }
+        });
+      });
+    });
+  }
+</script>

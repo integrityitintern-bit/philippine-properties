@@ -53,7 +53,7 @@ import { WP_API } from '../config.js';
           <p class="text-white/40 text-xs mt-1 uppercase tracking-wide">Views</p>
         </div>
         <div class="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 text-center">
-          <p class="text-3xl font-bold text-[#ea580c]">—</p>
+          <p id="stat-inquiries" class="text-3xl font-bold text-[#ea580c]">0</p>
           <p class="text-white/40 text-xs mt-1 uppercase tracking-wide">Inquiries</p>
         </div>
       </div>
@@ -72,6 +72,19 @@ import { WP_API } from '../config.js';
             <p class="text-white/40 text-xs mt-1">{item.sub}</p>
           </a>
         ))}
+      </div>
+
+      <!-- My Inquiries -->
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-white">My Inquiries Sent</h2>
+        </div>
+        <div id="inquiries-list" class="space-y-3"></div>
+        <div id="no-inquiries" class="hidden text-center py-12 bg-[#0f0f0f] rounded-2xl border border-white/[0.06]">
+          <p class="text-4xl mb-3">💬</p>
+          <p class="text-white/50 font-medium">No inquiries sent yet</p>
+          <p class="text-white/40 text-sm mt-1">Send an inquiry from any property page and it will appear here</p>
+        </div>
       </div>
 
       <!-- My Submitted Listings -->
@@ -96,7 +109,9 @@ import { WP_API } from '../config.js';
       <div>
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-xl font-bold text-white">Saved Properties</h2>
-          <a href="/search" class="text-[#ea580c] text-sm font-semibold hover:underline">Browse more →</a>
+          <div class="flex items-center gap-4">
+            <a href="/saved" class="text-[#ea580c] text-sm font-semibold hover:underline">View all saved →</a>
+          </div>
         </div>
 
         <div id="saved-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -142,8 +157,29 @@ import { WP_API } from '../config.js';
     // Stats
     const saved = JSON.parse(localStorage.getItem('saved_properties') || '[]');
     const submitted = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
+    const inquiries = JSON.parse(localStorage.getItem('sent_inquiries') || '[]');
     document.getElementById('stat-saved').textContent = saved.length;
     document.getElementById('stat-submitted').textContent = submitted.length;
+    document.getElementById('stat-inquiries').textContent = inquiries.length;
+
+    // Inquiries sent
+    const inquiriesList = document.getElementById('inquiries-list');
+    const noInquiries = document.getElementById('no-inquiries');
+    if (inquiries.length === 0) {
+      noInquiries?.classList.remove('hidden');
+    } else {
+      inquiries.slice(0, 10).forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'flex items-center justify-between bg-[#141414] border border-white/[0.07] rounded-xl px-5 py-4';
+        el.innerHTML = `
+          <div class="min-w-0 flex-1">
+            <p class="text-white font-semibold text-sm truncate">${item.title || 'Property'}</p>
+            <p class="text-white/40 text-xs mt-0.5">${new Date(item.date).toLocaleDateString('en-PH', {month:'short',day:'numeric',year:'numeric'})}</p>
+          </div>
+          <a href="/property/${item.slug}" class="text-[#ea580c] text-xs font-semibold hover:underline shrink-0 ml-4">View →</a>`;
+        inquiriesList?.appendChild(el);
+      });
+    }
 
     // Submitted listings
     const submittedList = document.getElementById('submitted-list');
