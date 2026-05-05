@@ -18,11 +18,16 @@ try {
         slug,
         phone: p.acf?.agent_phone || '',
         email: p.acf?.agent_email || '',
+        photo: p.acf?.agent_photo || '',
         count: 0,
         sample: p,
       });
     }
-    agentMap.get(slug).count++;
+    const entry = agentMap.get(slug);
+    entry.count++;
+    if (!entry.photo && p.acf?.agent_photo) {
+      entry.photo = p.acf.agent_photo;
+    }
   });
 } catch {}
 
@@ -47,9 +52,12 @@ const agents = Array.from(agentMap.values()).sort((a, b) => b.count - a.count);
           <a href={`/agent/${agent.slug}`}
             class="group bg-white border border-gray-100 shadow-sm rounded-2xl p-6 hover:border-[#ea580c]/50 hover:shadow-lg transition-all flex flex-col">
             <div class="flex items-center gap-4 mb-4">
-              <div class="w-14 h-14 bg-[#ea580c] rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0">
-                {agent.name[0].toUpperCase()}
-              </div>
+              {agent.photo
+                ? <img src={agent.photo} alt={agent.name} class="w-16 h-16 rounded-full object-cover border-2 border-orange-100 shadow-sm shrink-0" />
+                : <div class="w-14 h-14 bg-[#ea580c] rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0">
+                    {agent.name[0].toUpperCase()}
+                  </div>
+              }
               <div class="min-w-0">
                 <p class="font-bold text-gray-900 text-lg leading-tight group-hover:text-[#ea580c] transition-colors">{agent.name}</p>
                 <p class="text-gray-400 text-xs mt-0.5">Integrity Real Estate Agent</p>

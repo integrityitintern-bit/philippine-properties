@@ -15,9 +15,13 @@ export async function getStaticPaths() {
       if (!name) return;
       const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       if (!agentMap.has(slug)) {
-        agentMap.set(slug, { name, slug, phone: p.acf?.agent_phone || '', email: p.acf?.agent_email || '', listings: [] });
+        agentMap.set(slug, { name, slug, phone: p.acf?.agent_phone || '', email: p.acf?.agent_email || '', photo: p.acf?.agent_photo || '', listings: [] });
       }
-      agentMap.get(slug).listings.push(p);
+      const entry = agentMap.get(slug);
+      if (!entry.photo && p.acf?.agent_photo) {
+        entry.photo = p.acf.agent_photo;
+      }
+      entry.listings.push(p);
     });
 
     return Array.from(agentMap.values()).map(agent => ({
@@ -30,6 +34,11 @@ export async function getStaticPaths() {
 }
 
 const { agent } = Astro.props;
+const agentName = agent.name;
+// WP SETUP: In ACF → Field Groups → Property Details, add field:
+//   Label: Agent Photo | Name: agent_photo | Type: Image | Return Format: URL
+//   Upload the agent's headshot — it will be used across all their listings
+const agentPhoto: string = agent.photo || '';
 const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/, '63') : '';
 ---
 
@@ -43,9 +52,15 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
         ← All Agents
       </a>
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mt-4">
-        <div class="w-20 h-20 bg-[#ea580c] rounded-3xl flex items-center justify-center text-white text-3xl font-bold shrink-0 shadow-xl shadow-orange-900/30">
-          {agent.name[0].toUpperCase()}
-        </div>
+        <!-- WP SETUP: In ACF → Field Groups → Property Details, add field:
+             Label: Agent Photo | Name: agent_photo | Type: Image | Return Format: URL
+             Upload the agent's headshot — it will be used across all their listings -->
+        {agentPhoto
+          ? <img src={agentPhoto} alt={agentName} class="w-20 h-20 rounded-full object-cover border-2 border-orange-100 shadow-sm shrink-0" />
+          : <div class="w-20 h-20 bg-[#ea580c] rounded-3xl flex items-center justify-center text-white text-3xl font-bold shrink-0 shadow-xl shadow-orange-900/30">
+              {agent.name[0].toUpperCase()}
+            </div>
+        }
         <div class="flex-1 min-w-0">
           <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{agent.name}</h1>
           <p class="text-gray-400 text-sm mt-1">Integrity Real Estate Agent · {agent.listings.length} listing{agent.listings.length !== 1 ? 's' : ''}</p>

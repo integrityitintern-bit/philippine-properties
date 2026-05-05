@@ -39,6 +39,36 @@ const whatsappPhone = acf.agent_phone ? acf.agent_phone.replace(/\D/g, '').repla
 const whatsappMsg = encodeURIComponent(`Hi! I'm interested in this property: ${title} — ${price}`);
 const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} — ${title} in ${acf.location_city || 'Philippines'}`;
 
+// JSON-LD structured data
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateListing",
+  "name": title,
+  "description": description,
+  "url": Astro.url.href,
+  ...(image ? { "image": image } : {}),
+  "offers": {
+    "@type": "Offer",
+    "price": acf.price || undefined,
+    "priceCurrency": "PHP",
+    "availability": acf.property_status === 'Sold' ? "https://schema.org/SoldOut" : "https://schema.org/InStock"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    ...(acf.full_address ? { "streetAddress": acf.full_address } : {}),
+    ...(acf.location_city ? { "addressLocality": acf.location_city } : {}),
+    ...(acf.location_province ? { "addressRegion": acf.location_province } : {}),
+    "addressCountry": "PH"
+  },
+  ...(acf.bedrooms ? { "numberOfRooms": Number(acf.bedrooms) } : {}),
+  ...(acf.floor_area ? { "floorSize": { "@type": "QuantitativeValue", "value": Number(acf.floor_area), "unitCode": "MTK" } } : {}),
+};
+
+// Virtual tour
+const vtUrl = acf.virtual_tour_url || '';
+const ytMatch = vtUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+const vtEmbedUrl = ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1` : vtUrl;
+
 // Build gallery array: featured image first, then additional photo fields
 const galleryImages: string[] = [];
 if (image) galleryImages.push(image);
@@ -60,6 +90,7 @@ if (Array.isArray(acf.gallery)) {
 
 <Layout title={title} description={description} ogImage={image || '/hero-bg.jpg'} ogType="article">
   <Navbar />
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
   <div class="max-w-7xl mx-auto px-4 py-8">
 
@@ -117,12 +148,44 @@ if (Array.isArray(acf.gallery)) {
           )}
         </div>
 
+        <!-- Virtual Tour -->
+        {vtUrl && (
+          <div class="mb-6">
+            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">🎥 Virtual Tour</h3>
+            <div class="aspect-video rounded-2xl overflow-hidden border border-gray-200 bg-gray-100">
+              <iframe src={vtEmbedUrl} class="w-full h-full" allowfullscreen loading="lazy" title="Virtual Tour"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+            </div>
+            <!-- WP SETUP: In ACF → Field Groups → Property Details, add field:
+                 Label: Virtual Tour URL | Name: virtual_tour_url | Type: URL
+                 Paste YouTube link or any embeddable URL -->
+          </div>
+        )}
+
         <!-- Title, Price & Share -->
         <div class="mb-4">
-          {acf.listing_type && (
-            <span class={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 ${badgeColor}`}>
-              {acf.listing_type}
-            </span>
+          <div class="flex items-center gap-2 flex-wrap mb-3">
+            {acf.listing_type && (
+              <span class={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${badgeColor}`}>
+                {acf.listing_type}
+              </span>
+            )}
+            {acf.property_status === 'Sold' && (
+              <span class="inline-block text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 border border-red-200">
+                Sold
+              </span>
+            )}
+            {acf.property_status === 'Reserved' && (
+              <span class="inline-block text-xs font-semibold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">
+                Reserved
+              </span>
+            )}
+          </div>
+          {acf.property_status === 'Sold' && (
+            <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 flex items-center gap-2">
+              <span class="text-red-500 font-bold text-sm">⛔ This property has been SOLD</span>
+              <span class="text-red-400 text-xs">— Contact us for similar available properties</span>
+            </div>
           )}
           <div class="flex items-start justify-between gap-4 flex-wrap">
             <div class="flex-1">

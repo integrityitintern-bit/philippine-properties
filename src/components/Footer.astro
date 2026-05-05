@@ -65,7 +65,30 @@
     </div>
 
   </div>
-  <div class="max-w-7xl mx-auto px-4 mt-8 pt-6 border-t border-gray-200 text-xs text-center">
+  <!-- Newsletter Signup -->
+  <div class="max-w-7xl mx-auto px-4 mt-8 pt-6 border-t border-gray-100">
+    <div class="bg-gray-50 rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="font-semibold text-gray-900 text-sm">Stay Updated on New Listings</p>
+        <p class="text-gray-400 text-xs mt-0.5">Get notified when new properties match your criteria. No spam.</p>
+      </div>
+      <form action="https://formsubmit.co/integrityitintern@integrityrealty.ph" method="POST"
+        class="flex gap-2 w-full sm:w-auto shrink-0">
+        <input type="hidden" name="_subject" value="Newsletter Subscription" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="hidden" name="_next" value="/?newsletter=success" />
+        <input type="email" name="email" required placeholder="Your email address"
+          class="flex-1 sm:w-56 px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] text-gray-900 placeholder-gray-400" />
+        <button type="submit"
+          class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors whitespace-nowrap">
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 mt-6 pt-6 border-t border-gray-200 text-xs text-center">
     © 2026 [Your Brand]. All rights reserved. |
     <a href="#" class="hover:text-[#ea580c] ml-1">Privacy Policy</a> |
     <a href="#" class="hover:text-[#ea580c] ml-1">Terms of Service</a>

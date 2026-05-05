@@ -22,10 +22,18 @@ const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 6
       ? <img src={image} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       : <div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>
     }
+    <!-- WP SETUP: In ACF → Field Groups → Property Details, add field:
+         Label: Property Status | Name: property_status | Type: Select
+         Choices: Available | Sold | Reserved -->
     <div class="absolute top-3 left-3 flex flex-col gap-1.5">
       {listingType && (
         <span class={`text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badgeColor} w-fit`}>
           {listingType}
+        </span>
+      )}
+      {(acf.property_status === 'Sold' || acf.property_status === 'Reserved') && (
+        <span class={`text-[10px] font-bold px-2.5 py-1 rounded-full text-white backdrop-blur-sm uppercase tracking-wider w-fit ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'}`}>
+          {acf.property_status}
         </span>
       )}
       {isNew && (

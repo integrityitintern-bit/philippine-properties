@@ -4,10 +4,18 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { WP_API } from '../config.js';
 
-let posts = [];
+let posts: any[] = [];
 try {
-  const res = await fetch(`${WP_API}/posts?_embed&per_page=9&status=publish`);
-  posts = await res.json();
+  const res = await fetch(`${WP_API}/posts?_embed&per_page=20&status=publish`);
+  const data = await res.json();
+  if (Array.isArray(data)) posts = data;
+} catch {}
+
+let categories: any[] = [];
+try {
+  const catRes = await fetch(`${WP_API}/categories?per_page=20&hide_empty=false`);
+  const catData = await catRes.json();
+  if (Array.isArray(catData)) categories = catData.filter((c: any) => c.slug !== 'uncategorized');
 } catch {}
 ---
 
@@ -22,80 +30,39 @@ try {
     </div>
   </section>
 
-  <!-- Topics -->
-  <section class="py-8 border-b border-gray-100">
-    <div class="max-w-5xl mx-auto px-4 flex flex-wrap gap-2 justify-center" id="topic-pills">
-      {[
-        { label: 'All Topics', filter: '' },
-        { label: 'Buying Guide', filter: 'buying guide' },
-        { label: 'Renting Tips', filter: 'renting rent' },
-        { label: 'Market Insights', filter: 'market insights' },
-        { label: 'OFW Investors', filter: 'ofw investor overseas' },
-        { label: 'First-Time Buyers', filter: 'first-time first time buyer' },
-        { label: 'Condo Living', filter: 'condo living' },
-      ].map((t, i) => (
-        <button
-          class={`topic-pill px-4 py-2 text-sm rounded-full border transition-colors ${i === 0 ? 'border-[#ea580c] text-[#ea580c] bg-[#ea580c]/10' : 'border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c]'}`}
-          data-filter={t.filter}
-        >
-          {t.label}
-        </button>
-      ))}
-    </div>
-  </section>
-
   <!-- Articles -->
   <section class="py-16 max-w-6xl mx-auto px-4">
-    {posts.length > 0 ? (
-      <div id="articles-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post: any) => {
-          const image = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
-          const excerpt = post.excerpt?.rendered?.replace(/<[^>]*>/g, '').slice(0, 120) + '...' || '';
-          const date = new Date(post.date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
-          const cats = (post._embedded?.['wp:term']?.[0] || []).map((c: any) => c.name).join(',').toLowerCase();
-          return (
-            <article class="article-card bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group" data-categories={cats}>
-              <div class="h-48 bg-gray-100 overflow-hidden">
-                {image
-                  ? <img src={image} alt={post.title?.rendered} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                  : <div class="w-full h-full flex items-center justify-center text-4xl bg-gray-50">📰</div>
-                }
-              </div>
-              <div class="p-5">
-                <p class="text-xs text-gray-400 mb-2">{date}</p>
-                <h3 class="font-bold text-gray-900 leading-snug mb-2 line-clamp-2" set:html={post.title?.rendered} />
-                <p class="text-gray-500 text-xs leading-relaxed mb-4">{excerpt}</p>
-                <a href={post.link} target="_blank" rel="noopener" class="text-[#ea580c] font-semibold text-xs hover:underline">
-                  Read More →
-                </a>
-              </div>
-            </article>
-          );
-        })}
+    <!-- Search input -->
+    <input id="resource-search" type="text" placeholder="Search guides and articles..."
+      class="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] text-gray-900 placeholder-gray-400 mb-4" />
+
+    <!-- Category filter pills (rendered by JS) -->
+    <div id="category-pills" class="flex flex-wrap gap-2 mb-8"></div>
+
+    <!-- Articles grid (rendered by JS) -->
+    <div id="articles-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    <!-- No-results state (shown by JS when filters return nothing) -->
+    <div id="no-results" class="hidden text-center py-16">
+      <p class="text-gray-400 text-sm">No articles match your search — try different keywords</p>
+    </div>
+
+    <!-- No-posts state (shown by JS when WP returns no posts at all) -->
+    <!-- WP SETUP: Go to WP Admin → Posts → Add New.
+         Write your real estate guides (buying tips, market updates, etc.).
+         Publish them and they will automatically appear here.
+         You can also assign categories from Posts → Categories. -->
+    <div id="no-posts" class="hidden text-center py-16">
+      <div class="max-w-md mx-auto">
+        <span class="text-5xl block mb-4">📰</span>
+        <h3 class="font-bold text-gray-900 text-lg mb-2">No articles yet</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Head to <strong>WP Admin → Posts → Add New</strong> to write your first real estate guide.
+          Published posts will automatically appear here. You can also organise them with
+          <strong>Posts → Categories</strong>.
+        </p>
       </div>
-    ) : (
-      <!-- Static guide cards when no WP posts -->
-      <div id="articles-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { icon: '🏠', title: "First-Time Buyer's Complete Guide", desc: 'Everything you need to know before buying your first property in the Philippines — from financing to turnover.', tag: 'Buying Guide' },
-          { icon: '📋', title: 'How to Rent a Property in the Philippines', desc: 'Step-by-step guide to renting safely — what to check in a lease contract, red flags, and tenant rights.', tag: 'Renting Tips' },
-          { icon: '💰', title: 'Understanding Pag-IBIG Housing Loans', desc: 'A complete breakdown of Pag-IBIG Fund housing loan requirements, rates, and how to apply.', tag: 'Financing' },
-          { icon: '🌏', title: 'OFW Real Estate Investment Guide', desc: 'How overseas Filipino workers can invest in Philippine real estate — legally, safely, and profitably.', tag: 'OFW Investors' },
-          { icon: '📊', title: 'Philippine Real Estate Market 2026', desc: 'Key trends shaping the property market this year — rising condo demand, provincial growth, and more.', tag: 'Market Insights' },
-          { icon: '🏢', title: 'Condo vs House: Which is Right for You?', desc: 'A practical comparison to help you decide between buying a condo or a house based on your lifestyle and budget.', tag: 'Buying Guide' },
-        ].map(article => (
-          <article class="article-card bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6" data-categories={article.tag.toLowerCase()}>
-            <span class="text-3xl">{article.icon}</span>
-            <span class="inline-block mt-3 text-[10px] font-bold text-[#ea580c] bg-[#ea580c]/10 px-2.5 py-0.5 rounded-full uppercase tracking-wide">{article.tag}</span>
-            <h3 class="font-bold text-gray-900 mt-2 mb-2 leading-snug">{article.title}</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">{article.desc}</p>
-          </article>
-        ))}
-      </div>
-      <div id="no-articles" class="hidden text-center py-16">
-        <p class="text-gray-400">No articles in this category yet.</p>
-      </div>
-    )}
+    </div>
   </section>
 
   <!-- Mortgage Calculator -->
@@ -189,34 +156,133 @@ try {
   <Footer />
 </Layout>
 
-<script is:inline>
-  document.querySelectorAll('.topic-pill').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var filter = btn.dataset.filter.toLowerCase();
-      document.querySelectorAll('.topic-pill').forEach(function(b) {
-        b.className = b.className
-          .replace('border-[#ea580c] text-[#ea580c] bg-[#ea580c]/10', '')
-          .replace('border-gray-200 text-gray-500', '')
-          .trim() + ' border-gray-200 text-gray-500';
-      });
-      btn.className = btn.className
-        .replace('border-gray-200 text-gray-500', '')
-        .trim() + ' border-[#ea580c] text-[#ea580c] bg-[#ea580c]/10';
+<!-- Articles: client-side render, filter, and search -->
+<script define:vars={{ posts, categories }}>
+  var allPosts = posts;
+  var allCategories = categories;
+  var activeCatId = null; // null = All
+  var searchQuery = '';
 
-      var cards = document.querySelectorAll('.article-card');
-      var visible = 0;
-      cards.forEach(function(card) {
-        var cats = (card.dataset.categories || '').toLowerCase();
-        var show = !filter || filter.split(' ').some(function(kw) { return cats.includes(kw); });
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
+  // ── Category pill bar ────────────────────────────────────────────────────
+  var pillBar = document.getElementById('category-pills');
+
+  function renderPills() {
+    pillBar.innerHTML = '';
+
+    var pills = [{ id: null, name: 'All' }].concat(
+      allCategories.map(function(c) { return { id: c.id, name: c.name }; })
+    );
+
+    pills.forEach(function(cat) {
+      var btn = document.createElement('button');
+      btn.textContent = cat.name;
+      var isActive = cat.id === activeCatId;
+      btn.className = 'text-xs font-medium px-4 py-2 rounded-full cursor-pointer transition-colors ' +
+        (isActive
+          ? 'bg-[#ea580c] text-white border border-[#ea580c]'
+          : 'border border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c]');
+      btn.addEventListener('click', function() {
+        activeCatId = cat.id;
+        renderPills();
+        renderArticles();
       });
-      var noArticles = document.getElementById('no-articles');
-      if (noArticles) noArticles.style.display = visible === 0 ? 'block' : 'none';
+      pillBar.appendChild(btn);
     });
+  }
+
+  // ── Card builder ─────────────────────────────────────────────────────────
+  function cardHTML(post) {
+    var featImg = (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0] && post._embedded['wp:featuredmedia'][0].source_url) || '';
+    var title = (post.title && post.title.rendered) ? post.title.rendered : 'Untitled';
+    var rawExcerpt = (post.excerpt && post.excerpt.rendered) ? post.excerpt.rendered.replace(/<[^>]*>/g, '') : '';
+    var excerpt = rawExcerpt.length > 120 ? rawExcerpt.slice(0, 120) + '...' : rawExcerpt;
+    var date = new Date(post.date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+    var link = post.link || '#';
+
+    var wordCount = ((post.content && post.content.rendered) ? post.content.rendered : '').replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
+    var readTime = Math.max(1, Math.ceil(wordCount / 200));
+
+    var imgSection = featImg
+      ? '<img src="' + featImg + '" alt="' + title.replace(/"/g, '&quot;') + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />'
+      : '<div class="w-full h-full flex items-center justify-center text-4xl bg-gray-50">📰</div>';
+
+    return (
+      '<div class="h-44 bg-gray-100 overflow-hidden rounded-t-2xl">' + imgSection + '</div>' +
+      '<div class="p-5 flex flex-col flex-1">' +
+        '<p class="text-xs text-gray-400 mb-2">' + date + '</p>' +
+        '<h3 class="font-bold text-gray-900 leading-snug mb-2 line-clamp-2">' + title + '</h3>' +
+        '<p class="text-gray-500 text-xs leading-relaxed mb-4 flex-1">' + excerpt + '</p>' +
+        '<div class="flex items-center justify-between">' +
+          '<a href="' + link + '" target="_blank" rel="noopener" class="text-[#ea580c] font-semibold text-xs hover:underline">Read More →</a>' +
+          '<span class="text-gray-400 text-xs">📖 ' + readTime + ' min read</span>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ── Render articles ──────────────────────────────────────────────────────
+  function renderArticles() {
+    var grid = document.getElementById('articles-grid');
+    var noResults = document.getElementById('no-results');
+    var noPosts = document.getElementById('no-posts');
+
+    // No WP posts at all — show setup guidance
+    if (!allPosts || allPosts.length === 0) {
+      grid.innerHTML = '';
+      noResults.classList.add('hidden');
+      noPosts.classList.remove('hidden');
+      return;
+    }
+
+    noPosts.classList.add('hidden');
+
+    var query = searchQuery.trim().toLowerCase();
+
+    var filtered = allPosts.filter(function(post) {
+      // Category filter
+      if (activeCatId !== null) {
+        var postCats = Array.isArray(post.categories) ? post.categories : [];
+        if (!postCats.includes(activeCatId)) return false;
+      }
+
+      // Search filter
+      if (query) {
+        var titleText = ((post.title && post.title.rendered) ? post.title.rendered : '').replace(/<[^>]*>/g, '').toLowerCase();
+        var excerptText = ((post.excerpt && post.excerpt.rendered) ? post.excerpt.rendered : '').replace(/<[^>]*>/g, '').toLowerCase();
+        if (!titleText.includes(query) && !excerptText.includes(query)) return false;
+      }
+
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      noResults.classList.remove('hidden');
+      return;
+    }
+
+    noResults.classList.add('hidden');
+
+    grid.innerHTML = filtered.map(function(post) {
+      return '<article class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group flex flex-col">' +
+        cardHTML(post) +
+        '</article>';
+    }).join('');
+  }
+
+  // ── Search input ─────────────────────────────────────────────────────────
+  var searchInput = document.getElementById('resource-search');
+  searchInput.addEventListener('input', function() {
+    searchQuery = searchInput.value;
+    renderArticles();
   });
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  renderPills();
+  renderArticles();
 </script>
 
+<!-- Mortgage calculator -->
 <script>
   function fmt(n: number) {
     return '₱' + Math.round(n).toLocaleString('en-PH');
@@ -243,8 +309,8 @@ try {
       return;
     }
 
-    const monthly = loan * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const total   = monthly * n;
+    const monthly  = loan * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const total    = monthly * n;
     const interest = total - loan;
 
     document.getElementById('mc-monthly')!.textContent  = fmt(monthly);

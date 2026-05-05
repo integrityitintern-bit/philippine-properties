@@ -26,6 +26,39 @@ try {
     totalCities = cities.size;
   }
 } catch {}
+
+// WP SETUP — Testimonials CPT:
+// Add this PHP snippet in WP Code plugin (Admin → Code Snippets → Add Snippet → PHP):
+// add_action('init', function() {
+//   register_post_type('testimonial', [
+//     'public' => true, 'show_in_rest' => true,
+//     'supports' => ['title', 'custom-fields'],
+//     'labels' => ['name' => 'Testimonials', 'add_new_item' => 'Add Testimonial'],
+//   ]);
+// });
+// Then in ACF → Field Groups → Add New → assign to Post Type: testimonial
+// Fields: reviewer_name (Text), reviewer_role (Text), reviewer_location (Text),
+//         review_text (Textarea), rating (Number, min:1, max:5)
+let testimonials: any[] = [];
+try {
+  const tRes = await fetch(`${WP_API}/testimonial?per_page=6&status=publish`);
+  const tData = await tRes.json();
+  if (Array.isArray(tData) && tData.length > 0) testimonials = tData;
+} catch {}
+
+const testimonialItems = testimonials.length > 0
+  ? testimonials.map((t: any) => ({
+      name: t.acf?.reviewer_name || 'Anonymous',
+      role: t.acf?.reviewer_role || 'Client',
+      location: t.acf?.reviewer_location || 'Philippines',
+      text: t.acf?.review_text || '',
+      rating: Math.min(5, Math.max(1, parseInt(t.acf?.rating) || 5)),
+    }))
+  : [
+      { name: 'Maria Santos', role: 'First-Time Homebuyer', location: 'Metro Manila', text: 'Found my dream condo in Makati through this site. The agent was very responsive and the process was smooth from viewing to turnover.', rating: 5 },
+      { name: 'Jose Reyes', role: 'OFW Property Investor', location: 'Overseas', text: 'As an OFW, I was worried about investing from abroad. The detailed listings and direct agent contact made buying back home easy.', rating: 5 },
+      { name: 'Ana Cruz', role: 'Property Renter', location: 'Taguig City', text: 'Found a great apartment in BGC within my budget. The search filters saved me so much time compared to other Philippine real estate sites.', rating: 5 },
+    ];
 ---
 
 <Layout title="Find Your Dream Property in the Philippines">
@@ -212,14 +245,11 @@ try {
       <h2 class="text-3xl font-bold text-gray-900">Client Stories</h2>
     </div>
     <div class="grid md:grid-cols-3 gap-6">
-      {[
-        { name: 'Maria Santos', role: 'First-Time Homebuyer', location: 'Metro Manila', text: 'Found my dream condo in Makati through this site. The agent was very responsive and the process was smooth from viewing to turnover.' },
-        { name: 'Jose Reyes', role: 'OFW Property Investor', location: 'Overseas', text: 'As an OFW, I was worried about investing from abroad. The detailed listings and direct agent contact made buying back home easy.' },
-        { name: 'Ana Cruz', role: 'Property Renter', location: 'Taguig City', text: 'Found a great apartment in BGC within my budget. The search filters saved me so much time compared to other Philippine real estate sites.' },
-      ].map(t => (
+      {testimonialItems.map(t => (
         <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-7 flex flex-col">
           <div class="flex gap-0.5 mb-5">
-            {[1,2,3,4,5].map(_ => <span class="text-[#ea580c] text-sm">★</span>)}
+            {Array.from({length: t.rating}).map(() => <span class="text-[#ea580c] text-sm">★</span>)}
+            {Array.from({length: 5 - t.rating}).map(() => <span class="text-gray-200 text-sm">★</span>)}
           </div>
           <p class="text-gray-500 text-sm leading-relaxed flex-1 mb-6">"{t.text}"</p>
           <div class="flex items-center gap-3 pt-4 border-t border-gray-100">
