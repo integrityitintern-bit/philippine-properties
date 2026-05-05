@@ -32,7 +32,6 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body class="min-h-screen">
-    <slot />
     <script is:inline>
       window.ppAuth = {
         getUser: function() {
@@ -57,5 +56,6 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
         logout: function() { localStorage.removeItem('pp_user'); window.location.href = '/'; }
       };
     </script>
+    <slot />
   </body>
 </html>
