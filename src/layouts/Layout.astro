@@ -13,9 +13,48 @@ const { title = 'Real Estate Portal', description = 'Find your dream property in
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-    <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body class="bg-white text-gray-900 min-h-screen">
     <slot />
+    <script is:inline>
+      // Auth utility on window
+      window.ppAuth = {
+        getUser: function() {
+          try {
+            var s = localStorage.getItem('pp_user');
+            if (!s) return null;
+            var u = JSON.parse(s);
+            if (Date.now() >= u.expires_at) { localStorage.removeItem('pp_user'); return null; }
+            return u;
+          } catch(e) { return null; }
+        },
+        setUser: function(token, meta) {
+          var u = {
+            access_token: token.access_token,
+            refresh_token: token.refresh_token,
+            expires_at: Date.now() + (token.expires_in || 3600) * 1000,
+            email: meta ? meta.email : '',
+            name: meta ? ((meta.user_metadata && meta.user_metadata.full_name) || meta.email.split('@')[0]) : ''
+          };
+          localStorage.setItem('pp_user', JSON.stringify(u));
+          return u;
+        },
+        logout: function() { localStorage.removeItem('pp_user'); window.location.href = '/'; }
+      };
+      // Handle Google OAuth callback (#access_token=... in URL hash)
+      (function() {
+        var h = window.location.hash;
+        if (h && h.includes('access_token=')) {
+          var p = {};
+          h.slice(1).split('&').forEach(function(x) { var kv = x.split('='); p[kv[0]] = decodeURIComponent(kv[1] || ''); });
+          if (p.access_token) {
+            fetch('/.netlify/identity/user', { headers: { 'Authorization': 'Bearer ' + p.access_token } })
+              .then(function(r) { return r.json(); })
+              .then(function(meta) { window.ppAuth.setUser(p, meta); history.replaceState(null,'',location.pathname); location.href='/dashboard'; })
+              .catch(function() { window.ppAuth.setUser(p, { email: '', user_metadata: {} }); history.replaceState(null,'',location.pathname); location.href='/dashboard'; });
+          }
+        }
+      })();
+    </script>
   </body>
 </html>

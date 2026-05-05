@@ -83,24 +83,20 @@ import { WP_API } from '../config.js';
 <script define:vars={{ WP_API }} is:inline>
   var loading = document.getElementById('auth-loading');
   var content = document.getElementById('dashboard-content');
+  var user = window.ppAuth && window.ppAuth.getUser();
 
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on('init', function(user) {
-      if (!user) { window.location.href = '/login'; return; }
-      showDashboard(user);
-    });
-    window.netlifyIdentity.on('logout', function() { window.location.href = '/'; });
-  }
+  if (!user) { window.location.href = '/login'; }
+  else { showDashboard(user); }
 
   document.getElementById('logout-btn') && document.getElementById('logout-btn').addEventListener('click', function() {
-    window.netlifyIdentity && window.netlifyIdentity.logout();
+    window.ppAuth && window.ppAuth.logout();
   });
 
   async function showDashboard(user) {
     loading?.classList.add('hidden');
     content?.classList.remove('hidden');
 
-    const name = user.user_metadata?.full_name || user.email.split('@')[0];
+    const name = user.name || user.email.split('@')[0];
     document.getElementById('user-avatar').textContent = name[0].toUpperCase();
     document.getElementById('user-name').textContent = name;
     document.getElementById('user-email').textContent = user.email;

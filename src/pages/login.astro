@@ -4,44 +4,184 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="Login | Real Estate Portal">
+<Layout title="Sign In | Real Estate Portal">
   <Navbar />
 
-  <div class="min-h-[80vh] flex items-center justify-center px-4 py-16">
-    <div class="max-w-md w-full">
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-16">
+    <div class="w-full max-w-md">
 
+      <!-- Logo -->
       <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-[#ea580c] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-          </svg>
-        </div>
-        <h1 class="text-2xl font-bold text-gray-900">Welcome Back</h1>
-        <p class="text-gray-500 mt-2 text-sm">Sign in to save properties and manage your listings</p>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-        <button onclick="window.netlifyIdentity && window.netlifyIdentity.open('login')"
-          class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors mb-3">
-          Sign In
-        </button>
-        <button onclick="window.netlifyIdentity && window.netlifyIdentity.open('signup')"
-          class="w-full border-2 border-[#ea580c] text-[#ea580c] hover:bg-[#ea580c] hover:text-white font-bold py-3.5 rounded-xl transition-colors">
-          Create Account
-        </button>
-        <p class="mt-6 text-center text-xs text-gray-400">
-          By continuing, you agree to our
-          <a href="#" class="text-[#ea580c] hover:underline">Terms</a> &
-          <a href="#" class="text-[#ea580c] hover:underline">Privacy Policy</a>
-        </p>
-      </div>
-
-      <div class="mt-6 text-center">
-        <a href="/search" class="text-gray-400 text-sm hover:text-gray-600 transition-colors">
-          ← Continue browsing without an account
+        <a href="/" class="inline-flex items-center gap-3">
+          <span class="w-12 h-12 bg-[#ea580c] rounded-2xl flex items-center justify-center shadow-lg">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+            </svg>
+          </span>
+          <span class="text-xl font-bold text-gray-900" style="font-family:'Playfair Display',serif">[YOUR BRAND]</span>
         </a>
       </div>
 
+      <!-- Card -->
+      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-100">
+          <button id="tab-signin" onclick="showTab('signin')"
+            class="flex-1 py-4 text-sm font-semibold text-[#ea580c] border-b-2 border-[#ea580c] transition-all">
+            Sign In
+          </button>
+          <button id="tab-register" onclick="showTab('register')"
+            class="flex-1 py-4 text-sm font-semibold text-gray-400 border-b-2 border-transparent transition-all">
+            Create Account
+          </button>
+        </div>
+
+        <div class="p-8">
+
+          <!-- Google Button -->
+          <button onclick="signInWithGoogle()"
+            class="w-full flex items-center justify-center gap-3 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl transition-all mb-6">
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <!-- Divider -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="flex-1 h-px bg-gray-200"></div>
+            <span class="text-xs text-gray-400 font-medium">or continue with email</span>
+            <div class="flex-1 h-px bg-gray-200"></div>
+          </div>
+
+          <!-- Error -->
+          <div id="auth-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+          <!-- Success -->
+          <div id="auth-success" class="hidden mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-600 text-sm"></div>
+
+          <!-- Sign In Form -->
+          <form id="signin-form" onsubmit="handleSignIn(event)">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email Address</label>
+                <input type="email" id="signin-email" required autocomplete="email"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all"
+                  placeholder="you@example.com"/>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Password</label>
+                  <a href="#" class="text-xs text-[#ea580c] hover:underline">Forgot password?</a>
+                </div>
+                <div class="relative">
+                  <input type="password" id="signin-password" required autocomplete="current-password"
+                    class="w-full px-4 py-3 pr-12 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all"
+                    placeholder="Your password"/>
+                  <button type="button" onclick="togglePass('signin-password',this)"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" id="signin-btn"
+                class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-orange-100 flex items-center justify-center gap-2">
+                Sign In
+              </button>
+            </div>
+          </form>
+
+          <!-- Register Form -->
+          <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Full Name</label>
+                <input type="text" id="reg-name" required autocomplete="name"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all"
+                  placeholder="Juan dela Cruz"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email Address</label>
+                <input type="email" id="reg-email" required autocomplete="email"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all"
+                  placeholder="you@example.com"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Password</label>
+                <div class="relative">
+                  <input type="password" id="reg-password" required oninput="checkStrength(this.value)" autocomplete="new-password"
+                    class="w-full px-4 py-3 pr-12 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all"
+                    placeholder="Create a strong password"/>
+                  <button type="button" onclick="togglePass('reg-password',this)"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                </div>
+                <!-- Strength bars -->
+                <div id="strength-wrap" class="hidden mt-2.5">
+                  <div class="flex gap-1 mb-1.5">
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                    <div class="s-bar flex-1 h-1.5 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                  </div>
+                  <p id="strength-text" class="text-xs font-semibold text-gray-400"></p>
+                </div>
+                <!-- Requirements checklist -->
+                <ul class="mt-3 space-y-1.5">
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="length">
+                    <span class="req-icon">○</span> At least 8 characters
+                  </li>
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="upper">
+                    <span class="req-icon">○</span> One uppercase letter (A–Z)
+                  </li>
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="number">
+                    <span class="req-icon">○</span> One number (0–9)
+                  </li>
+                  <li class="req flex items-center gap-2 text-xs text-gray-400" data-rule="special">
+                    <span class="req-icon">○</span> One special character (!@#$...)
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Confirm Password</label>
+                <div class="relative">
+                  <input type="password" id="reg-confirm" required autocomplete="new-password"
+                    class="w-full px-4 py-3 pr-12 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] focus:border-transparent transition-all"
+                    placeholder="Repeat your password"/>
+                  <button type="button" onclick="togglePass('reg-confirm',this)"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" id="register-btn"
+                class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-orange-100">
+                Create Account
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-5">
+        By continuing, you agree to our
+        <a href="#" class="text-[#ea580c] hover:underline">Terms</a> &
+        <a href="#" class="text-[#ea580c] hover:underline">Privacy Policy</a>
+      </p>
+      <div class="text-center mt-3">
+        <a href="/search" class="text-gray-400 text-sm hover:text-gray-600 transition-colors">← Continue browsing without an account</a>
+      </div>
     </div>
   </div>
 
@@ -49,13 +189,128 @@ import Footer from '../components/Footer.astro';
 </Layout>
 
 <script is:inline>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on('init', function(user) {
-      if (user) window.location.href = '/dashboard';
-    });
-    window.netlifyIdentity.on('login', function() {
-      window.netlifyIdentity.close();
+  // Redirect if already logged in
+  if (window.ppAuth && window.ppAuth.getUser()) window.location.href = '/dashboard';
+
+  function showTab(tab) {
+    var isSignin = tab === 'signin';
+    document.getElementById('signin-form').classList.toggle('hidden', !isSignin);
+    document.getElementById('register-form').classList.toggle('hidden', isSignin);
+    document.getElementById('tab-signin').className = 'flex-1 py-4 text-sm font-semibold transition-all border-b-2 ' + (isSignin ? 'text-[#ea580c] border-[#ea580c]' : 'text-gray-400 border-transparent');
+    document.getElementById('tab-register').className = 'flex-1 py-4 text-sm font-semibold transition-all border-b-2 ' + (!isSignin ? 'text-[#ea580c] border-[#ea580c]' : 'text-gray-400 border-transparent');
+    hideMessages();
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('auth-error');
+    el.textContent = msg; el.classList.remove('hidden');
+    document.getElementById('auth-success').classList.add('hidden');
+  }
+  function showSuccess(msg) {
+    var el = document.getElementById('auth-success');
+    el.textContent = msg; el.classList.remove('hidden');
+    document.getElementById('auth-error').classList.add('hidden');
+  }
+  function hideMessages() {
+    document.getElementById('auth-error').classList.add('hidden');
+    document.getElementById('auth-success').classList.add('hidden');
+  }
+
+  function togglePass(id, btn) {
+    var input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+
+  function signInWithGoogle() {
+    window.location.href = '/.netlify/identity/authorize?provider=google&site_url=' + encodeURIComponent(window.location.origin);
+  }
+
+  async function handleSignIn(e) {
+    e.preventDefault();
+    var btn = document.getElementById('signin-btn');
+    var email = document.getElementById('signin-email').value.trim();
+    var password = document.getElementById('signin-password').value;
+    btn.textContent = 'Signing in...'; btn.disabled = true;
+    hideMessages();
+    try {
+      var form = new URLSearchParams();
+      form.append('grant_type', 'password');
+      form.append('username', email);
+      form.append('password', password);
+      var res = await fetch('/.netlify/identity/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form.toString()
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error_description || data.msg || 'Invalid email or password.');
+      // Get user metadata
+      var userRes = await fetch('/.netlify/identity/user', { headers: { 'Authorization': 'Bearer ' + data.access_token } });
+      var meta = await userRes.json();
+      window.ppAuth.setUser(data, meta);
       window.location.href = '/dashboard';
+    } catch(err) {
+      showError(err.message);
+      btn.textContent = 'Sign In'; btn.disabled = false;
+    }
+  }
+
+  function checkStrength(val) {
+    var wrap = document.getElementById('strength-wrap');
+    var bars = document.querySelectorAll('.s-bar');
+    var label = document.getElementById('strength-text');
+    wrap.classList.toggle('hidden', !val);
+    if (!val) return;
+
+    var rules = {
+      length:  val.length >= 8,
+      upper:   /[A-Z]/.test(val),
+      number:  /[0-9]/.test(val),
+      special: /[^A-Za-z0-9]/.test(val)
+    };
+    // Update checklist
+    document.querySelectorAll('.req').forEach(function(item) {
+      var ok = rules[item.dataset.rule];
+      item.querySelector('.req-icon').textContent = ok ? '✓' : '○';
+      item.style.color = ok ? '#16a34a' : '#9ca3af';
     });
+
+    var score = Object.values(rules).filter(Boolean).length;
+    var colors = ['#ef4444','#f97316','#eab308','#22c55e'];
+    var labels = ['Weak','Fair','Good','Strong'];
+    bars.forEach(function(b, i) { b.style.backgroundColor = i < score ? colors[score-1] : '#e5e7eb'; });
+    label.textContent = labels[score-1] || '';
+    label.style.color = colors[score-1] || '#9ca3af';
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    var btn = document.getElementById('register-btn');
+    var name = document.getElementById('reg-name').value.trim();
+    var email = document.getElementById('reg-email').value.trim();
+    var password = document.getElementById('reg-password').value;
+    var confirm = document.getElementById('reg-confirm').value;
+
+    if (password !== confirm) return showError('Passwords do not match.');
+    var rules = { length: password.length>=8, upper: /[A-Z]/.test(password), number: /[0-9]/.test(password), special: /[^A-Za-z0-9]/.test(password) };
+    var score = Object.values(rules).filter(Boolean).length;
+    if (score < 3) return showError('Password is too weak. Please meet at least 3 of the requirements.');
+
+    btn.textContent = 'Creating account...'; btn.disabled = true;
+    hideMessages();
+    try {
+      var res = await fetch('/.netlify/identity/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, data: { full_name: name } })
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.msg || data.error_description || 'Registration failed.');
+      showSuccess('Account created! Check your email to confirm your account, then sign in.');
+      btn.textContent = 'Create Account'; btn.disabled = false;
+    } catch(err) {
+      showError(err.message);
+      btn.textContent = 'Create Account'; btn.disabled = false;
+    }
   }
 </script>

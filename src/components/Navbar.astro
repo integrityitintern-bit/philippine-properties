@@ -89,31 +89,24 @@ const initClass = transparent ? 'bg-transparent' : solidClass;
 </script>
 
 <script is:inline>
-  var navAuthArea = document.getElementById('nav-auth-area');
-  var mobileAuthArea = document.getElementById('mobile-auth-area');
-
-  function updateNavAuth(user) {
+  (function() {
+    var user = window.ppAuth && window.ppAuth.getUser();
+    var nav = document.getElementById('nav-auth-area');
+    var mob = document.getElementById('mobile-auth-area');
     if (user) {
-      var name = (user.user_metadata && user.user_metadata.full_name) || user.email;
-      var initial = name[0].toUpperCase();
-      if (navAuthArea) navAuthArea.innerHTML =
+      var initial = (user.name || user.email)[0].toUpperCase();
+      if (nav) nav.innerHTML =
         '<a href="/dashboard" class="flex items-center gap-2 text-sm font-medium border border-white/40 hover:border-white text-white px-3 py-2 rounded-lg transition-colors">' +
         '<span class="w-6 h-6 bg-[#ea580c] rounded-full flex items-center justify-center text-xs font-bold">' + initial + '</span>' +
         '<span>Account</span></a>';
-      if (mobileAuthArea) mobileAuthArea.innerHTML =
+      if (mob) mob.innerHTML =
         '<a href="/dashboard" class="block text-white/80 hover:text-white py-2.5 text-sm font-medium border-b border-white/5">My Dashboard</a>' +
-        '<button onclick="window.netlifyIdentity && window.netlifyIdentity.logout()" class="block text-white/60 hover:text-white py-2.5 text-sm font-medium w-full text-left">Logout</button>';
+        '<button onclick="window.ppAuth.logout()" class="block text-white/60 hover:text-white py-2.5 text-sm font-medium w-full text-left">Logout</button>';
     } else {
-      if (navAuthArea) navAuthArea.innerHTML =
-        '<button onclick="window.netlifyIdentity && window.netlifyIdentity.open(\'login\')" class="text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">Login</button>';
-      if (mobileAuthArea) mobileAuthArea.innerHTML =
+      if (nav) nav.innerHTML =
+        '<a href="/login" class="text-sm font-medium border border-white/40 hover:border-white text-white px-4 py-2.5 rounded-lg transition-colors">Login</a>';
+      if (mob) mob.innerHTML =
         '<a href="/login" class="block text-center bg-white/10 text-white font-semibold py-3 rounded-lg text-sm mt-2">Login / Register</a>';
     }
-  }
-
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on('init', updateNavAuth);
-    window.netlifyIdentity.on('login', function(user) { updateNavAuth(user); window.netlifyIdentity.close(); });
-    window.netlifyIdentity.on('logout', function() { updateNavAuth(null); });
-  }
+  })();
 </script>
