@@ -39,9 +39,17 @@ const whatsappPhone = acf.agent_phone ? acf.agent_phone.replace(/\D/g, '').repla
 const whatsappMsg = encodeURIComponent(`Hi! I'm interested in this property: ${title} — ${price}`);
 const description = content.replace(/<[^>]*>/g, '').slice(0, 160) || `${price} — ${title} in ${acf.location_city || 'Philippines'}`;
 
-// Build gallery array: featured image first, then ACF gallery field
+// Build gallery array: featured image first, then additional photo fields
 const galleryImages: string[] = [];
 if (image) galleryImages.push(image);
+// Free ACF: individual image fields photo_2 through photo_5
+['photo_2','photo_3','photo_4','photo_5'].forEach(key => {
+  const img = acf[key];
+  if (!img) return;
+  const url = typeof img === 'string' ? img : (img?.url || img?.sizes?.large || '');
+  if (url && url !== image) galleryImages.push(url);
+});
+// ACF Pro: gallery field (works if upgraded later)
 if (Array.isArray(acf.gallery)) {
   acf.gallery.forEach((img: any) => {
     const url = typeof img === 'string' ? img : (img?.url || img?.sizes?.large || '');
