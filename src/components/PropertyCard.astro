@@ -18,6 +18,7 @@ const ohRaw = acf.open_house_date ? String(acf.open_house_date).replace(/(\d{4})
 const ohDate = ohRaw ? new Date(ohRaw) : null;
 const today = new Date(); today.setHours(0,0,0,0);
 const openHouseLabel = ohDate && ohDate >= today ? 'Open ' + ohDate.toLocaleDateString('en-PH', {month:'short', day:'numeric'}) : '';
+const pricePerSqm = (acf.price && acf.floor_area) ? '₱' + Math.round(Number(acf.price) / Number(acf.floor_area)).toLocaleString('en-PH') + '/m²' : '';
 ---
 
 <a href={`/property/${slug}`} class="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-[#ea580c]/40 hover:shadow-lg transition-all duration-300 flex flex-col card-enter shadow-sm">
@@ -80,6 +81,8 @@ const openHouseLabel = ohDate && ohDate >= today ? 'Open ' + ohDate.toLocaleDate
       {acf.bedrooms && <span>🛏 {acf.bedrooms}</span>}
       {acf.bathrooms && <span>🚿 {acf.bathrooms}</span>}
       {acf.floor_area && <span>📐 {acf.floor_area}m²</span>}
+      {pricePerSqm && <span class="text-gray-300">·</span>}
+      {pricePerSqm && <span class="text-gray-400">{pricePerSqm}</span>}
       {acf.property_type && (
         <span class="ml-auto capitalize text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{acf.property_type}</span>
       )}

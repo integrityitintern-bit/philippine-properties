@@ -17,9 +17,10 @@ import { WP_API } from '../config.js';
     <!-- Filters -->
     <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-4 mb-8 space-y-3">
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <input id="filter-city" type="text" placeholder="City or Area"
+        <input id="filter-city" type="text" placeholder="City or Area" list="city-suggestions" autocomplete="off"
           class="col-span-2 sm:col-span-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
         />
+        <datalist id="city-suggestions"></datalist>
         <select id="filter-listing-type" class="px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
           <option value="">All Types</option>
           <option value="For Sale">For Sale</option>
@@ -75,6 +76,14 @@ import { WP_API } from '../config.js';
           Clear all filters
         </button>
       </div>
+    </div>
+
+    <!-- Quick filter chips -->
+    <div class="flex flex-wrap gap-2 mb-4">
+      <button id="chip-new-week" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors">🆕 New This Week</button>
+      <button id="chip-for-sale" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors">🏠 For Sale</button>
+      <button id="chip-for-rent" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors">🔑 For Rent</button>
+      <button id="chip-pre-selling" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors">🏗 Pre-Selling</button>
     </div>
 
     <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
@@ -166,6 +175,32 @@ import { WP_API } from '../config.js';
     </div>
   </div>
 
+  <!-- Quick View Modal -->
+  <div id="qv-modal" class="hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden">
+      <div id="qv-img" class="h-52 bg-gray-100 overflow-hidden relative">
+        <button onclick="document.getElementById('qv-modal').classList.add('hidden')"
+          class="absolute top-3 right-3 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center z-10 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-5">
+        <p id="qv-price" class="text-2xl font-bold text-[#ea580c] mb-1"></p>
+        <h3 id="qv-title" class="font-bold text-gray-900 text-base mb-1 line-clamp-2"></h3>
+        <p id="qv-location" class="text-gray-400 text-sm mb-3"></p>
+        <div id="qv-specs" class="flex flex-wrap gap-3 text-sm text-gray-500 mb-5 pb-4 border-b border-gray-100"></div>
+        <div class="flex gap-3">
+          <a id="qv-link" href="#" class="flex-1 bg-[#ea580c] hover:bg-[#c2410c] text-white text-center font-semibold py-3 rounded-xl transition-colors text-sm">
+            View Full Listing →
+          </a>
+          <a id="qv-wa" href="#" target="_blank" rel="noopener" class="w-12 h-12 bg-[#25D366] hover:bg-[#1da850] rounded-xl flex items-center justify-center shrink-0 transition-colors hidden">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <Footer />
 </Layout>
 
@@ -204,6 +239,10 @@ import { WP_API } from '../config.js';
     try {
       const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish`);
       allProperties = await res.json();
+      // Build city autocomplete
+      const cities = [...new Set(allProperties.map(p => p.acf?.location_city).filter(Boolean))].sort();
+      const datalist = document.getElementById('city-suggestions');
+      if (datalist) datalist.innerHTML = cities.map(c => `<option value="${c}">`).join('');
       applyFilters();
     } catch (err) {
       skeleton.classList.add('hidden');
@@ -219,6 +258,9 @@ import { WP_API } from '../config.js';
     const priceMin = parseInt(document.getElementById('filter-price-min').value) || 0;
     const priceMax = parseInt(document.getElementById('filter-price-max').value) || Infinity;
 
+    // Apply active quick-filter chip
+    const chipFn = activeChip ? chipConfig[activeChip] : null;
+
     filteredProperties = allProperties.filter(p => {
       const acf = p.acf || {};
       const price = parseFloat(acf.price) || 0;
@@ -228,6 +270,7 @@ import { WP_API } from '../config.js';
       if (minBeds && (parseInt(acf.bedrooms) || 0) < minBeds) return false;
       if (priceMin && price < priceMin) return false;
       if (priceMax !== Infinity && price > priceMax) return false;
+      if (chipFn && !chipFn(p)) return false;
       return true;
     });
 
@@ -460,6 +503,11 @@ import { WP_API } from '../config.js';
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
           </button>
+          <button class="qv-btn absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-600 hover:text-[#ea580c] text-xs font-semibold px-3 py-1.5 rounded-full shadow flex items-center gap-1.5 transition-colors opacity-0 group-hover:opacity-100"
+            data-prop='${JSON.stringify({id:p.id,slug:p.slug,title,price,image,city,bedrooms:acf.bedrooms,bathrooms:acf.bathrooms,floor_area:acf.floor_area,agent_phone:acf.agent_phone}).replace(/'/g,"&#39;")}'>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Quick View
+          </button>
           <button class="compare-btn absolute top-12 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
             data-id="${p.id}" data-slug="${p.slug}" data-title="${title.replace(/"/g,'&quot;')}" data-price="${price}" data-image="${image}"
             title="Add to compare" aria-label="Compare">
@@ -476,6 +524,7 @@ import { WP_API } from '../config.js';
             ${acf.bedrooms ? `<span>🛏 ${acf.bedrooms}</span>` : ''}
             ${acf.bathrooms ? `<span>🚿 ${acf.bathrooms}</span>` : ''}
             ${acf.floor_area ? `<span>📐 ${acf.floor_area} m²</span>` : ''}
+            ${(acf.price && acf.floor_area) ? `<span class="text-gray-300">·</span><span class="text-gray-400">₱${Math.round(Number(acf.price)/Number(acf.floor_area)).toLocaleString('en-PH')}/m²</span>` : ''}
             ${acf.property_type ? `<span class="ml-auto capitalize text-[10px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">${acf.property_type}</span>` : ''}
           </div>
         </div>
@@ -519,6 +568,7 @@ import { WP_API } from '../config.js';
     grid.innerHTML = items.map(cardHTML).join('');
     bindSaveButtons();
     bindCompareButtons();
+    bindQVButtons();
     if (isMapView) initOrUpdateMap();
     currentPage * ITEMS_PER_PAGE < filteredProperties.length
       ? loadMoreBtn.classList.remove('hidden')
@@ -560,6 +610,68 @@ import { WP_API } from '../config.js';
     updateCompareBar();
     updateCompareButtons();
   });
+
+  // Quick filter chips
+  let activeChip = null;
+  const chipConfig = {
+    'chip-new-week': p => (Date.now() - new Date(p.date).getTime()) < 7 * 24 * 60 * 60 * 1000,
+    'chip-for-sale': p => p.acf?.listing_type === 'For Sale',
+    'chip-for-rent': p => p.acf?.listing_type === 'For Rent',
+    'chip-pre-selling': p => p.acf?.listing_type === 'Pre-Selling',
+  };
+  Object.keys(chipConfig).forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => {
+      const isActive = activeChip === id;
+      // Reset all chips
+      Object.keys(chipConfig).forEach(cid => {
+        const b = document.getElementById(cid);
+        if (b) b.className = 'text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors';
+      });
+      activeChip = isActive ? null : id;
+      if (!isActive) {
+        const b = document.getElementById(id);
+        if (b) b.className = 'text-xs font-semibold px-3 py-1.5 rounded-full border-[#ea580c] bg-[#ea580c] text-white transition-colors border';
+      }
+      applyFilters();
+    });
+  });
+
+  // Quick View modal
+  const qvModal = document.getElementById('qv-modal');
+  qvModal?.addEventListener('click', e => { if (e.target === qvModal) qvModal.classList.add('hidden'); });
+
+  function bindQVButtons() {
+    document.querySelectorAll('.qv-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        try {
+          const d = JSON.parse(btn.dataset.prop);
+          const imgEl = document.getElementById('qv-img');
+          if (imgEl) imgEl.innerHTML = (d.image
+            ? `<img src="${d.image}" class="w-full h-full object-cover" loading="lazy"/>`
+            : '<div class="w-full h-full flex items-center justify-center text-6xl opacity-20">🏠</div>') +
+            `<button onclick="document.getElementById('qv-modal').classList.add('hidden')" class="absolute top-3 right-3 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center z-10 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
+          document.getElementById('qv-price').textContent = d.price;
+          document.getElementById('qv-title').textContent = d.title;
+          document.getElementById('qv-location').textContent = d.city ? '📍 ' + d.city : '';
+          const specs = [
+            d.bedrooms ? '🛏 ' + d.bedrooms + ' Beds' : '',
+            d.bathrooms ? '🚿 ' + d.bathrooms + ' Baths' : '',
+            d.floor_area ? '📐 ' + d.floor_area + ' m²' : '',
+          ].filter(Boolean).map(s => `<span>${s}</span>`).join('');
+          document.getElementById('qv-specs').innerHTML = specs || '<span class="text-gray-400">No specs listed</span>';
+          document.getElementById('qv-link').href = '/property/' + d.slug;
+          const waEl = document.getElementById('qv-wa');
+          if (waEl && d.agent_phone) {
+            const phone = d.agent_phone.replace(/\D/g,'').replace(/^0/,'63');
+            waEl.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hi! I\'m interested in: ' + d.title)}`;
+            waEl.classList.remove('hidden');
+          } else if (waEl) waEl.classList.add('hidden');
+          qvModal.classList.remove('hidden');
+        } catch {}
+      });
+    });
+  }
 
   // Currency toggle buttons
   ['php','usd','sgd'].forEach(cur => {
