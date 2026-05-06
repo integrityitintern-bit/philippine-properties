@@ -488,13 +488,17 @@ import Footer from '../components/Footer.astro';
     };
 
     try {
-      const res = await fetch('/.netlify/functions/submit-property', {
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, val]) => formData.append(key, String(val)));
+      formData.append('_subject', 'New Property Listing: ' + data.title);
+      formData.append('_template', 'table');
+      const res = await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        headers: { 'Accept': 'application/json' },
+        body: formData,
       });
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Submission failed.');
+      if (result.success !== 'true' && result.success !== true) throw new Error(result.message || 'Submission failed.');
       document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
       document.getElementById('step-success')?.classList.remove('hidden');
       const ref = 'IRC-' + Date.now().toString(36).toUpperCase();
