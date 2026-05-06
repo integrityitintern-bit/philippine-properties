@@ -142,18 +142,113 @@ import Footer from '../components/Footer.astro';
 
       <!-- Step 3: Photos -->
       <div id="step-3" class="step-content hidden">
-        <h2 class="text-lg font-bold text-gray-900 mb-2">Step 3: Property Photos</h2>
-        <p class="text-gray-500 text-sm mb-6">Upload up to 10 photos. First photo will be the main listing image.</p>
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-lg font-bold text-gray-900">Step 3: Property Photos</h2>
+          <span class="text-xs font-semibold text-gray-400"><span id="photo-count">0</span>/10 photos</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-5">Upload up to 10 photos. First photo will be the main listing image.</p>
 
-        <div id="photo-upload-area" class="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-[#ea580c] transition-colors cursor-pointer" onclick="document.getElementById('photo-input').click()">
-          <p class="text-4xl mb-3">📸</p>
-          <p class="text-gray-700 font-semibold text-sm">Click to upload photos</p>
-          <p class="text-gray-400 text-xs mt-1">JPG, PNG up to 10MB each</p>
-          <input type="file" id="photo-input" accept="image/*" multiple class="hidden" />
+        <!-- Drop zone -->
+        <div id="drop-zone"
+          class="border-2 border-dashed border-gray-200 rounded-2xl py-10 px-6 text-center transition-all cursor-pointer hover:border-[#ea580c] hover:bg-orange-50/30"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)"
+          onclick="document.getElementById('photo-input').click()"
+        >
+          <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 pointer-events-none">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+            </svg>
+          </div>
+          <p class="text-gray-700 font-semibold text-sm pointer-events-none">Drop files here</p>
+          <p class="text-gray-400 text-xs mt-1 pointer-events-none">JPG, PNG up to 10MB each</p>
+          <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" multiple class="hidden" />
+          <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
         </div>
 
-        <div id="photo-preview" class="grid grid-cols-3 gap-3 mt-4"></div>
-        <p id="photo-status" class="text-xs text-gray-400 mt-2 text-center"></p>
+        <!-- Source options -->
+        <div class="mt-3 border border-gray-200 rounded-2xl overflow-hidden divide-y divide-gray-100">
+
+          <!-- From device -->
+          <button type="button" onclick="document.getElementById('photo-input').click()"
+            class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
+            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 3h8v4H8V3z"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-gray-700">From device</span>
+          </button>
+
+          <!-- From link -->
+          <div>
+            <button type="button" onclick="toggleLinkInput()"
+              class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
+              <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-gray-700">From link</span>
+            </button>
+            <div id="link-input-area" class="hidden px-5 pb-4">
+              <div class="flex gap-2">
+                <input type="url" id="photo-link-input" placeholder="Paste image URL (https://...)"
+                  class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
+                />
+                <button type="button" onclick="addPhotoFromLink()"
+                  class="px-4 py-2 bg-[#ea580c] hover:bg-[#c2410c] text-white text-sm font-semibold rounded-xl transition-colors">
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Camera -->
+          <button type="button" onclick="document.getElementById('camera-input').click()"
+            class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
+            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Camera</span>
+          </button>
+
+          <!-- Dropbox -->
+          <button type="button" onclick="openDropbox()"
+            class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
+            <div class="w-8 h-8 bg-[#0061ff]/10 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-[#0061ff]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14.56l-6-3.77L0 14.56 6 18.33l6-3.77zm0 0l6-3.77 6 3.77-6 3.77-6-3.77zM0 7.44L6 3.67l6 3.77-6 3.77L0 7.44zm12 0l6-3.77 6 3.77-6 3.77-6-3.77zm-6 7.89l6 3.77 6-3.77V21l-6 3.77L6 21v-5.67z"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Dropbox</span>
+          </button>
+
+          <!-- Google Drive -->
+          <button type="button" onclick="openGoogleDrive()"
+            class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
+            <div class="w-8 h-8 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" viewBox="0 0 87.3 78" fill="none">
+                <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.2 48.5C.4 49.9 0 51.45 0 53h27.5z" fill="#00ac47"/>
+                <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 11.85z" fill="#ea4335"/>
+                <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.95 0H34.35c-1.55 0-3.1.45-4.45 1.2z" fill="#00832d"/>
+                <path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.45 1.2h50.85c1.55 0 3.1-.45 4.45-1.2z" fill="#2684fc"/>
+                <path d="M73.4 26.5l-12.6-21.8c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Google Drive</span>
+          </button>
+
+        </div>
+
+        <!-- Photo previews -->
+        <div id="photo-preview" class="grid grid-cols-3 gap-3 mt-5"></div>
 
         <div class="flex gap-3 mt-6">
           <button onclick="goToStep(2)" class="flex-1 border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:border-gray-400 transition-colors">
@@ -230,7 +325,128 @@ import Footer from '../components/Footer.astro';
 </Layout>
 
 <script>
-  let uploadedPhotoUrls: string[] = [];
+  // ── Photo management ────────────────────────────────────────────
+  const MAX_PHOTOS = 10;
+  let photos: Array<{ type: 'file' | 'url'; file?: File; preview: string; name: string }> = [];
+
+  function updatePhotoCount() {
+    const el = document.getElementById('photo-count');
+    if (el) el.textContent = String(photos.length);
+  }
+
+  function renderPreviews() {
+    const grid = document.getElementById('photo-preview')!;
+    grid.innerHTML = '';
+    photos.forEach((photo, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'relative group rounded-xl overflow-hidden bg-gray-100 aspect-square';
+      wrap.innerHTML = `
+        <img src="${photo.preview}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
+        ${i === 0 ? '<span class="absolute bottom-0 inset-x-0 bg-[#ea580c] text-white text-[10px] font-bold text-center py-1 pointer-events-none">MAIN PHOTO</span>' : ''}
+        <button type="button" onclick="removePhoto(${i})"
+          class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      `;
+      grid.appendChild(wrap);
+    });
+    updatePhotoCount();
+  }
+
+  function addPhotos(files: File[]) {
+    const remaining = MAX_PHOTOS - photos.length;
+    if (remaining <= 0) { showPhotoToast('Maximum 10 photos reached'); return; }
+    files.slice(0, remaining).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      if (file.size > 10 * 1024 * 1024) { showPhotoToast(`${file.name} exceeds 10MB`); return; }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        photos.push({ type: 'file', file, preview: e.target!.result as string, name: file.name });
+        renderPreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+    if (files.length > remaining) showPhotoToast(`Only ${remaining} more photo(s) can be added`);
+  }
+
+  (window as any).removePhoto = (i: number) => { photos.splice(i, 1); renderPreviews(); };
+
+  // Drag and drop
+  (window as any).handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    document.getElementById('drop-zone')?.classList.add('border-[#ea580c]', 'bg-orange-50/50');
+  };
+  (window as any).handleDragLeave = () => {
+    document.getElementById('drop-zone')?.classList.remove('border-[#ea580c]', 'bg-orange-50/50');
+  };
+  (window as any).handleDrop = (e: DragEvent) => {
+    e.preventDefault();
+    document.getElementById('drop-zone')?.classList.remove('border-[#ea580c]', 'bg-orange-50/50');
+    addPhotos(Array.from(e.dataTransfer!.files));
+  };
+
+  // File inputs
+  document.getElementById('photo-input')?.addEventListener('change', (e: any) => {
+    addPhotos(Array.from(e.target.files as FileList)); e.target.value = '';
+  });
+  document.getElementById('camera-input')?.addEventListener('change', (e: any) => {
+    addPhotos(Array.from(e.target.files as FileList)); e.target.value = '';
+  });
+
+  // From link
+  (window as any).toggleLinkInput = () => {
+    const area = document.getElementById('link-input-area')!;
+    area.classList.toggle('hidden');
+    if (!area.classList.contains('hidden')) (document.getElementById('photo-link-input') as HTMLInputElement)?.focus();
+  };
+  (window as any).addPhotoFromLink = () => {
+    const input = document.getElementById('photo-link-input') as HTMLInputElement;
+    const url = input.value.trim();
+    if (!url || !url.startsWith('http')) { showPhotoToast('Please enter a valid image URL'); return; }
+    if (photos.length >= MAX_PHOTOS) { showPhotoToast('Maximum 10 photos reached'); return; }
+    photos.push({ type: 'url', preview: url, name: url.split('/').pop() || 'image' });
+    renderPreviews();
+    input.value = '';
+    document.getElementById('link-input-area')?.classList.add('hidden');
+  };
+
+  // Dropbox — requires App Key: dash.dropbox.com/developers/apps → Create app → copy App key
+  // Then add: <script src="https://www.dropbox.com/static/api/2/dropins.js" data-app-key="YOUR_KEY"></script>
+  (window as any).openDropbox = () => {
+    if (typeof (window as any).Dropbox === 'undefined') {
+      showPhotoToast('Dropbox needs setup — see IT admin instructions');
+      return;
+    }
+    if (photos.length >= MAX_PHOTOS) { showPhotoToast('Maximum 10 photos reached'); return; }
+    (window as any).Dropbox.choose({
+      success: (files: any[]) => {
+        files.slice(0, MAX_PHOTOS - photos.length).forEach((f: any) => {
+          photos.push({ type: 'url', preview: f.link, name: f.name });
+        });
+        renderPreviews();
+      },
+      linkType: 'direct',
+      multiselect: true,
+      extensions: ['images'],
+    });
+  };
+
+  // Google Drive — requires Google Cloud project with Picker API enabled
+  // console.log instructions in IT head brief
+  (window as any).openGoogleDrive = () => {
+    showPhotoToast('Google Drive needs setup — see IT admin instructions');
+  };
+
+  function showPhotoToast(msg: string) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:5rem;right:1.5rem;z-index:1000;background:#1e293b;color:white;font-size:13px;font-weight:600;padding:10px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);max-width:280px;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+  // ── End photo management ─────────────────────────────────────────
 
   function goToStep(step: number) {
     document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
@@ -286,6 +502,8 @@ import Footer from '../components/Footer.astro';
       name: (document.getElementById('p-name') as HTMLInputElement).value,
       phone: (document.getElementById('p-phone') as HTMLInputElement).value,
       email: (document.getElementById('p-email') as HTMLInputElement).value,
+      photos_count: String(photos.length),
+      photo_urls: photos.filter(p => p.type === 'url').map(p => p.preview).join(', ') || 'Local files attached',
     };
 
     try {
