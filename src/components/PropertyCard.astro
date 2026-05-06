@@ -31,12 +31,11 @@ const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 6
           {listingType}
         </span>
       )}
-      {(acf.property_status === 'Sold' || acf.property_status === 'Reserved') && (
+      {(acf.property_status === 'Sold' || acf.property_status === 'Reserved') ? (
         <span class={`text-[10px] font-bold px-2.5 py-1 rounded-full text-white backdrop-blur-sm uppercase tracking-wider w-fit ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'}`}>
           {acf.property_status}
         </span>
-      )}
-      {isNew && (
+      ) : isNew && (
         <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider w-fit">
           New
         </span>

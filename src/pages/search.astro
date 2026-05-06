@@ -405,8 +405,7 @@ import { WP_API } from '../config.js';
           ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
           <div class="absolute top-3 left-3 flex flex-col gap-1.5">
             ${acf.listing_type ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
-            ${(acf.property_status === 'Sold' || acf.property_status === 'Reserved') ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'} text-white backdrop-blur-sm uppercase tracking-wider">${acf.property_status}</span>` : ''}
-            ${isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : ''}
+            ${(acf.property_status === 'Sold' || acf.property_status === 'Reserved') ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'} text-white backdrop-blur-sm uppercase tracking-wider">${acf.property_status}</span>` : (isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : '')}
           </div>
           <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" data-id="${p.id}" aria-label="Save property">
             <svg class="save-icon w-4 h-4" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
