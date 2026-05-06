@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://stalwart-kashata-382a41.netlify.app',
+  site: 'https://philippine-properties.pages.dev',
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()]
