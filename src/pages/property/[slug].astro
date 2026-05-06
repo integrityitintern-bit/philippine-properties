@@ -278,6 +278,12 @@ if (Array.isArray(acf.gallery)) {
           </div>
         )}
 
+        <!-- Neighborhood -->
+        <div id="neighborhood-section" class="mb-8 hidden">
+          <h3 class="font-bold text-gray-900 mb-3">🗺️ What's Nearby</h3>
+          <div id="neighborhood-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+        </div>
+
         <!-- Related Properties -->
         <div id="related-section">
           <h3 class="font-bold text-gray-900 mb-4">Similar Properties</h3>
@@ -567,6 +573,55 @@ if (Array.isArray(acf.gallery)) {
     } catch { section?.remove(); }
   }
   loadRelated();
+
+  // Neighborhood info via OpenStreetMap (no API key)
+  async function loadNeighborhood() {
+    var section = document.getElementById('neighborhood-section');
+    var container = document.getElementById('neighborhood-grid');
+    if (!section || !container) return;
+    var address = [propAcf?.full_address, propAcf?.location_city, 'Philippines'].filter(Boolean).join(', ');
+    if (!address) return;
+    try {
+      var geoRes = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(address) + '&format=json&limit=1');
+      var geoData = await geoRes.json();
+      if (!Array.isArray(geoData) || !geoData[0]) return;
+      var lat = parseFloat(geoData[0].lat);
+      var lon = parseFloat(geoData[0].lon);
+      var types = [
+        { tag: 'school', icon: '🏫', label: 'School' },
+        { tag: 'hospital', icon: '🏥', label: 'Hospital' },
+        { tag: 'bank', icon: '🏦', label: 'Bank' },
+        { tag: 'supermarket', icon: '🛒', label: 'Supermarket' },
+        { tag: 'pharmacy', icon: '💊', label: 'Pharmacy' },
+        { tag: 'restaurant', icon: '🍽', label: 'Restaurant' },
+      ];
+      var tagFilter = types.map(function(t) { return t.tag; }).join('|');
+      var query = '[out:json][timeout:15];(node["amenity"~"' + tagFilter + '"](around:1500,' + lat + ',' + lon + ');way["amenity"~"' + tagFilter + '"](around:1500,' + lat + ',' + lon + '););out center 30;';
+      var ovRes = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+      var ovData = await ovRes.json();
+      var elements = ovData.elements || [];
+      var grouped = {};
+      elements.forEach(function(el) {
+        var type = el.tags && el.tags.amenity;
+        var name = el.tags && el.tags.name;
+        if (!name || !type || grouped[type]) return;
+        grouped[type] = name;
+      });
+      var found = types.filter(function(t) { return grouped[t.tag]; });
+      if (!found.length) return;
+      container.innerHTML = found.map(function(t) {
+        return '<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">' +
+          '<span class="text-2xl shrink-0">' + t.icon + '</span>' +
+          '<div class="min-w-0">' +
+            '<p class="text-xs text-gray-400 uppercase tracking-wide font-semibold">' + t.label + '</p>' +
+            '<p class="text-sm text-gray-800 font-medium truncate">' + grouped[t.tag] + '</p>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      section.classList.remove('hidden');
+    } catch(e) {}
+  }
+  loadNeighborhood();
 
   // Mortgage Calculator
   const rawPrice = propAcf?.price ? parseFloat(propAcf.price) : 0;

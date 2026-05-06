@@ -94,6 +94,11 @@ import { WP_API } from '../config.js';
           </svg>
         </button>
       </div>
+      <div class="flex items-center rounded-xl overflow-hidden border border-gray-200 text-xs font-bold shrink-0">
+        <button id="cur-php" class="px-3 py-2 bg-[#ea580c] text-white transition-colors">₱</button>
+        <button id="cur-usd" class="px-3 py-2 bg-white text-gray-500 hover:bg-gray-50 transition-colors">$</button>
+        <button id="cur-sgd" class="px-3 py-2 bg-white text-gray-500 hover:bg-gray-50 transition-colors">S$</button>
+      </div>
       <select id="sort-select" class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
         <option value="newest">Newest First</option>
         <option value="price_asc">Price: Low → High</option>
@@ -118,7 +123,12 @@ import { WP_API } from '../config.js';
     <!-- Property Grid -->
     <div id="property-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-    <div id="map-view" class="hidden rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 540px;"></div>
+    <div class="relative">
+      <div id="map-view" class="hidden rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 540px;"></div>
+      <button id="search-area-btn" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-orange-50 hover:border-[#ea580c] hover:text-[#ea580c] transition-colors whitespace-nowrap">
+        🔍 Search this area
+      </button>
+    </div>
 
     <!-- No Results -->
     <div id="no-results" class="hidden text-center py-16">
@@ -164,6 +174,19 @@ import { WP_API } from '../config.js';
   let currentPage = 1;
   let allProperties = [];
   let filteredProperties = [];
+
+  // Currency toggle
+  let activeCurrency = 'PHP';
+  const RATES = { PHP: 1, USD: 1/56, SGD: 1/42 };
+  const SYMBOLS = { PHP: '₱', USD: '$', SGD: 'S$' };
+  function formatPrice(phpAmount) {
+    if (!phpAmount) return 'Price on Request';
+    const val = Math.round(Number(phpAmount) * RATES[activeCurrency]);
+    return SYMBOLS[activeCurrency] + val.toLocaleString('en-PH');
+  }
+
+  // Map area filter
+  let mapBoundsActive = false;
 
   const grid = document.getElementById('property-grid');
   const skeleton = document.getElementById('loading-skeleton');
@@ -305,6 +328,20 @@ import { WP_API } from '../config.js';
 
     // Invalidate size after showing (fixes rendering bug with hidden divs)
     setTimeout(() => leafletMap.invalidateSize(), 100);
+
+    // Show "Search this area" when map is panned/zoomed
+    leafletMap.on('moveend', () => {
+      if (!mapBoundsActive && searchAreaBtn) {
+        const bounds = leafletMap.getBounds();
+        const count = filteredProperties.filter(p => {
+          const city = (p.acf?.location_city || '').toLowerCase().trim();
+          const coords = CITY_COORDS[city];
+          return coords && bounds.contains(coords);
+        }).length;
+        searchAreaBtn.textContent = `🔍 Search this area (${count})`;
+        searchAreaBtn.classList.remove('hidden');
+      }
+    });
   }
 
   // ── Compare logic ──────────────────────────────────────────────────────────
@@ -390,7 +427,7 @@ import { WP_API } from '../config.js';
     const acf = p.acf || {};
     const title = p.title?.rendered || 'Property';
     const image = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
-    const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
+    const price = formatPrice(acf.price);
     const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
     const badge = acf.listing_type === 'For Rent' ? 'bg-blue-500/90' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/90' : 'bg-[#ea580c]';
     const isNew = (Date.now() - new Date(p.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
@@ -399,13 +436,24 @@ import { WP_API } from '../config.js';
     const heartStroke = saved ? '#ea580c' : 'currentColor';
     const inCompare = getCompare().some(x => x.id === p.id);
     const compareBtnColor = inCompare ? '#ea580c' : 'currentColor';
+    // Open house badge
+    const ohRaw = acf.open_house_date ? String(acf.open_house_date).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') : '';
+    const ohDate = ohRaw ? new Date(ohRaw) : null;
+    const todayMid = new Date(); todayMid.setHours(0,0,0,0);
+    const ohBadge = ohDate && ohDate >= todayMid
+      ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-600 text-white backdrop-blur-sm uppercase tracking-wider">Open ${ohDate.toLocaleDateString('en-PH', {month:'short',day:'numeric'})}</span>`
+      : '';
+    const isSold = acf.property_status === 'Sold' || acf.property_status === 'Reserved';
+    const statusBadge = isSold
+      ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'} text-white backdrop-blur-sm uppercase tracking-wider">${acf.property_status}</span>`
+      : (isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : '') + ohBadge;
     return `
       <a href="/property/${p.slug}" class="group bg-white rounded-xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-gray-100 flex flex-col card-enter">
         <div class="relative h-48 overflow-hidden bg-gray-50">
           ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
           <div class="absolute top-3 left-3 flex flex-col gap-1.5">
             ${acf.listing_type ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
-            ${(acf.property_status === 'Sold' || acf.property_status === 'Reserved') ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'} text-white backdrop-blur-sm uppercase tracking-wider">${acf.property_status}</span>` : (isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : '')}
+            ${statusBadge}
           </div>
           <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" data-id="${p.id}" aria-label="Save property">
             <svg class="save-icon w-4 h-4" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
@@ -511,6 +559,46 @@ import { WP_API } from '../config.js';
     localStorage.removeItem('compare_list');
     updateCompareBar();
     updateCompareButtons();
+  });
+
+  // Currency toggle buttons
+  ['php','usd','sgd'].forEach(cur => {
+    document.getElementById('cur-' + cur)?.addEventListener('click', () => {
+      activeCurrency = cur.toUpperCase();
+      ['php','usd','sgd'].forEach(c => {
+        const btn = document.getElementById('cur-' + c);
+        if (btn) {
+          btn.className = c === cur
+            ? 'px-3 py-2 bg-[#ea580c] text-white transition-colors'
+            : 'px-3 py-2 bg-white text-gray-500 hover:bg-gray-50 transition-colors';
+        }
+      });
+      renderProperties();
+    });
+  });
+
+  // Draw-to-search: toggle area filter on/off
+  const searchAreaBtn = document.getElementById('search-area-btn');
+  searchAreaBtn?.addEventListener('click', () => {
+    if (mapBoundsActive) {
+      mapBoundsActive = false;
+      searchAreaBtn.textContent = '🔍 Search this area';
+      searchAreaBtn.classList.remove('bg-orange-50', 'border-[#ea580c]', 'text-[#ea580c]');
+      applyFilters();
+      return;
+    }
+    if (!leafletMap) return;
+    const bounds = leafletMap.getBounds();
+    filteredProperties = allProperties.filter(p => {
+      const city = (p.acf?.location_city || '').toLowerCase().trim();
+      const coords = CITY_COORDS[city];
+      return coords && bounds.contains(coords);
+    });
+    mapBoundsActive = true;
+    searchAreaBtn.textContent = '✕ Clear area filter';
+    searchAreaBtn.classList.add('bg-orange-50', 'border-[#ea580c]', 'text-[#ea580c]');
+    renderProperties();
+    initOrUpdateMap();
   });
 
   updateCompareBar();

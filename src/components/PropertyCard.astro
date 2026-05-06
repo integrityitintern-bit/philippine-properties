@@ -14,6 +14,10 @@ const badgeColor = listingType === 'For Rent'
   ? 'bg-purple-500/90'
   : 'bg-[#ea580c]';
 const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
+const ohRaw = acf.open_house_date ? String(acf.open_house_date).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') : '';
+const ohDate = ohRaw ? new Date(ohRaw) : null;
+const today = new Date(); today.setHours(0,0,0,0);
+const openHouseLabel = ohDate && ohDate >= today ? 'Open ' + ohDate.toLocaleDateString('en-PH', {month:'short', day:'numeric'}) : '';
 ---
 
 <a href={`/property/${slug}`} class="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-[#ea580c]/40 hover:shadow-lg transition-all duration-300 flex flex-col card-enter shadow-sm">
@@ -35,10 +39,19 @@ const isNew = (Date.now() - new Date(property.date).getTime()) < 7 * 24 * 60 * 6
         <span class={`text-[10px] font-bold px-2.5 py-1 rounded-full text-white backdrop-blur-sm uppercase tracking-wider w-fit ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'}`}>
           {acf.property_status}
         </span>
-      ) : isNew && (
-        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider w-fit">
-          New
-        </span>
+      ) : (
+        <>
+          {isNew && (
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider w-fit">
+              New
+            </span>
+          )}
+          {openHouseLabel && (
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-600 text-white backdrop-blur-sm uppercase tracking-wider w-fit">
+              {openHouseLabel}
+            </span>
+          )}
+        </>
       )}
     </div>
     <button

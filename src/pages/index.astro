@@ -237,6 +237,18 @@ try {
     </div>
   </section>
 
+  <!-- ═══ RECENTLY VIEWED ═══ -->
+  <section id="recently-viewed-home" class="py-16 max-w-7xl mx-auto px-4 hidden">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Your activity</p>
+        <h2 class="text-3xl font-bold text-gray-900">Recently Viewed</h2>
+      </div>
+      <a href="/saved" class="text-[#ea580c] text-sm font-semibold hover:text-[#f97316] transition-colors tracking-wide">Saved Properties →</a>
+    </div>
+    <div id="recently-viewed-home-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+  </section>
+
   <!-- ═══ DARK CTA ═══ -->
   <!-- HOW TO CHANGE THIS BG: replace /cta-bg.jpg in /public/ -->
   <section class="relative py-24 overflow-hidden">
@@ -260,6 +272,35 @@ try {
 
   <Footer />
 </Layout>
+
+<!-- Recently Viewed: read localStorage, show compact property cards -->
+<script>
+  (function() {
+    try {
+      var viewed = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
+      if (!viewed.length) return;
+      var section = document.getElementById('recently-viewed-home');
+      var grid = document.getElementById('recently-viewed-home-grid');
+      if (!section || !grid) return;
+      grid.innerHTML = viewed.slice(0, 5).map(function(v) {
+        return (
+          '<a href="/property/' + v.slug + '" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#ea580c]/40 hover:shadow-md transition-all flex flex-col">' +
+            '<div class="h-32 sm:h-36 overflow-hidden bg-gray-100">' +
+              (v.image
+                ? '<img src="' + v.image + '" alt="' + v.title + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>'
+                : '<div class="w-full h-full flex items-center justify-center text-4xl opacity-20">🏠</div>') +
+            '</div>' +
+            '<div class="p-3">' +
+              '<p class="text-[#ea580c] font-bold text-sm">' + v.price + '</p>' +
+              '<p class="text-gray-700 text-xs font-medium mt-0.5 line-clamp-2">' + v.title + '</p>' +
+            '</div>' +
+          '</a>'
+        );
+      }).join('');
+      section.classList.remove('hidden');
+    } catch(e) {}
+  })();
+</script>
 
 <!-- Testimonials: fetch live from WP, replace static fallback if data exists -->
 <script define:vars={{ WP_API }}>
