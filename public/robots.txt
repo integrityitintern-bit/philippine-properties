@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard
 Disallow: /login
 
-Sitemap: https://stalwart-kashata-382a41.netlify.app/sitemap-index.xml
+Sitemap: https://integrityrealty.ph/sitemap.xml

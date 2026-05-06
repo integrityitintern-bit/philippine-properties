@@ -38,6 +38,21 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
     </script> -->
   </head>
   <body class="min-h-screen">
+    <!-- Loading progress bar -->
+    <div id="nprogress" style="position:fixed;top:0;left:0;z-index:9999;height:3px;width:0;background:linear-gradient(90deg,#ea580c,#f97316);box-shadow:0 0 8px rgba(234,88,12,0.4);transition:width 0.4s ease,opacity 0.25s ease;pointer-events:none;opacity:0"></div>
+    <script is:inline>
+      (function(){
+        var bar=document.getElementById('nprogress');
+        function show(){bar.style.opacity='1';bar.style.width='30%';setTimeout(function(){bar.style.width='70%';},100);}
+        function done(){bar.style.width='100%';setTimeout(function(){bar.style.opacity='0';setTimeout(function(){bar.style.width='0';},250);},200);}
+        show();
+        window.addEventListener('load',done);
+        document.addEventListener('click',function(e){
+          var a=e.target&&e.target.closest&&e.target.closest('a');
+          if(a&&a.href&&a.origin===location.origin&&a.target!=='_blank'&&!a.href.startsWith('mailto:')&&!a.href.startsWith('tel:')&&a.getAttribute('href')!=='#'){show();}
+        });
+      })();
+    </script>
     <script is:inline>
       window.ppAuth = {
         getUser: function() {

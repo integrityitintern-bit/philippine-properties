@@ -55,15 +55,31 @@ const pricePerSqm = (acf.price && acf.floor_area) ? '₱' + Math.round(Number(ac
         </>
       )}
     </div>
-    <button
-      class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
-      data-id={propertyId}
-      aria-label="Save property"
-    >
-      <svg class="save-icon w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-      </svg>
-    </button>
+    <div class="absolute top-3 right-3 flex flex-col gap-1.5">
+      <button
+        class="compare-btn w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
+        data-id={propertyId}
+        data-slug={slug}
+        data-title={title}
+        data-price={price}
+        data-image={image}
+        aria-label="Compare property"
+        title="Add to compare"
+      >
+        <svg class="compare-icon w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </button>
+      <button
+        class="save-btn w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
+        data-id={propertyId}
+        aria-label="Save property"
+      >
+        <svg class="save-icon w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <div class="p-4 flex flex-col flex-1">
@@ -121,6 +137,57 @@ const pricePerSqm = (acf.price && acf.floor_area) ? '₱' + Math.round(Number(ac
         setActive(true);
       }
       localStorage.setItem('saved_properties', JSON.stringify(s));
+    });
+  });
+
+  // Compare buttons
+  const compareList = () => JSON.parse(localStorage.getItem('compare_list') || '[]');
+
+  document.querySelectorAll('.compare-btn').forEach(btn => {
+    const id = Number((btn as HTMLElement).dataset.id);
+    const pSlug = (btn as HTMLElement).dataset.slug || '';
+    const pTitle = (btn as HTMLElement).dataset.title || '';
+    const pPrice = (btn as HTMLElement).dataset.price || '';
+    const pImage = (btn as HTMLElement).dataset.image || '';
+    const icon = btn.querySelector('.compare-icon') as SVGElement;
+
+    const setCmpActive = (active: boolean) => {
+      if (active) {
+        icon.setAttribute('stroke', '#16a34a');
+        (btn as HTMLElement).style.background = 'rgba(220,252,231,0.95)';
+        (btn as HTMLElement).title = 'Remove from compare';
+      } else {
+        icon.setAttribute('stroke', 'currentColor');
+        (btn as HTMLElement).style.background = '';
+        (btn as HTMLElement).title = 'Add to compare';
+      }
+    };
+
+    setCmpActive(compareList().some((x: any) => x.id === id));
+
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      let list = compareList();
+      const inList = list.some((x: any) => x.id === id);
+      if (inList) {
+        list = list.filter((x: any) => x.id !== id);
+        localStorage.setItem('compare_list', JSON.stringify(list));
+        setCmpActive(false);
+      } else {
+        if (list.length >= 3) {
+          alert('You can compare up to 3 properties. Remove one first at /compare');
+          return;
+        }
+        list.push({ id, slug: pSlug, title: pTitle, price: pPrice, image: pImage });
+        localStorage.setItem('compare_list', JSON.stringify(list));
+        setCmpActive(true);
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:5rem;right:1.5rem;z-index:1000;background:#1e293b;color:white;font-size:13px;font-weight:600;padding:10px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:10px;';
+        toast.innerHTML = '&#10003; Added to compare &nbsp;<a href="/compare" style="color:#fb923c;text-decoration:underline">View &#8594;</a>';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+      }
     });
   });
 </script>
