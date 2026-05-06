@@ -275,10 +275,10 @@ try {
 
       grid.innerHTML = items.map(function (t) {
         var acf = t.acf || {};
-        var name = acf.client_name || (t.title && t.title.rendered) || 'Client';
-        var role = acf.client_role || '';
-        var location = acf.client_location || '';
-        var text = acf.testimonial_text || '';
+        var name = acf.reviewer_name || (t.title && t.title.rendered) || 'Client';
+        var role = acf.reviewer_role || '';
+        var location = acf.reviewer_location || '';
+        var text = acf.review_text || '';
         var rating = parseInt(acf.rating) || 5;
         if (rating < 1) rating = 1;
         if (rating > 5) rating = 5;
