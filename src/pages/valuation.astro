@@ -196,9 +196,8 @@ import Footer from '../components/Footer.astro';
   <Footer />
 </Layout>
 
-<script>
-  // ₱/m² rates by city slug and property type (conservative midpoints, 2024-2025 data)
-  const RATES: Record<string, Record<string, number>> = {
+<script is:inline>
+  var RATES = {
     'bgc':          { condo: 195000, house: 160000, townhouse: 140000, land: 200000, commercial: 180000 },
     'makati':       { condo: 180000, house: 150000, townhouse: 130000, land: 180000, commercial: 160000 },
     'ortigas':      { condo: 130000, house: 110000, townhouse: 100000, land: 140000, commercial: 120000 },
@@ -211,7 +210,7 @@ import Footer from '../components/Footer.astro';
     'marikina':     { condo: 70000,  house: 60000,  townhouse: 55000,  land: 55000,  commercial: 60000  },
     'malabon':      { condo: 55000,  house: 50000,  townhouse: 48000,  land: 45000,  commercial: 50000  },
     'bacoor':       { condo: 65000,  house: 55000,  townhouse: 52000,  land: 50000,  commercial: 55000  },
-    'dasmariñas':   { condo: 55000,  house: 48000,  townhouse: 45000,  land: 42000,  commercial: 48000  },
+    'dasmarinas':   { condo: 55000,  house: 48000,  townhouse: 45000,  land: 42000,  commercial: 48000  },
     'santa-rosa':   { condo: 70000,  house: 60000,  townhouse: 58000,  land: 55000,  commercial: 60000  },
     'general-trias':{ condo: 55000,  house: 50000,  townhouse: 48000,  land: 45000,  commercial: 50000  },
     'tagaytay':     { condo: 80000,  house: 65000,  townhouse: 60000,  land: 70000,  commercial: 65000  },
@@ -232,71 +231,75 @@ import Footer from '../components/Footer.astro';
     'batangas':     { condo: 60000,  house: 52000,  townhouse: 50000,  land: 48000,  commercial: 52000  },
   };
 
-  const RENT_RATES: Record<string, Record<string, number>> = {
-    'bgc':       { condo: 1200, house: 800, townhouse: 700, land: 0, commercial: 1000 },
-    'makati':    { condo: 1100, house: 750, townhouse: 650, land: 0, commercial: 950  },
-    'ortigas':   { condo: 800,  house: 600, townhouse: 550, land: 0, commercial: 700  },
-    'quezon-city':{ condo: 550, house: 400, townhouse: 380, land: 0, commercial: 450  },
+  var RENT_RATES = {
+    'bgc':        { condo: 1200, house: 800, townhouse: 700, land: 0, commercial: 1000 },
+    'makati':     { condo: 1100, house: 750, townhouse: 650, land: 0, commercial: 950  },
+    'ortigas':    { condo: 800,  house: 600, townhouse: 550, land: 0, commercial: 700  },
+    'quezon-city':{ condo: 550,  house: 400, townhouse: 380, land: 0, commercial: 450  },
   };
 
-  const TIERS: Record<string, string> = {
+  var TIERS = {
     'bgc': 'Premium', 'makati': 'Premium', 'cebu-it-park': 'Premium',
     'ortigas': 'High-End', 'mandaluyong': 'High-End', 'pasay': 'High-End',
     'cebu-city': 'High-End', 'mactan': 'High-End', 'tagaytay': 'High-End',
   };
 
-  const CONDITION_MULT: Record<string, number> = { new: 1.10, good: 1.00, fair: 0.85 };
+  var CONDITION_MULT = { 'new': 1.10, good: 1.00, fair: 0.85 };
 
-  (window as any).estimate = function() {
-    const city = (document.getElementById('val-city') as HTMLSelectElement).value;
-    const type = (document.getElementById('val-type') as HTMLSelectElement).value;
-    const area = parseFloat((document.getElementById('val-area') as HTMLInputElement).value);
-    const lot = parseFloat((document.getElementById('val-lot') as HTMLInputElement).value) || 0;
-    const condition = (document.getElementById('val-condition') as HTMLSelectElement).value;
-    const purpose = (document.getElementById('val-purpose') as HTMLSelectElement).value;
+  window.estimate = function() {
+    var city = document.getElementById('val-city').value;
+    var type = document.getElementById('val-type').value;
+    var area = parseFloat(document.getElementById('val-area').value);
+    var lot = parseFloat(document.getElementById('val-lot').value) || 0;
+    var condition = document.getElementById('val-condition').value;
+    var purpose = document.getElementById('val-purpose').value;
 
     if (!city || !type || !area || area < 10) {
       alert('Please fill in City, Property Type, and Floor Area.');
       return;
     }
 
-    const cityRates = RATES[city] || RATES['quezon-city'];
-    const baseRatePerSqm = cityRates[type] || cityRates['condo'];
-    const condMult = CONDITION_MULT[condition] || 1;
+    var cityRates = RATES[city] || RATES['quezon-city'];
+    var baseRatePerSqm = cityRates[type] || cityRates['condo'];
+    var condMult = CONDITION_MULT[condition] || 1;
 
-    let value = baseRatePerSqm * area * condMult;
+    var value = baseRatePerSqm * area * condMult;
     if ((type === 'house' || type === 'land') && lot > 0) {
-      const lotRate = cityRates['land'] * 0.6;
+      var lotRate = cityRates['land'] * 0.6;
       value += lotRate * lot * condMult;
     }
 
-    const low = Math.round(value * 0.88);
-    const high = Math.round(value * 1.12);
+    var low = Math.round(value * 0.88);
+    var high = Math.round(value * 1.12);
 
-    const fmt = (n: number) => '₱' + n.toLocaleString('en-PH');
-    const fmtM = (n: number) => n >= 1_000_000 ? '₱' + (n / 1_000_000).toFixed(2) + 'M' : fmt(n);
+    function fmt(n) { return '₱' + n.toLocaleString('en-PH'); }
+    function fmtM(n) { return n >= 1000000 ? '₱' + (n / 1000000).toFixed(2) + 'M' : fmt(n); }
 
-    const result = document.getElementById('val-result')!;
-    result.classList.remove('hidden');
-    document.getElementById('val-price-range')!.textContent = `${fmtM(low)} — ${fmtM(high)}`;
-    document.getElementById('val-psm')!.textContent = '₱' + Math.round(baseRatePerSqm * condMult).toLocaleString('en-PH');
-    document.getElementById('val-area-display')!.textContent = area + ' m²';
-    document.getElementById('val-tier')!.textContent = TIERS[city] || 'Mid-Market';
+    var result = document.getElementById('val-result');
+    if (result) result.classList.remove('hidden');
+    var priceRangeEl = document.getElementById('val-price-range');
+    if (priceRangeEl) priceRangeEl.textContent = fmtM(low) + ' — ' + fmtM(high);
+    var psmEl = document.getElementById('val-psm');
+    if (psmEl) psmEl.textContent = '₱' + Math.round(baseRatePerSqm * condMult).toLocaleString('en-PH');
+    var areaEl = document.getElementById('val-area-display');
+    if (areaEl) areaEl.textContent = area + ' m²';
+    var tierEl = document.getElementById('val-tier');
+    if (tierEl) tierEl.textContent = TIERS[city] || 'Mid-Market';
 
-    const rentResult = document.getElementById('val-rent-range')!;
-    if (purpose === 'rent') {
-      const rentRates = RENT_RATES[city];
+    var rentResult = document.getElementById('val-rent-range');
+    if (purpose === 'rent' && rentResult) {
+      var rentRates = RENT_RATES[city];
       if (rentRates) {
-        const rentPerSqm = rentRates[type] || rentRates['condo'];
-        const monthlyLow = Math.round(rentPerSqm * area * 0.9);
-        const monthlyHigh = Math.round(rentPerSqm * area * 1.1);
-        rentResult.textContent = `Est. monthly rent: ${fmt(monthlyLow)} — ${fmt(monthlyHigh)}`;
+        var rentPerSqm = rentRates[type] || rentRates['condo'];
+        var monthlyLow = Math.round(rentPerSqm * area * 0.9);
+        var monthlyHigh = Math.round(rentPerSqm * area * 1.1);
+        rentResult.textContent = 'Est. monthly rent: ' + fmt(monthlyLow) + ' — ' + fmt(monthlyHigh);
         rentResult.classList.remove('hidden');
       }
-    } else {
+    } else if (rentResult) {
       rentResult.classList.add('hidden');
     }
 
-    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (result) result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 </script>

@@ -324,110 +324,105 @@ import Footer from '../components/Footer.astro';
   <Footer />
 </Layout>
 
-<script is:inline>
+<script>
   // ── Photo management ────────────────────────────────────────────
-  var MAX_PHOTOS = 10;
-  var photos = [];
+  const MAX_PHOTOS = 10;
+  let photos: Array<{ type: 'file' | 'url'; file?: File; preview: string; name: string }> = [];
 
   function updatePhotoCount() {
-    var el = document.getElementById('photo-count');
+    const el = document.getElementById('photo-count');
     if (el) el.textContent = String(photos.length);
   }
 
   function renderPreviews() {
-    var grid = document.getElementById('photo-preview');
-    if (!grid) return;
+    const grid = document.getElementById('photo-preview')!;
     grid.innerHTML = '';
-    photos.forEach(function(photo, i) {
-      var wrap = document.createElement('div');
+    photos.forEach((photo, i) => {
+      const wrap = document.createElement('div');
       wrap.className = 'relative group rounded-xl overflow-hidden bg-gray-100 aspect-square';
-      wrap.innerHTML =
-        '<img src="' + photo.preview + '" alt="Photo ' + (i + 1) + '" class="w-full h-full object-cover" />' +
-        (i === 0 ? '<span class="absolute bottom-0 inset-x-0 bg-[#ea580c] text-white text-[10px] font-bold text-center py-1 pointer-events-none">MAIN PHOTO</span>' : '') +
-        '<button type="button" onclick="removePhoto(' + i + ')" class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">' +
-          '<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
-        '</button>';
+      wrap.innerHTML = `
+        <img src="${photo.preview}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
+        ${i === 0 ? '<span class="absolute bottom-0 inset-x-0 bg-[#ea580c] text-white text-[10px] font-bold text-center py-1 pointer-events-none">MAIN PHOTO</span>' : ''}
+        <button type="button" onclick="removePhoto(${i})"
+          class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      `;
       grid.appendChild(wrap);
     });
     updatePhotoCount();
   }
 
-  function addPhotos(files) {
-    var remaining = MAX_PHOTOS - photos.length;
+  function addPhotos(files: File[]) {
+    const remaining = MAX_PHOTOS - photos.length;
     if (remaining <= 0) { showPhotoToast('Maximum 10 photos reached'); return; }
-    var toAdd = Array.from(files).slice(0, remaining);
-    toAdd.forEach(function(file) {
+    files.slice(0, remaining).forEach(file => {
       if (!file.type.startsWith('image/')) return;
-      if (file.size > 10 * 1024 * 1024) { showPhotoToast(file.name + ' exceeds 10MB'); return; }
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        photos.push({ type: 'file', file: file, preview: e.target.result, name: file.name });
+      if (file.size > 10 * 1024 * 1024) { showPhotoToast(`${file.name} exceeds 10MB`); return; }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        photos.push({ type: 'file', file, preview: e.target!.result as string, name: file.name });
         renderPreviews();
       };
       reader.readAsDataURL(file);
     });
-    if (Array.from(files).length > remaining) showPhotoToast('Only ' + remaining + ' more photo(s) can be added');
+    if (files.length > remaining) showPhotoToast(`Only ${remaining} more photo(s) can be added`);
   }
 
-  window.removePhoto = function(i) { photos.splice(i, 1); renderPreviews(); };
+  (window as any).removePhoto = (i: number) => { photos.splice(i, 1); renderPreviews(); };
 
-  window.handleDragOver = function(e) {
+  // Drag and drop
+  (window as any).handleDragOver = (e: DragEvent) => {
     e.preventDefault();
-    var z = document.getElementById('drop-zone');
-    if (z) { z.classList.add('border-[#ea580c]', 'bg-orange-50/50'); }
+    document.getElementById('drop-zone')?.classList.add('border-[#ea580c]', 'bg-orange-50/50');
   };
-  window.handleDragLeave = function() {
-    var z = document.getElementById('drop-zone');
-    if (z) { z.classList.remove('border-[#ea580c]', 'bg-orange-50/50'); }
+  (window as any).handleDragLeave = () => {
+    document.getElementById('drop-zone')?.classList.remove('border-[#ea580c]', 'bg-orange-50/50');
   };
-  window.handleDrop = function(e) {
+  (window as any).handleDrop = (e: DragEvent) => {
     e.preventDefault();
-    var z = document.getElementById('drop-zone');
-    if (z) { z.classList.remove('border-[#ea580c]', 'bg-orange-50/50'); }
-    if (e.dataTransfer && e.dataTransfer.files) addPhotos(e.dataTransfer.files);
+    document.getElementById('drop-zone')?.classList.remove('border-[#ea580c]', 'bg-orange-50/50');
+    addPhotos(Array.from(e.dataTransfer!.files));
   };
 
-  var photoInput = document.getElementById('photo-input');
-  if (photoInput) photoInput.addEventListener('change', function(e) {
-    addPhotos(e.target.files); e.target.value = '';
+  // File inputs
+  document.getElementById('photo-input')?.addEventListener('change', (e: any) => {
+    addPhotos(Array.from(e.target.files as FileList)); e.target.value = '';
   });
-  var cameraInput = document.getElementById('camera-input');
-  if (cameraInput) cameraInput.addEventListener('change', function(e) {
-    addPhotos(e.target.files); e.target.value = '';
+  document.getElementById('camera-input')?.addEventListener('change', (e: any) => {
+    addPhotos(Array.from(e.target.files as FileList)); e.target.value = '';
   });
 
-  window.toggleLinkInput = function() {
-    var area = document.getElementById('link-input-area');
-    if (!area) return;
+  // From link
+  (window as any).toggleLinkInput = () => {
+    const area = document.getElementById('link-input-area')!;
     area.classList.toggle('hidden');
-    if (!area.classList.contains('hidden')) {
-      var inp = document.getElementById('photo-link-input');
-      if (inp) inp.focus();
-    }
+    if (!area.classList.contains('hidden')) (document.getElementById('photo-link-input') as HTMLInputElement)?.focus();
   };
-
-  window.addPhotoFromLink = function() {
-    var input = document.getElementById('photo-link-input');
-    var url = input ? input.value.trim() : '';
+  (window as any).addPhotoFromLink = () => {
+    const input = document.getElementById('photo-link-input') as HTMLInputElement;
+    const url = input.value.trim();
     if (!url || !url.startsWith('http')) { showPhotoToast('Please enter a valid image URL'); return; }
     if (photos.length >= MAX_PHOTOS) { showPhotoToast('Maximum 10 photos reached'); return; }
     photos.push({ type: 'url', preview: url, name: url.split('/').pop() || 'image' });
     renderPreviews();
-    if (input) input.value = '';
-    var area = document.getElementById('link-input-area');
-    if (area) area.classList.add('hidden');
+    input.value = '';
+    document.getElementById('link-input-area')?.classList.add('hidden');
   };
 
-  // Dropbox — add: <script src="https://www.dropbox.com/static/api/2/dropins.js" data-app-key="YOUR_KEY"></script>
-  window.openDropbox = function() {
-    if (typeof window.Dropbox === 'undefined') {
+  // Dropbox — requires App Key: dash.dropbox.com/developers/apps → Create app → copy App key
+  // Then add the Dropbox SDK script tag with your App Key before closing body
+  (window as any).openDropbox = () => {
+    if (typeof (window as any).Dropbox === 'undefined') {
       showPhotoToast('Dropbox needs setup — see IT admin instructions');
       return;
     }
     if (photos.length >= MAX_PHOTOS) { showPhotoToast('Maximum 10 photos reached'); return; }
-    window.Dropbox.choose({
-      success: function(files) {
-        files.slice(0, MAX_PHOTOS - photos.length).forEach(function(f) {
+    (window as any).Dropbox.choose({
+      success: (files: any[]) => {
+        files.slice(0, MAX_PHOTOS - photos.length).forEach((f: any) => {
           photos.push({ type: 'url', preview: f.link, name: f.name });
         });
         renderPreviews();
@@ -438,24 +433,26 @@ import Footer from '../components/Footer.astro';
     });
   };
 
-  window.openGoogleDrive = function() {
+  // Google Drive — requires Google Cloud project with Picker API enabled
+  // console.log instructions in IT head brief
+  (window as any).openGoogleDrive = () => {
     showPhotoToast('Google Drive needs setup — see IT admin instructions');
   };
 
-  function showPhotoToast(msg) {
-    var t = document.createElement('div');
+  function showPhotoToast(msg: string) {
+    const t = document.createElement('div');
     t.style.cssText = 'position:fixed;bottom:5rem;right:1.5rem;z-index:1000;background:#1e293b;color:white;font-size:13px;font-weight:600;padding:10px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);max-width:280px;';
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(function() { t.remove(); }, 3000);
+    setTimeout(() => t.remove(), 3000);
   }
   // ── End photo management ─────────────────────────────────────────
 
-  window.goToStep = function(step) {
-    document.querySelectorAll('.step-content').forEach(function(el) { el.classList.add('hidden'); });
-    var target = document.getElementById('step-' + step);
-    if (target) target.classList.remove('hidden');
-    document.querySelectorAll('.step-dot').forEach(function(dot, i) {
+  function goToStep(step: number) {
+    document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`step-${step}`)?.classList.remove('hidden');
+
+    document.querySelectorAll('.step-dot').forEach((dot: any, i) => {
       if (i + 1 === step) {
         dot.classList.remove('bg-gray-100', 'text-gray-400');
         dot.classList.add('bg-[#ea580c]', 'text-white');
@@ -464,54 +461,63 @@ import Footer from '../components/Footer.astro';
         dot.classList.add('bg-gray-100', 'text-gray-400');
       }
     });
-  };
+  }
 
-  window.submitListing = async function() {
-    var btn = document.getElementById('submit-btn');
+  async function submitListing() {
+    const btn = document.getElementById('submit-btn') as HTMLButtonElement;
     btn.textContent = 'Submitting...';
     btn.disabled = true;
 
-    var data = {
-      listing_type: document.getElementById('p-listing-type').value,
-      property_type: document.getElementById('p-property-type').value,
-      title: document.getElementById('p-title').value,
-      price: document.getElementById('p-price').value,
-      city: document.getElementById('p-city').value,
-      province: document.getElementById('p-province').value,
-      bedrooms: document.getElementById('p-bedrooms').value,
-      bathrooms: document.getElementById('p-bathrooms').value,
-      floor_area: document.getElementById('p-floor-area').value,
-      address: document.getElementById('p-address').value,
-      description: document.getElementById('p-description').value,
-      name: document.getElementById('p-name').value,
-      phone: document.getElementById('p-phone').value,
-      email: document.getElementById('p-email').value,
+    const data = {
+      listing_type: (document.getElementById('p-listing-type') as HTMLSelectElement).value,
+      property_type: (document.getElementById('p-property-type') as HTMLSelectElement).value,
+      title: (document.getElementById('p-title') as HTMLInputElement).value,
+      price: (document.getElementById('p-price') as HTMLInputElement).value,
+      city: (document.getElementById('p-city') as HTMLInputElement).value,
+      province: (document.getElementById('p-province') as HTMLInputElement).value,
+      bedrooms: (document.getElementById('p-bedrooms') as HTMLInputElement).value,
+      bathrooms: (document.getElementById('p-bathrooms') as HTMLInputElement).value,
+      floor_area: (document.getElementById('p-floor-area') as HTMLInputElement).value,
+      address: (document.getElementById('p-address') as HTMLInputElement).value,
+      description: (document.getElementById('p-description') as HTMLTextAreaElement).value,
+      name: (document.getElementById('p-name') as HTMLInputElement).value,
+      phone: (document.getElementById('p-phone') as HTMLInputElement).value,
+      email: (document.getElementById('p-email') as HTMLInputElement).value,
       photos_count: String(photos.length),
-      photo_urls: photos.filter(function(p) { return p.type === 'url'; }).map(function(p) { return p.preview; }).join(', ') || 'Local files attached',
+      photo_urls: photos.filter(p => p.type === 'url').map(p => p.preview).join(', ') || 'Local files attached',
     };
 
     try {
-      var res = await fetch('/.netlify/functions/submit-property', {
+      const res = await fetch('/.netlify/functions/submit-property', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      var result = await res.json();
+      const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Submission failed.');
-      document.querySelectorAll('.step-content').forEach(function(el) { el.classList.add('hidden'); });
-      var successEl = document.getElementById('step-success');
-      if (successEl) successEl.classList.remove('hidden');
-      var ref = 'IRC-' + Date.now().toString(36).toUpperCase();
-      var refEl = document.getElementById('ref-number');
-      if (refEl) refEl.textContent = 'Reference: ' + ref;
+      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById('step-success')?.classList.remove('hidden');
+      const ref = 'IRC-' + Date.now().toString(36).toUpperCase();
+      document.getElementById('ref-number')!.textContent = `Reference: ${ref}`;
 
-      var submittedArr = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
-      submittedArr.push({ ref: ref, title: data.title, city: data.city, price: data.price, status: 'pending', date: new Date().toISOString() });
+      // Save to localStorage for dashboard tracking
+      const submittedArr = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
+      submittedArr.push({
+        ref,
+        title: data.title,
+        city: data.city,
+        price: data.price,
+        status: 'pending',
+        date: new Date().toISOString(),
+      });
       localStorage.setItem('submitted_listings', JSON.stringify(submittedArr));
-    } catch(err) {
+    } catch(err: any) {
       btn.textContent = 'Submit Listing ✓';
       btn.disabled = false;
       alert('Error: ' + (err.message || 'Please try again.'));
     }
-  };
+  }
+
+  (window as any).goToStep = goToStep;
+  (window as any).submitListing = submitListing;
 </script>

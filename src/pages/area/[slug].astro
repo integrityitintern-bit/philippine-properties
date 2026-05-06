@@ -5,75 +5,74 @@ import Footer from '../../components/Footer.astro';
 import PropertyCard from '../../components/PropertyCard.astro';
 import { WP_API } from '../../config.js';
 
-const areaData: Record<string, { name: string; region: string; description: string; highlights: string[]; avgPriceSale: string; avgPriceRent: string; emoji: string; }> = {
-  'makati': {
-    name: 'Makati City', region: 'Metro Manila',
-    description: 'The financial capital of the Philippines, Makati is home to the country\'s largest business district, world-class shopping, and a vibrant dining scene. From the corporate towers of Ayala Avenue to the leafy streets of Forbes Park, Makati offers a premier urban lifestyle.',
-    highlights: ['Ayala Avenue CBD', 'Greenbelt & Glorietta Malls', 'BGC Border', 'Legazpi Village', 'Forbes Park & Dasmarinas Village'],
-    avgPriceSale: '₱8M – ₱25M', avgPriceRent: '₱35,000 – ₱120,000/mo', emoji: '🏙️',
-  },
-  'bgc': {
-    name: 'Bonifacio Global City (BGC)', region: 'Taguig, Metro Manila',
-    description: 'Bonifacio Global City is the Philippines\' most modern business and residential district. Known for its wide roads, street art, top restaurants, and luxury condominiums, BGC attracts young professionals, expats, and families seeking a premium urban lifestyle.',
-    highlights: ['High Street Shopping', 'Uptown Mall', 'Mind Museum', 'BGC Arts Center', 'Central Square'],
-    avgPriceSale: '₱10M – ₱40M', avgPriceRent: '₱50,000 – ₱180,000/mo', emoji: '🌆',
-  },
-  'quezon-city': {
-    name: 'Quezon City', region: 'Metro Manila',
-    description: 'The largest city in Metro Manila by area and population, Quezon City is a diverse urban hub with thriving business districts, prestigious universities, medical centers, and a rich arts culture. It offers a wide range of housing from affordable to high-end.',
-    highlights: ['Eastwood City', 'Trinoma & SM North', 'UP Diliman Campus', 'Quezon Memorial Circle', 'Cubao Entertainment Hub'],
-    avgPriceSale: '₱4M – ₱15M', avgPriceRent: '₱15,000 – ₱60,000/mo', emoji: '🏫',
-  },
-  'cebu-city': {
-    name: 'Cebu City', region: 'Central Visayas',
-    description: 'The Queen City of the South is the economic hub of the Visayas and Mindanao. Cebu City combines centuries of history with a modern business landscape, booming BPO industry, top universities, and easy access to white-sand beaches and dive sites.',
-    highlights: ['Ayala Center Cebu', 'IT Park & BPO District', 'Sinulog Festival', 'Magellan\'s Cross', 'SRP Reclamation Area'],
-    avgPriceSale: '₱3M – ₱18M', avgPriceRent: '₱12,000 – ₱60,000/mo', emoji: '🌺',
-  },
-  'davao': {
-    name: 'Davao City', region: 'Mindanao',
-    description: 'The largest city in Mindanao and one of the safest in Southeast Asia, Davao City offers affordable real estate, a strong local economy, and a high quality of life. It is the gateway to Mt. Apo and surrounded by beautiful natural scenery.',
-    highlights: ['Abreeza Mall', 'Victoria Plaza', 'People\'s Park', 'Samal Island Ferry', 'Magsaysay Park'],
-    avgPriceSale: '₱2.5M – ₱12M', avgPriceRent: '₱10,000 – ₱45,000/mo', emoji: '🦅',
-  },
-  'pasig': {
-    name: 'Pasig City', region: 'Metro Manila',
-    description: 'Pasig is one of Metro Manila\'s most rapidly developing cities, home to Ortigas Center, Eastwood, and the Pasig River corridor. It offers a mix of corporate offices, vibrant retail, and residential options from mid-range to upscale.',
-    highlights: ['Ortigas CBD', 'Eastwood City', 'Bridgetowne', 'Kapitolyo Food Hub', 'The Podium Mall'],
-    avgPriceSale: '₱5M – ₱20M', avgPriceRent: '₱18,000 – ₱80,000/mo', emoji: '🌉',
-  },
-  'taguig': {
-    name: 'Taguig City', region: 'Metro Manila',
-    description: 'Home to Bonifacio Global City, Taguig is one of the Philippines\' wealthiest and fastest-growing cities. Beyond BGC, Taguig offers a mix of affordable townships, government center areas, and lakeside communities.',
-    highlights: ['BGC (Fort Bonifacio)', 'Market! Market!', 'SM Aura Premier', 'Laguna de Bay Lakeside', 'Western Bicutan'],
-    avgPriceSale: '₱5M – ₱35M', avgPriceRent: '₱20,000 – ₱150,000/mo', emoji: '🏛️',
-  },
-  'manila': {
-    name: 'Manila', region: 'Metro Manila',
-    description: 'The capital of the Philippines, Manila is a city of contrasts — historic Intramuros, the bustling port district, lively Binondo (the world\'s oldest Chinatown), and the upscale Ermita and Malate areas. Manila offers affordable property close to key government and business centers.',
-    highlights: ['Intramuros Historic District', 'Binondo Chinatown', 'Rizal Park', 'Manila Bay Promenade', 'Divisoria Market'],
-    avgPriceSale: '₱2M – ₱10M', avgPriceRent: '₱8,000 – ₱40,000/mo', emoji: '🏯',
-  },
-  'antipolo': {
-    name: 'Antipolo City', region: 'Rizal Province',
-    description: 'Nestled in the hills of Rizal, Antipolo offers cooler weather, stunning views of Metro Manila, and significantly more affordable property than the city. Popular with families seeking space and a relaxed lifestyle while staying accessible to Metro Manila.',
-    highlights: ['Antipolo Cathedral', 'Pinto Art Museum', 'Robinsons Antipolo', 'Antipolo Hills Estates', 'Hinulugang Taktak'],
-    avgPriceSale: '₱2M – ₱8M', avgPriceRent: '₱8,000 – ₱30,000/mo', emoji: '⛰️',
-  },
-  'tagaytay': {
-    name: 'Tagaytay City', region: 'Cavite Province',
-    description: 'Famous for its cool climate and breathtaking views of Taal Volcano, Tagaytay is a prime destination for second homes, vacation rentals, and retirement properties. Just 60km from Makati, it offers a refreshing escape from the urban heat.',
-    highlights: ['Taal Volcano Viewpoint', 'Picnic Grove', 'Sky Ranch', 'Mahogany Market', 'Crosswinds Resort Suites'],
-    avgPriceSale: '₱3M – ₱20M', avgPriceRent: '₱15,000 – ₱60,000/mo', emoji: '🌋',
-  },
-};
-
 export function getStaticPaths() {
-  return Object.keys(areaData).map(slug => ({ params: { slug } }));
+  const areaData = {
+    'makati': {
+      name: 'Makati City', region: 'Metro Manila',
+      description: 'The financial capital of the Philippines, Makati is home to the country\'s largest business district, world-class shopping, and a vibrant dining scene. From the corporate towers of Ayala Avenue to the leafy streets of Forbes Park, Makati offers a premier urban lifestyle.',
+      highlights: ['Ayala Avenue CBD', 'Greenbelt & Glorietta Malls', 'BGC Border', 'Legazpi Village', 'Forbes Park & Dasmarinas Village'],
+      avgPriceSale: '₱8M – ₱25M', avgPriceRent: '₱35,000 – ₱120,000/mo', emoji: '🏙️',
+    },
+    'bgc': {
+      name: 'Bonifacio Global City (BGC)', region: 'Taguig, Metro Manila',
+      description: 'Bonifacio Global City is the Philippines\' most modern business and residential district. Known for its wide roads, street art, top restaurants, and luxury condominiums, BGC attracts young professionals, expats, and families seeking a premium urban lifestyle.',
+      highlights: ['High Street Shopping', 'Uptown Mall', 'Mind Museum', 'BGC Arts Center', 'Central Square'],
+      avgPriceSale: '₱10M – ₱40M', avgPriceRent: '₱50,000 – ₱180,000/mo', emoji: '🌆',
+    },
+    'quezon-city': {
+      name: 'Quezon City', region: 'Metro Manila',
+      description: 'The largest city in Metro Manila by area and population, Quezon City is a diverse urban hub with thriving business districts, prestigious universities, medical centers, and a rich arts culture. It offers a wide range of housing from affordable to high-end.',
+      highlights: ['Eastwood City', 'Trinoma & SM North', 'UP Diliman Campus', 'Quezon Memorial Circle', 'Cubao Entertainment Hub'],
+      avgPriceSale: '₱4M – ₱15M', avgPriceRent: '₱15,000 – ₱60,000/mo', emoji: '🏫',
+    },
+    'cebu-city': {
+      name: 'Cebu City', region: 'Central Visayas',
+      description: 'The Queen City of the South is the economic hub of the Visayas and Mindanao. Cebu City combines centuries of history with a modern business landscape, booming BPO industry, top universities, and easy access to white-sand beaches and dive sites.',
+      highlights: ['Ayala Center Cebu', 'IT Park & BPO District', 'Sinulog Festival', 'Magellan\'s Cross', 'SRP Reclamation Area'],
+      avgPriceSale: '₱3M – ₱18M', avgPriceRent: '₱12,000 – ₱60,000/mo', emoji: '🌺',
+    },
+    'davao': {
+      name: 'Davao City', region: 'Mindanao',
+      description: 'The largest city in Mindanao and one of the safest in Southeast Asia, Davao City offers affordable real estate, a strong local economy, and a high quality of life. It is the gateway to Mt. Apo and surrounded by beautiful natural scenery.',
+      highlights: ['Abreeza Mall', 'Victoria Plaza', 'People\'s Park', 'Samal Island Ferry', 'Magsaysay Park'],
+      avgPriceSale: '₱2.5M – ₱12M', avgPriceRent: '₱10,000 – ₱45,000/mo', emoji: '🦅',
+    },
+    'pasig': {
+      name: 'Pasig City', region: 'Metro Manila',
+      description: 'Pasig is one of Metro Manila\'s most rapidly developing cities, home to Ortigas Center, Eastwood, and the Pasig River corridor. It offers a mix of corporate offices, vibrant retail, and residential options from mid-range to upscale.',
+      highlights: ['Ortigas CBD', 'Eastwood City', 'Bridgetowne', 'Kapitolyo Food Hub', 'The Podium Mall'],
+      avgPriceSale: '₱5M – ₱20M', avgPriceRent: '₱18,000 – ₱80,000/mo', emoji: '🌉',
+    },
+    'taguig': {
+      name: 'Taguig City', region: 'Metro Manila',
+      description: 'Home to Bonifacio Global City, Taguig is one of the Philippines\' wealthiest and fastest-growing cities. Beyond BGC, Taguig offers a mix of affordable townships, government center areas, and lakeside communities.',
+      highlights: ['BGC (Fort Bonifacio)', 'Market! Market!', 'SM Aura Premier', 'Laguna de Bay Lakeside', 'Western Bicutan'],
+      avgPriceSale: '₱5M – ₱35M', avgPriceRent: '₱20,000 – ₱150,000/mo', emoji: '🏛️',
+    },
+    'manila': {
+      name: 'Manila', region: 'Metro Manila',
+      description: 'The capital of the Philippines, Manila is a city of contrasts — historic Intramuros, the bustling port district, lively Binondo (the world\'s oldest Chinatown), and the upscale Ermita and Malate areas. Manila offers affordable property close to key government and business centers.',
+      highlights: ['Intramuros Historic District', 'Binondo Chinatown', 'Rizal Park', 'Manila Bay Promenade', 'Divisoria Market'],
+      avgPriceSale: '₱2M – ₱10M', avgPriceRent: '₱8,000 – ₱40,000/mo', emoji: '🏯',
+    },
+    'antipolo': {
+      name: 'Antipolo City', region: 'Rizal Province',
+      description: 'Nestled in the hills of Rizal, Antipolo offers cooler weather, stunning views of Metro Manila, and significantly more affordable property than the city. Popular with families seeking space and a relaxed lifestyle while staying accessible to Metro Manila.',
+      highlights: ['Antipolo Cathedral', 'Pinto Art Museum', 'Robinsons Antipolo', 'Antipolo Hills Estates', 'Hinulugang Taktak'],
+      avgPriceSale: '₱2M – ₱8M', avgPriceRent: '₱8,000 – ₱30,000/mo', emoji: '⛰️',
+    },
+    'tagaytay': {
+      name: 'Tagaytay City', region: 'Cavite Province',
+      description: 'Famous for its cool climate and breathtaking views of Taal Volcano, Tagaytay is a prime destination for second homes, vacation rentals, and retirement properties. Just 60km from Makati, it offers a refreshing escape from the urban heat.',
+      highlights: ['Taal Volcano Viewpoint', 'Picnic Grove', 'Sky Ranch', 'Mahogany Market', 'Crosswinds Resort Suites'],
+      avgPriceSale: '₱3M – ₱20M', avgPriceRent: '₱15,000 – ₱60,000/mo', emoji: '🌋',
+    },
+  };
+  return Object.keys(areaData).map(slug => ({ params: { slug }, props: { area: areaData[slug as keyof typeof areaData], areaData } }));
 }
 
 const { slug } = Astro.params;
-const area = areaData[slug as string];
+const { area, areaData } = Astro.props;
 if (!area) return Astro.redirect('/search');
 
 let properties: any[] = [];
