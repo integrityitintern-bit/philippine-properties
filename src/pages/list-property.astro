@@ -464,50 +464,46 @@ import Footer from '../components/Footer.astro';
   }
 
   async function submitListing() {
-    const btn = document.getElementById('submit-btn') as HTMLButtonElement;
+    var btn = document.getElementById('submit-btn');
     btn.textContent = 'Submitting...';
     btn.disabled = true;
 
-    const data = {
-      listing_type: (document.getElementById('p-listing-type') as HTMLSelectElement).value,
-      property_type: (document.getElementById('p-property-type') as HTMLSelectElement).value,
-      title: (document.getElementById('p-title') as HTMLInputElement).value,
-      price: (document.getElementById('p-price') as HTMLInputElement).value,
-      city: (document.getElementById('p-city') as HTMLInputElement).value,
-      province: (document.getElementById('p-province') as HTMLInputElement).value,
-      bedrooms: (document.getElementById('p-bedrooms') as HTMLInputElement).value,
-      bathrooms: (document.getElementById('p-bathrooms') as HTMLInputElement).value,
-      floor_area: (document.getElementById('p-floor-area') as HTMLInputElement).value,
-      address: (document.getElementById('p-address') as HTMLInputElement).value,
-      description: (document.getElementById('p-description') as HTMLTextAreaElement).value,
-      name: (document.getElementById('p-name') as HTMLInputElement).value,
-      phone: (document.getElementById('p-phone') as HTMLInputElement).value,
-      email: (document.getElementById('p-email') as HTMLInputElement).value,
+    var data = {
+      listing_type: document.getElementById('p-listing-type').value,
+      property_type: document.getElementById('p-property-type').value,
+      title: document.getElementById('p-title').value,
+      price: document.getElementById('p-price').value,
+      city: document.getElementById('p-city').value,
+      province: document.getElementById('p-province').value,
+      bedrooms: document.getElementById('p-bedrooms').value,
+      bathrooms: document.getElementById('p-bathrooms').value,
+      floor_area: document.getElementById('p-floor-area').value,
+      address: document.getElementById('p-address').value,
+      description: document.getElementById('p-description').value,
+      name: document.getElementById('p-name').value,
+      phone: document.getElementById('p-phone').value,
+      email: document.getElementById('p-email').value,
       photos_count: String(photos.length),
-      photo_urls: photos.filter(p => p.type === 'url').map(p => p.preview).join(', ') || 'Local files attached',
+      photo_urls: photos.filter(function(p) { return p.type === 'url'; }).map(function(p) { return p.preview; }).join(', ') || 'Local files attached',
     };
 
     try {
-      const formData = new FormData();
-      Object.entries(data).forEach(([key, val]) => formData.append(key, String(val)));
-      formData.append('_subject', 'New Property Listing: ' + data.title);
-      formData.append('_template', 'table');
-      const res = await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+      var res = await fetch('/api/submit-property', {
         method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
-      const result = await res.json();
-      if (result.success !== 'true' && result.success !== true) throw new Error(result.message || 'Submission failed.');
-      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      var result = await res.json();
+      if (!result.success) throw new Error(result.message || 'Submission failed.');
+      document.querySelectorAll('.step-content').forEach(function(el) { el.classList.add('hidden'); });
       document.getElementById('step-success')?.classList.remove('hidden');
-      const ref = 'IRC-' + Date.now().toString(36).toUpperCase();
-      document.getElementById('ref-number')!.textContent = `Reference: ${ref}`;
+      var ref = 'IRC-' + Date.now().toString(36).toUpperCase();
+      var refEl = document.getElementById('ref-number');
+      if (refEl) refEl.textContent = 'Reference: ' + ref;
 
-      // Save to localStorage for dashboard tracking
-      const submittedArr = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
+      var submittedArr = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
       submittedArr.push({
-        ref,
+        ref: ref,
         title: data.title,
         city: data.city,
         price: data.price,
@@ -515,7 +511,7 @@ import Footer from '../components/Footer.astro';
         date: new Date().toISOString(),
       });
       localStorage.setItem('submitted_listings', JSON.stringify(submittedArr));
-    } catch(err: any) {
+    } catch(err) {
       btn.textContent = 'Submit Listing ✓';
       btn.disabled = false;
       alert('Error: ' + (err.message || 'Please try again.'));
