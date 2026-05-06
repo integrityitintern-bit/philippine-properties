@@ -72,20 +72,43 @@ const vtEmbedUrl = ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&
 // Build gallery array: featured image first, then additional photo fields
 const galleryImages: string[] = [];
 if (image) galleryImages.push(image);
-// Free ACF: individual image fields photo_2 through photo_5
-['photo_2','photo_3','photo_4','photo_5'].forEach(key => {
+// Free ACF: individual image fields photo_2 through photo_10
+for (const key of ['photo_2','photo_3','photo_4','photo_5','photo_6','photo_7','photo_8','photo_9','photo_10']) {
   const img = acf[key];
-  if (!img) return;
-  const url = typeof img === 'string' ? img : (img?.url || img?.sizes?.large || '');
-  if (url && url !== image) galleryImages.push(url);
-});
+  if (!img) continue;
+  let url = '';
+  if (typeof img === 'string') {
+    url = img;
+  } else if (typeof img === 'number') {
+    // ACF returned image ID — resolve via media endpoint
+    try {
+      const mRes = await fetch(`${WP_API}/media/${img}?_fields=source_url`);
+      const mData = await mRes.json();
+      url = mData.source_url || '';
+    } catch {}
+  } else {
+    url = img?.url || img?.sizes?.large || img?.sizes?.medium_large || '';
+  }
+  if (url && !galleryImages.includes(url)) galleryImages.push(url);
+}
 // ACF Pro: gallery field (works if upgraded later)
 if (Array.isArray(acf.gallery)) {
   acf.gallery.forEach((img: any) => {
     const url = typeof img === 'string' ? img : (img?.url || img?.sizes?.large || '');
-    if (url && url !== image) galleryImages.push(url);
+    if (url && !galleryImages.includes(url)) galleryImages.push(url);
   });
 }
+// Fallback: fetch all media attached to this post (catches content-block images & any ACF format)
+try {
+  const mediaRes = await fetch(`${WP_API}/media?parent=${propertyId}&per_page=20&_fields=source_url,mime_type`);
+  const mediaData = await mediaRes.json();
+  if (Array.isArray(mediaData)) {
+    mediaData.forEach((m: any) => {
+      const url = m.source_url || '';
+      if (url && m.mime_type?.startsWith('image/') && !galleryImages.includes(url)) galleryImages.push(url);
+    });
+  }
+} catch {}
 ---
 
 <Layout title={title} description={description} ogImage={image || '/hero-bg.jpg'} ogType="article">
@@ -785,31 +808,33 @@ if (Array.isArray(acf.gallery)) {
   }
 
   // Schedule a Viewing form
-  const viewingForm = document.getElementById('viewing-form') as HTMLFormElement | null;
-  const viewingSubmit = document.getElementById('viewing-submit') as HTMLButtonElement | null;
-  const viewingSuccess = document.getElementById('viewing-success');
+  var viewingForm = document.getElementById('viewing-form');
+  var viewingSubmit = document.getElementById('viewing-submit');
+  var viewingSuccess = document.getElementById('viewing-success');
   // Set min date to tomorrow
-  const dateInput = viewingForm?.querySelector('input[type="date"]') as HTMLInputElement | null;
+  var dateInput = viewingForm ? viewingForm.querySelector('input[type="date"]') : null;
   if (dateInput) {
-    const tomorrow = new Date();
+    var tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     dateInput.min = tomorrow.toISOString().split('T')[0];
   }
-  viewingForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (viewingSubmit) { viewingSubmit.textContent = 'Sending...'; viewingSubmit.disabled = true; }
-    try {
-      await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
-        method: 'POST',
-        body: new FormData(viewingForm),
-      });
-      viewingForm.reset();
-      viewingSuccess?.classList.remove('hidden');
-      viewingSubmit?.classList.add('hidden');
-    } catch {
-      if (viewingSubmit) { viewingSubmit.textContent = 'Request Viewing'; viewingSubmit.disabled = false; }
-    }
-  });
+  if (viewingForm) {
+    viewingForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (viewingSubmit) { viewingSubmit.textContent = 'Sending...'; viewingSubmit.disabled = true; }
+      try {
+        await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+          method: 'POST',
+          body: new FormData(viewingForm),
+        });
+        viewingForm.reset();
+        if (viewingSuccess) viewingSuccess.classList.remove('hidden');
+        if (viewingSubmit) viewingSubmit.classList.add('hidden');
+      } catch(err) {
+        if (viewingSubmit) { viewingSubmit.textContent = 'Request Viewing'; viewingSubmit.disabled = false; }
+      }
+    });
+  }
 </script>
 
 <style is:global>
