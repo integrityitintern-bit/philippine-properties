@@ -4,19 +4,6 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { WP_API } from '../config.js';
 
-let posts: any[] = [];
-try {
-  const res = await fetch(`${WP_API}/posts?_embed&per_page=20&status=publish`);
-  const data = await res.json();
-  if (Array.isArray(data)) posts = data;
-} catch {}
-
-let categories: any[] = [];
-try {
-  const catRes = await fetch(`${WP_API}/categories?per_page=20&hide_empty=false`);
-  const catData = await catRes.json();
-  if (Array.isArray(catData)) categories = catData.filter((c: any) => c.slug !== 'uncategorized');
-} catch {}
 ---
 
 <Layout title="Resources & Real Estate Guides">
@@ -157,11 +144,27 @@ try {
 </Layout>
 
 <!-- Articles: client-side render, filter, and search -->
-<script define:vars={{ posts, categories }}>
-  var allPosts = posts;
-  var allCategories = categories;
-  var activeCatId = null; // null = All
+<script define:vars={{ WP_API }}>
+  var allPosts = [];
+  var allCategories = [];
+  var activeCatId = null;
   var searchQuery = '';
+
+  // Fetch posts and categories live from WP API (client-side so new posts appear without rebuild)
+  async function loadContent() {
+    try {
+      const [postsRes, catsRes] = await Promise.all([
+        fetch(`${WP_API}/posts?_embed&per_page=20&status=publish`),
+        fetch(`${WP_API}/categories?per_page=20&hide_empty=false`),
+      ]);
+      const postsData = await postsRes.json();
+      const catsData = await catsRes.json();
+      if (Array.isArray(postsData)) allPosts = postsData;
+      if (Array.isArray(catsData)) allCategories = catsData.filter(c => c.slug !== 'uncategorized');
+    } catch {}
+    renderPills();
+    renderArticles();
+  }
 
   // ── Category pill bar ────────────────────────────────────────────────────
   var pillBar = document.getElementById('category-pills');
@@ -278,8 +281,7 @@ try {
   });
 
   // ── Init ─────────────────────────────────────────────────────────────────
-  renderPills();
-  renderArticles();
+  loadContent();
 </script>
 
 <!-- Mortgage calculator -->
