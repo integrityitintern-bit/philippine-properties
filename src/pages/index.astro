@@ -27,9 +27,24 @@ try {
   }
 } catch {}
 
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "Integrity Real Estate Corp",
+  "url": "https://integrityrealty.ph",
+  "logo": "https://integrityrealty.ph/favicon.svg",
+  "image": "https://integrityrealty.ph/hero-bg.jpg",
+  "description": "Find houses, condos, and lots for sale and rent across Metro Manila, Cebu, Davao, and 50+ cities in the Philippines.",
+  "address": { "@type": "PostalAddress", "addressCountry": "PH", "addressRegion": "Metro Manila" },
+  "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "email": "info@integrityrealty.ph", "availableLanguage": ["en", "tl"] },
+  "sameAs": [],
+  "areaServed": { "@type": "Country", "name": "Philippines" },
+  "priceRange": "₱₱₱"
+};
 ---
 
 <Layout title="Find Your Dream Property in the Philippines">
+  <script type="application/ld+json" set:html={JSON.stringify(localBusinessJsonLd)} />
   <Navbar />
 
   <!-- ═══ HERO ═══ -->
@@ -267,6 +282,23 @@ try {
       >
         + List Your Property Free
       </a>
+      <div class="mt-8 pt-8 border-t border-white/10">
+        <p class="text-white/50 text-sm mb-4">Join our community of property buyers &amp; investors</p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <!-- WhatsApp Group: replace the link with your actual WhatsApp group invite URL -->
+          <a href="https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXX" target="_blank" rel="noopener"
+            class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1da850] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-lg">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Join WhatsApp Group
+          </a>
+          <!-- Viber Group: replace the link with your actual Viber group invite URL -->
+          <a href="viber://invite?g2=XXXXXXXXXXXXXXXXXX" target="_blank" rel="noopener"
+            class="inline-flex items-center gap-2 bg-[#7360f2] hover:bg-[#5a4bd1] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-lg">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11.398.002C8.278.065 1.678.592.598 7.137c-.35 2.098-.398 4.537.11 6.663.89 3.717 4.277 6.048 7.52 6.598v2.75c0 .306.187.584.473.7.094.037.192.056.29.056.2 0 .395-.078.542-.226l2.796-2.796c.3.016.596.032.89.032 3.117 0 9.718-.528 10.8-7.074.507-3.138.288-5.43-.428-7.198C21.47 2.49 17.558-.12 11.398.002zm-.14 1.98c5.596-.112 8.895 2.143 9.78 4.284.61 1.497.79 3.527.33 6.327-.866 5.27-6.15 5.656-8.68 5.656-.42 0-.872-.02-1.343-.06-.25-.02-.49.076-.655.253l-2.085 2.085v-2.013c0-.35-.228-.66-.563-.762-2.726-.818-5.7-2.756-6.47-6.05-.46-1.928-.416-4.166-.098-6.07.87-5.15 6.026-5.618 9.783-5.65zm1.48 4.26c-.456.038-.797.44-.76.896.038.457.44.797.897.76.86-.072 1.56.138 2.11.643.55.505.868 1.246.94 2.144.04.457.44.796.898.757.457-.04.797-.44.758-.898-.103-1.268-.558-2.34-1.387-3.105-.83-.766-1.914-1.13-3.056-1.198l-.4.001zm-3.32.682a7.2 7.2 0 00-.74.095C7.29 7.272 6.27 8.24 6.03 9.55c-.09.496-.085.992-.08 1.354.002.226.004.394-.01.52l-.01.1c-.047.36-.01.654.243.88.204.187.484.27.753.23.46-.07.78-.5.71-.962l.01-.1c.019-.185.016-.41.013-.69-.003-.306-.007-.668.052-1.02.13-.706.634-1.197 1.3-1.337.174-.037.358-.057.544-.07.46-.034.807-.43.773-.89-.033-.46-.43-.808-.89-.773l-.04.003v.001zm3.374 1.358c-.33-.016-.638.152-.8.44-.16.286-.15.633.026.91l.064.102c.102.16.21.394.3.67.088.273.145.564.15.836.007.46.385.825.845.817.46-.007.826-.386.818-.847-.01-.44-.097-.89-.24-1.31-.143-.42-.33-.793-.518-1.083l-.064-.102c-.147-.233-.384-.372-.623-.44l-.068.007h.11z"/></svg>
+            Join Viber Group
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 

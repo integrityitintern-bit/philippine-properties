@@ -1,0 +1,228 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import { WP_API } from '../../config.js';
+
+const areaData: Record<string, { name: string; region: string; description: string; highlights: string[]; avgPriceSale: string; avgPriceRent: string; emoji: string; }> = {
+  'makati': {
+    name: 'Makati City', region: 'Metro Manila',
+    description: 'The financial capital of the Philippines, Makati is home to the country\'s largest business district, world-class shopping, and a vibrant dining scene. From the corporate towers of Ayala Avenue to the leafy streets of Forbes Park, Makati offers a premier urban lifestyle.',
+    highlights: ['Ayala Avenue CBD', 'Greenbelt & Glorietta Malls', 'BGC Border', 'Legazpi Village', 'Forbes Park & Dasmarinas Village'],
+    avgPriceSale: '₱8M – ₱25M', avgPriceRent: '₱35,000 – ₱120,000/mo', emoji: '🏙️',
+  },
+  'bgc': {
+    name: 'Bonifacio Global City (BGC)', region: 'Taguig, Metro Manila',
+    description: 'Bonifacio Global City is the Philippines\' most modern business and residential district. Known for its wide roads, street art, top restaurants, and luxury condominiums, BGC attracts young professionals, expats, and families seeking a premium urban lifestyle.',
+    highlights: ['High Street Shopping', 'Uptown Mall', 'Mind Museum', 'BGC Arts Center', 'Central Square'],
+    avgPriceSale: '₱10M – ₱40M', avgPriceRent: '₱50,000 – ₱180,000/mo', emoji: '🌆',
+  },
+  'quezon-city': {
+    name: 'Quezon City', region: 'Metro Manila',
+    description: 'The largest city in Metro Manila by area and population, Quezon City is a diverse urban hub with thriving business districts, prestigious universities, medical centers, and a rich arts culture. It offers a wide range of housing from affordable to high-end.',
+    highlights: ['Eastwood City', 'Trinoma & SM North', 'UP Diliman Campus', 'Quezon Memorial Circle', 'Cubao Entertainment Hub'],
+    avgPriceSale: '₱4M – ₱15M', avgPriceRent: '₱15,000 – ₱60,000/mo', emoji: '🏫',
+  },
+  'cebu-city': {
+    name: 'Cebu City', region: 'Central Visayas',
+    description: 'The Queen City of the South is the economic hub of the Visayas and Mindanao. Cebu City combines centuries of history with a modern business landscape, booming BPO industry, top universities, and easy access to white-sand beaches and dive sites.',
+    highlights: ['Ayala Center Cebu', 'IT Park & BPO District', 'Sinulog Festival', 'Magellan\'s Cross', 'SRP Reclamation Area'],
+    avgPriceSale: '₱3M – ₱18M', avgPriceRent: '₱12,000 – ₱60,000/mo', emoji: '🌺',
+  },
+  'davao': {
+    name: 'Davao City', region: 'Mindanao',
+    description: 'The largest city in Mindanao and one of the safest in Southeast Asia, Davao City offers affordable real estate, a strong local economy, and a high quality of life. It is the gateway to Mt. Apo and surrounded by beautiful natural scenery.',
+    highlights: ['Abreeza Mall', 'Victoria Plaza', 'People\'s Park', 'Samal Island Ferry', 'Magsaysay Park'],
+    avgPriceSale: '₱2.5M – ₱12M', avgPriceRent: '₱10,000 – ₱45,000/mo', emoji: '🦅',
+  },
+  'pasig': {
+    name: 'Pasig City', region: 'Metro Manila',
+    description: 'Pasig is one of Metro Manila\'s most rapidly developing cities, home to Ortigas Center, Eastwood, and the Pasig River corridor. It offers a mix of corporate offices, vibrant retail, and residential options from mid-range to upscale.',
+    highlights: ['Ortigas CBD', 'Eastwood City', 'Bridgetowne', 'Kapitolyo Food Hub', 'The Podium Mall'],
+    avgPriceSale: '₱5M – ₱20M', avgPriceRent: '₱18,000 – ₱80,000/mo', emoji: '🌉',
+  },
+  'taguig': {
+    name: 'Taguig City', region: 'Metro Manila',
+    description: 'Home to Bonifacio Global City, Taguig is one of the Philippines\' wealthiest and fastest-growing cities. Beyond BGC, Taguig offers a mix of affordable townships, government center areas, and lakeside communities.',
+    highlights: ['BGC (Fort Bonifacio)', 'Market! Market!', 'SM Aura Premier', 'Laguna de Bay Lakeside', 'Western Bicutan'],
+    avgPriceSale: '₱5M – ₱35M', avgPriceRent: '₱20,000 – ₱150,000/mo', emoji: '🏛️',
+  },
+  'manila': {
+    name: 'Manila', region: 'Metro Manila',
+    description: 'The capital of the Philippines, Manila is a city of contrasts — historic Intramuros, the bustling port district, lively Binondo (the world\'s oldest Chinatown), and the upscale Ermita and Malate areas. Manila offers affordable property close to key government and business centers.',
+    highlights: ['Intramuros Historic District', 'Binondo Chinatown', 'Rizal Park', 'Manila Bay Promenade', 'Divisoria Market'],
+    avgPriceSale: '₱2M – ₱10M', avgPriceRent: '₱8,000 – ₱40,000/mo', emoji: '🏯',
+  },
+  'antipolo': {
+    name: 'Antipolo City', region: 'Rizal Province',
+    description: 'Nestled in the hills of Rizal, Antipolo offers cooler weather, stunning views of Metro Manila, and significantly more affordable property than the city. Popular with families seeking space and a relaxed lifestyle while staying accessible to Metro Manila.',
+    highlights: ['Antipolo Cathedral', 'Pinto Art Museum', 'Robinsons Antipolo', 'Antipolo Hills Estates', 'Hinulugang Taktak'],
+    avgPriceSale: '₱2M – ₱8M', avgPriceRent: '₱8,000 – ₱30,000/mo', emoji: '⛰️',
+  },
+  'tagaytay': {
+    name: 'Tagaytay City', region: 'Cavite Province',
+    description: 'Famous for its cool climate and breathtaking views of Taal Volcano, Tagaytay is a prime destination for second homes, vacation rentals, and retirement properties. Just 60km from Makati, it offers a refreshing escape from the urban heat.',
+    highlights: ['Taal Volcano Viewpoint', 'Picnic Grove', 'Sky Ranch', 'Mahogany Market', 'Crosswinds Resort Suites'],
+    avgPriceSale: '₱3M – ₱20M', avgPriceRent: '₱15,000 – ₱60,000/mo', emoji: '🌋',
+  },
+};
+
+export function getStaticPaths() {
+  return Object.keys(areaData).map(slug => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const area = areaData[slug as string];
+if (!area) return Astro.redirect('/search');
+
+let properties: any[] = [];
+try {
+  const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish&search=${encodeURIComponent(area.name.split(' ')[0])}`);
+  const data = await res.json();
+  if (Array.isArray(data)) properties = data;
+} catch {}
+---
+
+<Layout
+  title={`${area.name} Real Estate — Properties For Sale & Rent | Integrity Realty`}
+  description={`Find properties for sale and rent in ${area.name}, ${area.region}. ${area.description.slice(0, 120)}...`}
+>
+  <Navbar />
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-16 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 30% 50%, #ea580c 0%, transparent 60%)"></div>
+    <div class="max-w-4xl mx-auto px-4 relative z-10">
+      <p class="text-[#fb923c] text-xs font-semibold tracking-widest uppercase mb-3">Area Guide</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-2 flex items-center gap-3">
+        <span class="text-4xl">{area.emoji}</span>
+        {area.name}
+      </h1>
+      <p class="text-white/60 text-sm mb-6">{area.region}</p>
+      <div class="flex gap-4">
+        <a href={`/search?city=${encodeURIComponent(area.name)}`}
+          class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+          View All Properties →
+        </a>
+        <a href="/valuation"
+          class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+          Estimate Value
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-4 py-12">
+    <div class="grid md:grid-cols-3 gap-8">
+
+      <!-- Main content -->
+      <div class="md:col-span-2 space-y-8">
+        <!-- About -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">About {area.name}</h2>
+          <p class="text-gray-500 leading-relaxed">{area.description}</p>
+        </div>
+
+        <!-- Highlights -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Key Highlights</h2>
+          <ul class="space-y-2">
+            {area.highlights.map(h => (
+              <li class="flex items-center gap-3 text-gray-600 text-sm">
+                <span class="w-5 h-5 bg-[#ea580c]/10 rounded-full flex items-center justify-center shrink-0">
+                  <svg class="w-3 h-3 text-[#ea580c]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                </span>
+                {h}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Avg prices -->
+        <div class="bg-[#ea580c] text-white rounded-2xl p-6">
+          <h3 class="font-bold text-sm uppercase tracking-wider mb-4 text-white/80">Average Prices</h3>
+          <div class="space-y-3">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-white/60 mb-1">For Sale</p>
+              <p class="font-bold text-lg">{area.avgPriceSale}</p>
+            </div>
+            <div class="border-t border-white/20 pt-3">
+              <p class="text-[10px] uppercase tracking-widest text-white/60 mb-1">For Rent</p>
+              <p class="font-bold text-lg">{area.avgPriceRent}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick search -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h3 class="font-bold text-gray-900 text-sm mb-4">Search in {area.name}</h3>
+          <div class="space-y-2">
+            {['For Sale', 'For Rent', 'Pre-Selling'].map(type => (
+              <a href={`/search?city=${encodeURIComponent(area.name)}&listing_type=${encodeURIComponent(type)}`}
+                class="flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-orange-50 hover:text-[#ea580c] rounded-xl transition-colors text-sm font-medium text-gray-600 group">
+                {type}
+                <svg class="w-4 h-4 text-gray-300 group-hover:text-[#ea580c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Valuation CTA -->
+        <div class="bg-orange-50 border border-orange-100 rounded-2xl p-6 text-center">
+          <p class="text-2xl mb-2">💡</p>
+          <h3 class="font-bold text-gray-900 text-sm mb-1">How much is your property worth?</h3>
+          <p class="text-gray-500 text-xs mb-4">Get a free instant estimate for {area.name} properties.</p>
+          <a href="/valuation" class="inline-block bg-[#ea580c] text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-[#c2410c] transition-colors">
+            Get Valuation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Properties in this area -->
+    <div class="mt-12">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-1">Available now</p>
+          <h2 class="text-2xl font-bold text-gray-900">Properties in {area.name}</h2>
+        </div>
+        <a href={`/search?city=${encodeURIComponent(area.name)}`}
+          class="text-[#ea580c] text-sm font-semibold hover:text-[#f97316] transition-colors">View All →</a>
+      </div>
+
+      {properties.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {properties.map((p: any) => <PropertyCard property={p} />)}
+        </div>
+      ) : (
+        <div class="bg-gray-50 rounded-2xl p-12 text-center">
+          <p class="text-4xl mb-3 opacity-30">🏠</p>
+          <p class="text-gray-400 text-sm mb-4">No listings loaded yet for this area.</p>
+          <p class="text-gray-400 text-xs">Once properties are added to WordPress with this city, they will appear here.</p>
+          <a href={`/search?city=${encodeURIComponent(area.name)}`}
+            class="mt-4 inline-block text-[#ea580c] font-semibold text-sm hover:underline">Search All Properties →</a>
+        </div>
+      )}
+    </div>
+
+    <!-- Explore other areas -->
+    <div class="mt-12 pt-8 border-t border-gray-100">
+      <h3 class="text-gray-900 font-bold mb-5">Explore Other Areas</h3>
+      <div class="flex flex-wrap gap-3">
+        {Object.entries(areaData).filter(([s]) => s !== slug).map(([s, a]) => (
+          <a href={`/area/${s}`}
+            class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-[#ea580c]/50 hover:bg-orange-50 rounded-xl text-sm text-gray-600 hover:text-[#ea580c] transition-all font-medium">
+            <span>{a.emoji}</span>
+            {a.name}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>

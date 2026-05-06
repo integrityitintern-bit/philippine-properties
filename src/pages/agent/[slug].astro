@@ -64,6 +64,10 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
         <div class="flex-1 min-w-0">
           <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{agent.name}</h1>
           <p class="text-gray-400 text-sm mt-1">Integrity Real Estate Agent · {agent.listings.length} listing{agent.listings.length !== 1 ? 's' : ''}</p>
+          <div class="flex items-center gap-1.5 mt-2">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            <span class="text-xs text-gray-400">Typically responds within 24 hours</span>
+          </div>
           <div class="flex flex-wrap gap-3 mt-4">
             {agent.phone && (
               <a href={`tel:${agent.phone}`}

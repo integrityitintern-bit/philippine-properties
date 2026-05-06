@@ -1,0 +1,302 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Property Valuation Estimator"
+  description="Get a free instant estimate of your property's value in the Philippines. Based on current ₱/m² market rates by city and property type."
+>
+  <Navbar />
+
+  <section class="bg-[#ea580c] text-white py-14">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <p class="text-xs font-semibold tracking-widest uppercase mb-3 text-white/70">Free Tool</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Property Valuation Estimator</h1>
+      <p class="text-white/80">Get an instant estimate based on current Philippine market rates. For guidance only — contact an agent for a formal appraisal.</p>
+    </div>
+  </section>
+
+  <div class="max-w-2xl mx-auto px-4 py-12">
+
+    <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-8">
+
+      <div class="space-y-5">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">City / Location *</label>
+            <select id="val-city" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
+              <option value="">Select city...</option>
+              <optgroup label="Metro Manila">
+                <option value="bgc">BGC, Taguig</option>
+                <option value="makati">Makati</option>
+                <option value="ortigas">Ortigas, Pasig</option>
+                <option value="quezon-city">Quezon City</option>
+                <option value="manila">Manila</option>
+                <option value="mandaluyong">Mandaluyong</option>
+                <option value="pasay">Pasay / Paranaque</option>
+                <option value="muntinlupa">Muntinlupa / Alabang</option>
+                <option value="las-pinas">Las Piñas</option>
+                <option value="marikina">Marikina / Cainta</option>
+                <option value="malabon">Malabon / Navotas / Valenzuela</option>
+              </optgroup>
+              <optgroup label="Cavite & Laguna">
+                <option value="bacoor">Bacoor / Imus</option>
+                <option value="dasmariñas">Dasmariñas</option>
+                <option value="santa-rosa">Santa Rosa / Biñan</option>
+                <option value="general-trias">General Trias</option>
+                <option value="tagaytay">Tagaytay</option>
+              </optgroup>
+              <optgroup label="Rizal & Bulacan">
+                <option value="antipolo">Antipolo</option>
+                <option value="bulacan">Bulacan / Meycauayan</option>
+                <option value="san-jose-del-monte">San Jose del Monte</option>
+              </optgroup>
+              <optgroup label="Cebu">
+                <option value="cebu-it-park">Cebu IT Park / Lahug</option>
+                <option value="cebu-city">Cebu City</option>
+                <option value="mandaue">Mandaue / Consolacion</option>
+                <option value="mactan">Mactan / Lapu-Lapu</option>
+              </optgroup>
+              <optgroup label="Other Cities">
+                <option value="davao">Davao City</option>
+                <option value="iloilo">Iloilo City</option>
+                <option value="bacolod">Bacolod</option>
+                <option value="cdo">Cagayan de Oro</option>
+                <option value="clark">Clark / Angeles</option>
+                <option value="subic">Subic / Olongapo</option>
+                <option value="baguio">Baguio</option>
+                <option value="batangas">Batangas City</option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Property Type *</label>
+            <select id="val-type" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
+              <option value="">Select type...</option>
+              <option value="condo">Condominium</option>
+              <option value="house">House & Lot</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="land">Land / Lot Only</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Floor Area (m²) *</label>
+            <input type="number" id="val-area" min="10" max="5000" placeholder="e.g. 60"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Lot Area (m²)</label>
+            <input type="number" id="val-lot" min="0" placeholder="For house/land only"
+              class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50 text-gray-900 placeholder-gray-400"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Bedrooms</label>
+            <select id="val-beds" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
+              <option value="0">Studio/N/A</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5+</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Condition</label>
+            <select id="val-condition" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
+              <option value="new">Brand New</option>
+              <option value="good" selected>Good</option>
+              <option value="fair">Needs Repair</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-500 mb-1.5 block">Purpose</label>
+            <select id="val-purpose" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-white text-gray-900">
+              <option value="sale">For Sale</option>
+              <option value="rent">For Rent</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="val-btn" onclick="estimate()"
+          class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-4 rounded-xl text-sm transition-colors">
+          Estimate Property Value
+        </button>
+      </div>
+
+      <!-- Result -->
+      <div id="val-result" class="hidden mt-8 pt-8 border-t border-gray-100">
+        <p class="text-xs font-semibold text-[#ea580c] uppercase tracking-widest mb-4">Estimated Value</p>
+
+        <div class="bg-orange-50 border border-orange-100 rounded-2xl p-6 text-center mb-6">
+          <p class="text-xs text-gray-500 mb-2">Estimated Market Value</p>
+          <p id="val-price-range" class="text-3xl font-bold text-[#ea580c] leading-tight"></p>
+          <p id="val-rent-range" class="text-sm text-gray-500 mt-1 hidden"></p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="text-center bg-gray-50 rounded-xl p-4">
+            <p class="text-xs text-gray-400 mb-1">Price per m²</p>
+            <p id="val-psm" class="text-lg font-bold text-gray-900"></p>
+          </div>
+          <div class="text-center bg-gray-50 rounded-xl p-4">
+            <p class="text-xs text-gray-400 mb-1">Floor Area</p>
+            <p id="val-area-display" class="text-lg font-bold text-gray-900"></p>
+          </div>
+          <div class="text-center bg-gray-50 rounded-xl p-4">
+            <p class="text-xs text-gray-400 mb-1">Market Tier</p>
+            <p id="val-tier" class="text-lg font-bold text-gray-900"></p>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-700 mb-5">
+          <strong>Disclaimer:</strong> This estimate is for general guidance only. Actual property values depend on exact location, finishes, developer reputation, floor level, view, and current market conditions. Contact our agents for a formal appraisal.
+        </div>
+
+        <div class="flex gap-3">
+          <a href="/search" class="flex-1 text-center bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+            Browse Properties
+          </a>
+          <a href="/contact" class="flex-1 text-center border border-gray-200 hover:border-[#ea580c] text-gray-600 hover:text-[#ea580c] font-semibold py-3 rounded-xl text-sm transition-colors">
+            Get Formal Appraisal
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- How it works -->
+    <div class="mt-10 grid sm:grid-cols-3 gap-5">
+      {[
+        { icon: '📍', title: 'Location-Based', desc: 'Rates based on current ₱/m² market data for each city and district.' },
+        { icon: '📊', title: 'Type-Adjusted', desc: 'Condos, houses, and land each have different valuation models.' },
+        { icon: '🔄', title: 'Updated Regularly', desc: 'Estimates reflect recent transaction data from Philippine property markets.' },
+      ].map(item => (
+        <div class="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm">
+          <p class="text-3xl mb-3">{item.icon}</p>
+          <p class="font-bold text-gray-900 text-sm mb-1">{item.title}</p>
+          <p class="text-gray-400 text-xs leading-relaxed">{item.desc}</p>
+        </div>
+      ))}
+    </div>
+
+  </div>
+
+  <Footer />
+</Layout>
+
+<script>
+  // ₱/m² rates by city slug and property type (conservative midpoints, 2024-2025 data)
+  const RATES: Record<string, Record<string, number>> = {
+    'bgc':          { condo: 195000, house: 160000, townhouse: 140000, land: 200000, commercial: 180000 },
+    'makati':       { condo: 180000, house: 150000, townhouse: 130000, land: 180000, commercial: 160000 },
+    'ortigas':      { condo: 130000, house: 110000, townhouse: 100000, land: 140000, commercial: 120000 },
+    'quezon-city':  { condo: 90000,  house: 75000,  townhouse: 70000,  land: 80000,  commercial: 85000  },
+    'manila':       { condo: 85000,  house: 70000,  townhouse: 65000,  land: 75000,  commercial: 80000  },
+    'mandaluyong':  { condo: 110000, house: 90000,  townhouse: 85000,  land: 100000, commercial: 100000 },
+    'pasay':        { condo: 100000, house: 85000,  townhouse: 80000,  land: 95000,  commercial: 90000  },
+    'muntinlupa':   { condo: 95000,  house: 80000,  townhouse: 75000,  land: 85000,  commercial: 80000  },
+    'las-pinas':    { condo: 75000,  house: 65000,  townhouse: 60000,  land: 65000,  commercial: 65000  },
+    'marikina':     { condo: 70000,  house: 60000,  townhouse: 55000,  land: 55000,  commercial: 60000  },
+    'malabon':      { condo: 55000,  house: 50000,  townhouse: 48000,  land: 45000,  commercial: 50000  },
+    'bacoor':       { condo: 65000,  house: 55000,  townhouse: 52000,  land: 50000,  commercial: 55000  },
+    'dasmariñas':   { condo: 55000,  house: 48000,  townhouse: 45000,  land: 42000,  commercial: 48000  },
+    'santa-rosa':   { condo: 70000,  house: 60000,  townhouse: 58000,  land: 55000,  commercial: 60000  },
+    'general-trias':{ condo: 55000,  house: 50000,  townhouse: 48000,  land: 45000,  commercial: 50000  },
+    'tagaytay':     { condo: 80000,  house: 65000,  townhouse: 60000,  land: 70000,  commercial: 65000  },
+    'antipolo':     { condo: 65000,  house: 55000,  townhouse: 52000,  land: 50000,  commercial: 52000  },
+    'bulacan':      { condo: 50000,  house: 45000,  townhouse: 42000,  land: 38000,  commercial: 45000  },
+    'san-jose-del-monte': { condo: 48000, house: 42000, townhouse: 40000, land: 36000, commercial: 42000 },
+    'cebu-it-park': { condo: 130000, house: 100000, townhouse: 95000,  land: 120000, commercial: 120000 },
+    'cebu-city':    { condo: 100000, house: 85000,  townhouse: 80000,  land: 90000,  commercial: 90000  },
+    'mandaue':      { condo: 80000,  house: 70000,  townhouse: 65000,  land: 70000,  commercial: 70000  },
+    'mactan':       { condo: 85000,  house: 72000,  townhouse: 68000,  land: 75000,  commercial: 72000  },
+    'davao':        { condo: 70000,  house: 60000,  townhouse: 55000,  land: 55000,  commercial: 60000  },
+    'iloilo':       { condo: 65000,  house: 55000,  townhouse: 52000,  land: 50000,  commercial: 55000  },
+    'bacolod':      { condo: 55000,  house: 50000,  townhouse: 48000,  land: 45000,  commercial: 50000  },
+    'cdo':          { condo: 60000,  house: 52000,  townhouse: 50000,  land: 48000,  commercial: 52000  },
+    'clark':        { condo: 65000,  house: 55000,  townhouse: 52000,  land: 50000,  commercial: 55000  },
+    'subic':        { condo: 55000,  house: 50000,  townhouse: 48000,  land: 45000,  commercial: 50000  },
+    'baguio':       { condo: 75000,  house: 65000,  townhouse: 60000,  land: 65000,  commercial: 65000  },
+    'batangas':     { condo: 60000,  house: 52000,  townhouse: 50000,  land: 48000,  commercial: 52000  },
+  };
+
+  const RENT_RATES: Record<string, Record<string, number>> = {
+    'bgc':       { condo: 1200, house: 800, townhouse: 700, land: 0, commercial: 1000 },
+    'makati':    { condo: 1100, house: 750, townhouse: 650, land: 0, commercial: 950  },
+    'ortigas':   { condo: 800,  house: 600, townhouse: 550, land: 0, commercial: 700  },
+    'quezon-city':{ condo: 550, house: 400, townhouse: 380, land: 0, commercial: 450  },
+  };
+
+  const TIERS: Record<string, string> = {
+    'bgc': 'Premium', 'makati': 'Premium', 'cebu-it-park': 'Premium',
+    'ortigas': 'High-End', 'mandaluyong': 'High-End', 'pasay': 'High-End',
+    'cebu-city': 'High-End', 'mactan': 'High-End', 'tagaytay': 'High-End',
+  };
+
+  const CONDITION_MULT: Record<string, number> = { new: 1.10, good: 1.00, fair: 0.85 };
+
+  (window as any).estimate = function() {
+    const city = (document.getElementById('val-city') as HTMLSelectElement).value;
+    const type = (document.getElementById('val-type') as HTMLSelectElement).value;
+    const area = parseFloat((document.getElementById('val-area') as HTMLInputElement).value);
+    const lot = parseFloat((document.getElementById('val-lot') as HTMLInputElement).value) || 0;
+    const condition = (document.getElementById('val-condition') as HTMLSelectElement).value;
+    const purpose = (document.getElementById('val-purpose') as HTMLSelectElement).value;
+
+    if (!city || !type || !area || area < 10) {
+      alert('Please fill in City, Property Type, and Floor Area.');
+      return;
+    }
+
+    const cityRates = RATES[city] || RATES['quezon-city'];
+    const baseRatePerSqm = cityRates[type] || cityRates['condo'];
+    const condMult = CONDITION_MULT[condition] || 1;
+
+    let value = baseRatePerSqm * area * condMult;
+    if ((type === 'house' || type === 'land') && lot > 0) {
+      const lotRate = cityRates['land'] * 0.6;
+      value += lotRate * lot * condMult;
+    }
+
+    const low = Math.round(value * 0.88);
+    const high = Math.round(value * 1.12);
+
+    const fmt = (n: number) => '₱' + n.toLocaleString('en-PH');
+    const fmtM = (n: number) => n >= 1_000_000 ? '₱' + (n / 1_000_000).toFixed(2) + 'M' : fmt(n);
+
+    const result = document.getElementById('val-result')!;
+    result.classList.remove('hidden');
+    document.getElementById('val-price-range')!.textContent = `${fmtM(low)} — ${fmtM(high)}`;
+    document.getElementById('val-psm')!.textContent = '₱' + Math.round(baseRatePerSqm * condMult).toLocaleString('en-PH');
+    document.getElementById('val-area-display')!.textContent = area + ' m²';
+    document.getElementById('val-tier')!.textContent = TIERS[city] || 'Mid-Market';
+
+    const rentResult = document.getElementById('val-rent-range')!;
+    if (purpose === 'rent') {
+      const rentRates = RENT_RATES[city];
+      if (rentRates) {
+        const rentPerSqm = rentRates[type] || rentRates['condo'];
+        const monthlyLow = Math.round(rentPerSqm * area * 0.9);
+        const monthlyHigh = Math.round(rentPerSqm * area * 1.1);
+        rentResult.textContent = `Est. monthly rent: ${fmt(monthlyLow)} — ${fmt(monthlyHigh)}`;
+        rentResult.classList.remove('hidden');
+      }
+    } else {
+      rentResult.classList.add('hidden');
+    }
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+</script>

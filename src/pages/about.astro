@@ -67,6 +67,51 @@ import Footer from '../components/Footer.astro';
     </div>
   </section>
 
+  <!-- Team -->
+  <section class="py-16 max-w-5xl mx-auto px-4">
+    <div class="text-center mb-10">
+      <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">The people behind the brand</p>
+      <h2 class="text-2xl font-bold text-gray-900">Meet Our Team</h2>
+      <p class="text-gray-500 text-sm mt-2">Licensed, experienced, and dedicated to finding your perfect property.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {[
+        { name: 'Team Member', role: 'Broker / Owner', initials: 'TM' },
+        { name: 'Team Member', role: 'Senior Sales Agent', initials: 'TM' },
+        { name: 'Team Member', role: 'Leasing Specialist', initials: 'TM' },
+        { name: 'Team Member', role: 'Property Consultant', initials: 'TM' },
+      ].map(m => (
+        <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
+          <div class="w-20 h-20 bg-[#ea580c]/10 rounded-full flex items-center justify-center text-[#ea580c] font-bold text-2xl mx-auto mb-4">{m.initials}</div>
+          <h3 class="font-bold text-gray-900 text-sm">{m.name}</h3>
+          <p class="text-gray-400 text-xs mt-1">{m.role}</p>
+          <p class="text-[10px] text-[#ea580c] mt-2 font-medium">PRC Licensed</p>
+        </div>
+      ))}
+    </div>
+    <p class="text-center text-gray-400 text-xs mt-6">Replace placeholder cards above by updating team member data in about.astro</p>
+  </section>
+
+  <!-- Accreditation -->
+  <section class="py-12 bg-gray-50 border-y border-gray-100">
+    <div class="max-w-4xl mx-auto px-4">
+      <p class="text-center text-xs font-semibold text-gray-400 uppercase tracking-widest mb-8">Accreditations &amp; Memberships</p>
+      <div class="flex flex-wrap justify-center gap-6 items-center">
+        {[
+          { label: 'PRC Licensed', sub: 'Professional Regulation Commission' },
+          { label: 'HLURB Registered', sub: 'Now DHSUD — Housing & Urban Dev.' },
+          { label: 'CREBA Member', sub: 'Chamber of Real Estate & Builders' },
+          { label: 'RA 9646 Compliant', sub: 'Real Estate Service Act' },
+        ].map(a => (
+          <div class="bg-white border border-gray-200 rounded-xl px-6 py-4 text-center min-w-[160px] shadow-sm">
+            <p class="text-[#ea580c] font-bold text-sm">{a.label}</p>
+            <p class="text-gray-400 text-[10px] mt-1">{a.sub}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="py-16 text-center">
     <div class="max-w-xl mx-auto px-4">

@@ -235,6 +235,21 @@ import { WP_API } from '../config.js';
   if (params.get('listing_type')) document.getElementById('filter-listing-type').value = params.get('listing_type');
   if (params.get('property_type')) document.getElementById('filter-property-type').value = params.get('property_type');
 
+  // Restore saved filters when returning from a property page
+  if (!params.toString() && document.referrer && document.referrer.includes('/property/')) {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('search_filters') || 'null');
+      if (saved) {
+        if (saved.city) document.getElementById('filter-city').value = saved.city;
+        if (saved.listing_type) document.getElementById('filter-listing-type').value = saved.listing_type;
+        if (saved.property_type) document.getElementById('filter-property-type').value = saved.property_type;
+        if (saved.bedrooms) document.getElementById('filter-bedrooms').value = saved.bedrooms;
+        if (saved.price_min) document.getElementById('filter-price-min').value = saved.price_min;
+        if (saved.price_max) document.getElementById('filter-price-max').value = saved.price_max;
+      }
+    } catch(e) {}
+  }
+
   async function fetchProperties() {
     try {
       const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish`);
@@ -281,6 +296,18 @@ import { WP_API } from '../config.js';
 
     currentPage = 1;
     renderProperties();
+
+    // Save current filters to sessionStorage for back-navigation restore
+    try {
+      sessionStorage.setItem('search_filters', JSON.stringify({
+        city: document.getElementById('filter-city').value,
+        listing_type: document.getElementById('filter-listing-type').value,
+        property_type: document.getElementById('filter-property-type').value,
+        bedrooms: document.getElementById('filter-bedrooms').value,
+        price_min: document.getElementById('filter-price-min').value,
+        price_max: document.getElementById('filter-price-max').value,
+      }));
+    } catch(e) {}
   }
 
   const getSaved = () => JSON.parse(localStorage.getItem('saved_properties') || '[]');

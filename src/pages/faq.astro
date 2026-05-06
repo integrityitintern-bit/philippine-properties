@@ -41,9 +41,19 @@ const faqs = [
     ]
   },
 ];
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.flatMap(s => s.items.map(item => ({
+    "@type": "Question",
+    "name": item.q,
+    "acceptedAnswer": { "@type": "Answer", "text": item.a }
+  })))
+};
 ---
 
 <Layout title="Frequently Asked Questions — Philippine Real Estate">
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
   <Navbar />
 
   <section class="bg-[#ea580c] text-white py-16">

@@ -19,6 +19,8 @@ const ohDate = ohRaw ? new Date(ohRaw) : null;
 const today = new Date(); today.setHours(0,0,0,0);
 const openHouseLabel = ohDate && ohDate >= today ? 'Open ' + ohDate.toLocaleDateString('en-PH', {month:'short', day:'numeric'}) : '';
 const pricePerSqm = (acf.price && acf.floor_area) ? '₱' + Math.round(Number(acf.price) / Number(acf.floor_area)).toLocaleString('en-PH') + '/m²' : '';
+const priceReduced = acf.previous_price && Number(acf.previous_price) > Number(acf.price);
+const priceDrop = priceReduced ? Math.round((1 - Number(acf.price) / Number(acf.previous_price)) * 100) : 0;
 ---
 
 <a href={`/property/${slug}`} class="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-[#ea580c]/40 hover:shadow-lg transition-all duration-300 flex flex-col card-enter shadow-sm">
@@ -34,6 +36,11 @@ const pricePerSqm = (acf.price && acf.floor_area) ? '₱' + Math.round(Number(ac
       {listingType && (
         <span class={`text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badgeColor} w-fit`}>
           {listingType}
+        </span>
+      )}
+      {priceReduced && (
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-600 text-white backdrop-blur-sm uppercase tracking-wider w-fit">
+          Price Drop {priceDrop}%
         </span>
       )}
       {(acf.property_status === 'Sold' || acf.property_status === 'Reserved') ? (
