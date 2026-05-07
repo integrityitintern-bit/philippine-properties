@@ -1,0 +1,241 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Account Settings">
+  <script is:inline>
+    if (!window.ppAuth || !window.ppAuth.getUser()) window.location.href = '/login';
+  </script>
+  <Navbar />
+
+  <div id="auth-loading" class="min-h-[60vh] flex items-center justify-center">
+    <div class="w-8 h-8 border-2 border-[#ea580c] border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <div id="account-content" class="hidden max-w-2xl mx-auto px-4 py-12">
+
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Account Settings</h1>
+      <a href="/dashboard" class="text-sm text-gray-400 hover:text-[#ea580c] transition-colors">← Back to Dashboard</a>
+    </div>
+
+    <!-- Profile Photo -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+      <h2 class="font-semibold text-gray-900 mb-4">Profile Photo</h2>
+      <div class="flex items-center gap-5">
+        <div id="avatar-preview"
+          class="w-20 h-20 bg-[#ea580c] rounded-2xl flex items-center justify-center text-3xl font-bold text-white shrink-0 overflow-hidden">
+        </div>
+        <div>
+          <input type="file" id="photo-input" accept="image/*" class="hidden">
+          <button id="upload-photo-btn"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            Upload Photo
+          </button>
+          <p class="text-gray-400 text-xs mt-1.5">JPG or PNG, max 5MB</p>
+          <p id="photo-status" class="text-xs mt-1 hidden"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+      <h2 class="font-semibold text-gray-900 mb-4">Personal Information</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1.5 block">Display Name</label>
+          <input id="field-name" type="text" placeholder="Your full name"
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ea580c] transition-colors">
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1.5 block">Email Address</label>
+          <input id="field-email" type="email" disabled
+            class="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-400 cursor-not-allowed">
+          <p class="text-xs text-gray-400 mt-1">Email cannot be changed.</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1.5 block">Phone Number</label>
+          <input id="field-phone" type="tel" placeholder="e.g. 09171234567"
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ea580c] transition-colors">
+        </div>
+      </div>
+      <div id="save-msg" class="hidden mt-3 text-sm"></div>
+      <button id="save-btn"
+        class="mt-4 bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+        Save Changes
+      </button>
+    </div>
+
+    <!-- Change Password -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+      <h2 class="font-semibold text-gray-900 mb-4">Change Password</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1.5 block">New Password</label>
+          <input id="field-newpass" type="password" placeholder="Leave blank to keep current"
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ea580c] transition-colors">
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1.5 block">Confirm New Password</label>
+          <input id="field-confirmpass" type="password" placeholder="Repeat new password"
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ea580c] transition-colors">
+        </div>
+      </div>
+      <div id="pass-msg" class="hidden mt-3 text-sm"></div>
+      <button id="pass-btn"
+        class="mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+        Update Password
+      </button>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="bg-white border border-red-100 rounded-2xl p-6">
+      <h2 class="font-semibold text-gray-900 mb-2">Sign Out</h2>
+      <p class="text-gray-400 text-sm mb-4">You will be signed out from this device.</p>
+      <button onclick="window.ppAuth.logout()"
+        class="border border-red-200 text-red-500 hover:bg-red-50 font-medium px-5 py-2.5 rounded-xl transition-colors text-sm">
+        Log Out
+      </button>
+    </div>
+
+  </div>
+
+  <Footer />
+</Layout>
+
+<script is:inline>
+  var WP_URL = 'https://philippine-properties.com';
+  var user = window.ppAuth && window.ppAuth.getUser();
+  if (!user) { window.location.href = '/login'; }
+
+  document.getElementById('auth-loading').classList.add('hidden');
+  document.getElementById('account-content').classList.remove('hidden');
+
+  // Load user data
+  (async function() {
+    document.getElementById('field-email').value = user.email;
+    document.getElementById('field-name').value = user.name || '';
+    var initial = (user.name || user.email)[0].toUpperCase();
+    document.getElementById('avatar-preview').textContent = initial;
+
+    try {
+      var res = await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
+        headers: { 'Authorization': 'Bearer ' + user.token }
+      });
+      if (res.ok) {
+        var data = await res.json();
+        document.getElementById('field-name').value = data.name || user.name || '';
+        document.getElementById('field-phone').value = (data.meta && data.meta.phone) ? data.meta.phone : '';
+        if (data.avatar_urls && data.avatar_urls['96']) {
+          document.getElementById('avatar-preview').innerHTML =
+            '<img src="' + data.avatar_urls['96'] + '" class="w-full h-full object-cover">';
+        }
+      }
+    } catch(e) {}
+  })();
+
+  // Save profile
+  document.getElementById('save-btn').addEventListener('click', async function() {
+    var btn = this;
+    var msg = document.getElementById('save-msg');
+    var name = document.getElementById('field-name').value.trim();
+    var phone = document.getElementById('field-phone').value.trim();
+    if (!name) { showMsg(msg, 'Name is required.', 'red'); return; }
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    try {
+      var res = await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, meta: { phone: phone } })
+      });
+      if (!res.ok) throw new Error('Failed to save.');
+      var updated = JSON.parse(localStorage.getItem('pp_user'));
+      updated.name = name;
+      localStorage.setItem('pp_user', JSON.stringify(updated));
+      showMsg(msg, 'Changes saved!', 'green');
+    } catch(e) {
+      showMsg(msg, e.message, 'red');
+    }
+    btn.textContent = 'Save Changes'; btn.disabled = false;
+  });
+
+  // Change password
+  document.getElementById('pass-btn').addEventListener('click', async function() {
+    var btn = this;
+    var msg = document.getElementById('pass-msg');
+    var np = document.getElementById('field-newpass').value;
+    var cp = document.getElementById('field-confirmpass').value;
+    if (!np) { showMsg(msg, 'Enter a new password.', 'red'); return; }
+    if (np !== cp) { showMsg(msg, 'Passwords do not match.', 'red'); return; }
+    if (np.length < 8) { showMsg(msg, 'Password must be at least 8 characters.', 'red'); return; }
+    btn.textContent = 'Updating…'; btn.disabled = true;
+    try {
+      var res = await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: np })
+      });
+      if (!res.ok) throw new Error('Failed to update password.');
+      document.getElementById('field-newpass').value = '';
+      document.getElementById('field-confirmpass').value = '';
+      showMsg(msg, 'Password updated!', 'green');
+    } catch(e) {
+      showMsg(msg, e.message, 'red');
+    }
+    btn.textContent = 'Update Password'; btn.disabled = false;
+  });
+
+  // Profile photo upload
+  document.getElementById('upload-photo-btn').addEventListener('click', function() {
+    document.getElementById('photo-input').click();
+  });
+  document.getElementById('photo-input').addEventListener('change', async function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('Photo must be under 5MB.'); return; }
+    var status = document.getElementById('photo-status');
+    status.textContent = 'Uploading…'; status.className = 'text-xs mt-1 text-gray-500';
+    var reader = new FileReader();
+    reader.onload = async function(ev) {
+      var base64 = ev.target.result.split(',')[1];
+      var mime = file.type;
+      var binaryStr = atob(base64);
+      var bytes = new Uint8Array(binaryStr.length);
+      for (var i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+      try {
+        var res = await fetch(WP_URL + '/wp-json/wp/v2/media', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + user.token,
+            'Content-Disposition': 'attachment; filename="' + file.name + '"',
+            'Content-Type': mime,
+          },
+          body: bytes,
+        });
+        if (!res.ok) throw new Error('Upload failed.');
+        var data = await res.json();
+        var imgUrl = data.source_url;
+        document.getElementById('avatar-preview').innerHTML = '<img src="' + imgUrl + '" class="w-full h-full object-cover">';
+        // Save URL in user meta
+        await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ meta: { profile_photo: imgUrl } })
+        });
+        status.textContent = 'Photo updated!'; status.className = 'text-xs mt-1 text-green-600';
+      } catch(err) {
+        status.textContent = 'Upload failed: ' + err.message; status.className = 'text-xs mt-1 text-red-500';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function showMsg(el, text, color) {
+    el.textContent = text;
+    el.className = 'mt-3 text-sm ' + (color === 'green' ? 'text-green-600' : 'text-red-500');
+    el.classList.remove('hidden');
+    setTimeout(function() { el.classList.add('hidden'); }, 4000);
+  }
+</script>

@@ -5,6 +5,11 @@ import Footer from '../components/Footer.astro';
 ---
 
 <Layout title="List Your Property">
+  <script is:inline>
+    if (!window.ppAuth || !window.ppAuth.getUser()) {
+      window.location.href = '/login?next=/list-property';
+    }
+  </script>
   <Navbar />
 
   <div class="max-w-3xl mx-auto px-4 py-12">

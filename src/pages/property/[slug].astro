@@ -296,14 +296,12 @@ try {
         {(acf.location_city || acf.full_address) && (
           <div class="mb-8">
             <h3 class="font-bold text-gray-900 mb-3">Location</h3>
-            <div class="rounded-2xl overflow-hidden border border-gray-200 h-64">
-              <iframe
-                src={`https://maps.google.com/maps?q=${locationQuery}&output=embed&z=14`}
-                class="w-full h-full"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                title="Property Location"
-              ></iframe>
+            <div id="property-map"
+              data-address={[acf.full_address, acf.location_city, acf.location_province, 'Philippines'].filter(Boolean).join(', ')}
+              data-title={title}
+              data-price={price}
+              class="rounded-2xl overflow-hidden border border-gray-200 h-64 bg-gray-100 flex items-center justify-center">
+              <span class="text-gray-400 text-sm">Loading map…</span>
             </div>
           </div>
         )}
@@ -328,7 +326,7 @@ try {
 
       <!-- Sidebar -->
       <div class="lg:col-span-1 print:hidden">
-        <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 sticky top-20">
+        <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
           <h3 class="font-bold text-gray-900 mb-4">Contact Agent</h3>
 
           {acf.agent_name && (
@@ -651,7 +649,10 @@ try {
       grid.innerHTML = related.map(p => {
         const img = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
         const pr = p.acf?.price ? '₱' + Number(p.acf.price).toLocaleString('en-PH') : 'Price on Request';
-        return `<a href="/property/${p.slug}" class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+        return `<a href="/property/${p.slug}" class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+          data-city="${p.acf?.location_city || ''}"
+          data-price="${pr}"
+          data-rel-title="${p.title?.rendered || ''}">
           <div class="h-32 bg-gray-100 overflow-hidden">
             ${img ? `<img src="${img}" alt="${p.title?.rendered}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-3xl opacity-30">🏠</div>'}
           </div>
@@ -806,6 +807,77 @@ try {
       }
     });
   }
+
+  // Leaflet map
+  (function() {
+    var mapEl = document.getElementById('property-map');
+    if (!mapEl) return;
+    var address = mapEl.dataset.address;
+    var mapTitle = mapEl.dataset.title;
+    var mapPrice = mapEl.dataset.price;
+
+    var css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(css);
+
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = async function() {
+      try {
+        var geoRes = await fetch(
+          'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address),
+          { headers: { 'Accept-Language': 'en' } }
+        );
+        var geoData = await geoRes.json();
+        if (!geoData[0]) return;
+        var lat = parseFloat(geoData[0].lat);
+        var lng = parseFloat(geoData[0].lon);
+
+        mapEl.innerHTML = '';
+        var map = L.map(mapEl).setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19
+        }).addTo(map);
+
+        // Blue pin for current property
+        var currentIcon = L.divIcon({
+          html: '<div style="width:22px;height:22px;background:#1d4ed8;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);margin-top:-11px;margin-left:-11px"></div>',
+          iconSize: [0,0], iconAnchor: [0,0], className: ''
+        });
+        L.marker([lat, lng], { icon: currentIcon }).addTo(map)
+          .bindPopup('<b>' + mapTitle + '</b><br>' + mapPrice).openPopup();
+
+        // Orange pins for related properties
+        var relatedLinks = document.querySelectorAll('#related-grid a[href^="/property/"]');
+        var orangeIcon = L.divIcon({
+          html: '<div style="width:16px;height:16px;background:#ea580c;border:2px solid white;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,0.3);margin-top:-8px;margin-left:-8px"></div>',
+          iconSize: [0,0], iconAnchor: [0,0], className: ''
+        });
+        for (var link of relatedLinks) {
+          var city = link.dataset.city;
+          var rprice = link.dataset.price;
+          var rtitle = link.dataset.relTitle;
+          if (!city) continue;
+          await new Promise(function(r){ setTimeout(r, 1200); });
+          try {
+            var rg = await fetch(
+              'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(city + ', Philippines'),
+              { headers: { 'Accept-Language': 'en' } }
+            );
+            var rd = await rg.json();
+            if (!rd[0]) continue;
+            var rlat = parseFloat(rd[0].lat) + (Math.random()-0.5)*0.008;
+            var rlng = parseFloat(rd[0].lon) + (Math.random()-0.5)*0.008;
+            L.marker([rlat, rlng], { icon: orangeIcon }).addTo(map)
+              .bindPopup('<a href="' + link.href + '" style="color:#ea580c;font-weight:600">' + (rtitle || 'Property') + '</a><br>' + (rprice || ''));
+          } catch(e) {}
+        }
+      } catch(e) {}
+    };
+    document.head.appendChild(s);
+  })();
 
   // Schedule a Viewing form
   var viewingForm = document.getElementById('viewing-form');
