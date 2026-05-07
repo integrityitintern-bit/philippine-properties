@@ -483,8 +483,11 @@ import Footer from '../components/Footer.astro';
       name: document.getElementById('p-name').value,
       phone: document.getElementById('p-phone').value,
       email: document.getElementById('p-email').value,
-      photos_count: String(photos.length),
-      photo_urls: photos.filter(function(p) { return p.type === 'url'; }).map(function(p) { return p.preview; }).join(', ') || 'Local files attached',
+      photos: photos.map(function(p) {
+        return p.type === 'file'
+          ? { type: 'file', data: p.preview, name: p.name }
+          : { type: 'url', url: p.preview, name: p.name };
+      }),
     };
 
     try {
