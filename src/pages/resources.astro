@@ -129,14 +129,16 @@ import { WP_API } from '../config.js';
     <div class="max-w-xl mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">Stay Updated</h2>
       <p class="text-gray-500 mb-6">Get the latest real estate news, market reports, and property tips delivered to your inbox.</p>
-      <form class="flex gap-3 max-w-md mx-auto">
-        <input type="email" placeholder="Your email address"
+      <form id="newsletter-form" class="flex gap-3 max-w-md mx-auto">
+        <input id="newsletter-email" type="email" placeholder="Your email address" required
           class="flex-1 px-4 py-3 text-sm bg-gray-50 text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
         />
-        <button type="submit" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors whitespace-nowrap text-sm">
+        <button id="newsletter-btn" type="submit" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-3 rounded-xl transition-colors whitespace-nowrap text-sm">
           Subscribe
         </button>
       </form>
+      <p id="newsletter-success" class="hidden text-green-600 text-sm font-medium mt-3">✅ You're subscribed! We'll send you the latest updates.</p>
+      <p id="newsletter-error" class="hidden text-red-500 text-sm mt-3">Something went wrong. Please try again.</p>
     </div>
   </section>
 
@@ -327,4 +329,36 @@ import { WP_API } from '../config.js';
   });
 
   calculate();
+</script>
+
+<script is:inline>
+  (function() {
+    var form = document.getElementById('newsletter-form');
+    var btn = document.getElementById('newsletter-btn');
+    var success = document.getElementById('newsletter-success');
+    var error = document.getElementById('newsletter-error');
+    if (!form) return;
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var email = document.getElementById('newsletter-email').value;
+      btn.textContent = 'Subscribing...';
+      btn.disabled = true;
+      try {
+        var fd = new FormData();
+        fd.append('email', email);
+        fd.append('_subject', 'New Newsletter Subscriber');
+        fd.append('_captcha', 'false');
+        await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+          method: 'POST',
+          body: fd,
+        });
+        form.classList.add('hidden');
+        success.classList.remove('hidden');
+      } catch(err) {
+        btn.textContent = 'Subscribe';
+        btn.disabled = false;
+        error.classList.remove('hidden');
+      }
+    });
+  })();
 </script>

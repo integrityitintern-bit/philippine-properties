@@ -28,6 +28,8 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <link rel="canonical" href={Astro.url.href} />
+    <slot name="head" />
     <ClientRouter />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -204,6 +206,21 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
           var el = document.getElementById(active);
           if (el) { el.classList.remove('text-gray-400'); el.classList.add('text-[#ea580c]'); }
         }
+
+        // Compare count badge on mobile nav
+        try {
+          var cmp = JSON.parse(localStorage.getItem('compare_list') || '[]');
+          if (cmp.length > 0) {
+            var cmpLink = document.getElementById('tabnav-compare');
+            if (cmpLink) {
+              cmpLink.style.position = 'relative';
+              var badge = document.createElement('span');
+              badge.style.cssText = 'position:absolute;top:4px;right:calc(50% - 18px);width:15px;height:15px;background:#ea580c;color:white;font-size:9px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid white;';
+              badge.textContent = cmp.length;
+              cmpLink.appendChild(badge);
+            }
+          }
+        } catch(e) {}
       })();
     </script>
   </body>
