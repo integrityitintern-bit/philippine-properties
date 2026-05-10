@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ViewTransitions } from 'astro:transitions';
 const {
   title = 'Real Estate Portal',
   description = 'Find your dream property in the Philippines',
@@ -27,6 +28,7 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <ViewTransitions />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -62,6 +64,8 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
         function done(){bar.style.width='100%';setTimeout(function(){bar.style.opacity='0';setTimeout(function(){bar.style.width='0';},250);},200);}
         show();
         window.addEventListener('load',done);
+        document.addEventListener('astro:page-load',done);
+        document.addEventListener('astro:before-preparation',show);
         document.addEventListener('click',function(e){
           var a=e.target&&e.target.closest&&e.target.closest('a');
           if(a&&a.href&&a.origin===location.origin&&a.target!=='_blank'&&!a.href.startsWith('mailto:')&&!a.href.startsWith('tel:')&&a.getAttribute('href')!=='#'){show();}
