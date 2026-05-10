@@ -120,6 +120,12 @@ import Footer from '../components/Footer.astro';
     var initial = (user.name || user.email)[0].toUpperCase();
     document.getElementById('avatar-preview').textContent = initial;
 
+    // Load saved profile photo from localStorage first (instant)
+    var savedPhoto = localStorage.getItem('pp_profile_photo');
+    if (savedPhoto) {
+      document.getElementById('avatar-preview').innerHTML = '<img src="' + savedPhoto + '" class="w-full h-full object-cover rounded-2xl">';
+    }
+
     try {
       var res = await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
         headers: { 'Authorization': 'Bearer ' + user.token }
@@ -128,9 +134,13 @@ import Footer from '../components/Footer.astro';
         var data = await res.json();
         document.getElementById('field-name').value = data.name || user.name || '';
         document.getElementById('field-phone').value = (data.meta && data.meta.phone) ? data.meta.phone : '';
-        if (data.avatar_urls && data.avatar_urls['96']) {
-          document.getElementById('avatar-preview').innerHTML =
-            '<img src="' + data.avatar_urls['96'] + '" class="w-full h-full object-cover">';
+        // WP meta profile_photo takes priority over avatar_urls
+        var wpPhoto = data.meta && data.meta.profile_photo;
+        if (wpPhoto) {
+          localStorage.setItem('pp_profile_photo', wpPhoto);
+          document.getElementById('avatar-preview').innerHTML = '<img src="' + wpPhoto + '" class="w-full h-full object-cover rounded-2xl">';
+        } else if (!savedPhoto && data.avatar_urls && data.avatar_urls['96']) {
+          document.getElementById('avatar-preview').innerHTML = '<img src="' + data.avatar_urls['96'] + '" class="w-full h-full object-cover">';
         }
       }
     } catch(e) {}
@@ -187,37 +197,49 @@ import Footer from '../components/Footer.astro';
     btn.textContent = 'Update Password'; btn.disabled = false;
   });
 
-  // Profile photo upload
+  // Profile photo upload — resize in browser, store in localStorage + WP meta
   document.getElementById('upload-photo-btn').addEventListener('click', function() {
     document.getElementById('photo-input').click();
   });
-  document.getElementById('photo-input').addEventListener('change', async function(e) {
+  document.getElementById('photo-input').addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { alert('Photo must be under 5MB.'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('Photo must be under 10MB.'); return; }
     var status = document.getElementById('photo-status');
-    status.textContent = 'Uploading…'; status.className = 'text-xs mt-1 text-gray-500';
-    try {
-      var fd = new FormData();
-      fd.append('file', file, file.name);
-      var res = await fetch('/api/upload-media', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + user.token },
-        body: fd,
-      });
-      var data = await res.json();
-      if (!res.ok) throw new Error(data.error || data.message || 'Upload failed.');
-      var imgUrl = data.source_url;
-      document.getElementById('avatar-preview').innerHTML = '<img src="' + imgUrl + '" class="w-full h-full object-cover">';
-      await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ meta: { profile_photo: imgUrl } })
-      });
-      status.textContent = 'Photo updated!'; status.className = 'text-xs mt-1 text-green-600';
-    } catch(err) {
-      status.textContent = 'Upload failed: ' + err.message; status.className = 'text-xs mt-1 text-red-500';
-    }
+    status.textContent = 'Processing…'; status.className = 'text-xs mt-1 text-gray-500';
+
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var img = new Image();
+      img.onload = async function() {
+        // Crop to square, resize to 256×256
+        var canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 256;
+        var ctx = canvas.getContext('2d');
+        var s = Math.min(img.width, img.height);
+        var sx = (img.width - s) / 2;
+        var sy = (img.height - s) / 2;
+        ctx.drawImage(img, sx, sy, s, s, 0, 0, 256, 256);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+        // Save locally and show immediately
+        localStorage.setItem('pp_profile_photo', dataUrl);
+        document.getElementById('avatar-preview').innerHTML =
+          '<img src="' + dataUrl + '" class="w-full h-full object-cover rounded-2xl">';
+        status.textContent = 'Photo updated!'; status.className = 'text-xs mt-1 text-green-600';
+
+        // Also save to WP user meta so it loads on other devices
+        try {
+          await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ meta: { profile_photo: dataUrl } })
+          });
+        } catch(e) {}
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 
   function showMsg(el, text, color) {
