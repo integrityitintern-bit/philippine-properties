@@ -205,8 +205,8 @@ import Footer from '../components/Footer.astro';
         headers: { 'Authorization': 'Bearer ' + user.token },
         body: fd,
       });
-      if (!res.ok) throw new Error('Upload failed.');
       var data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || 'Upload failed.');
       var imgUrl = data.source_url;
       document.getElementById('avatar-preview').innerHTML = '<img src="' + imgUrl + '" class="w-full h-full object-cover">';
       await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
