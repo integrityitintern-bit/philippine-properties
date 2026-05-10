@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 const {
   title = 'Real Estate Portal',
   description = 'Find your dream property in the Philippines',
@@ -28,7 +28,7 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <ViewTransitions />
+    <ClientRouter />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
