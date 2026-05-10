@@ -155,34 +155,12 @@ const navLinks = [
   })();
 </script>
 
-<!-- Scroll-aware transparency: only activates on the homepage hero -->
+<!-- Scroll-aware transparency: toggles .page-home on body to trigger CSS rules in global.css -->
 <script is:inline>
   (function() {
     if (window.location.pathname !== '/') return;
-    var nav = document.querySelector('nav.fixed');
-    if (!nav) return;
-
-    function applyState(transparent) {
-      nav.style.backgroundColor = transparent ? 'transparent' : '';
-      nav.style.boxShadow = transparent ? 'none' : '';
-      nav.style.borderBottomColor = transparent ? 'transparent' : '';
-      nav.querySelectorAll('.nav-link').forEach(function(el) {
-        el.style.color = transparent ? 'rgba(255,255,255,0.9)' : '';
-      });
-      var brand = nav.querySelector('.nav-brand');
-      if (brand) brand.style.color = transparent ? 'white' : '';
-    }
-
-    // Apply initial state immediately — no transition so there's no flash
-    applyState(true);
-
-    // Enable smooth transition only after the first paint
-    requestAnimationFrame(function() {
-      nav.style.transition = 'background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease';
-    });
-
     window.addEventListener('scroll', function() {
-      applyState(window.scrollY <= 60);
+      document.body.classList.toggle('page-home', window.scrollY <= 60);
     }, { passive: true });
   })();
 </script>

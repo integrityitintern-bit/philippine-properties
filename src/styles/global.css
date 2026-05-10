@@ -57,3 +57,22 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Scroll-aware transparent navbar — applied server-side on homepage */
+nav.fixed {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.page-home nav.fixed {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-bottom-color: transparent !important;
+}
+
+.page-home nav.fixed .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.page-home nav.fixed .nav-brand {
+  color: white !important;
+}

@@ -6,6 +6,7 @@ const {
   description = 'Find your dream property in the Philippines',
   ogImage = '/hero-bg.jpg',
   ogType = 'website',
+  pageClass = '',
 } = Astro.props;
 const siteName = 'Integrity Real Estate Corp';
 const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Properties` : `${title} | ${siteName}`;
@@ -54,7 +55,7 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
     </script>
     -->
   </head>
-  <body class="min-h-screen">
+  <body class={`min-h-screen${pageClass ? ' ' + pageClass : ''}`}>
     <!-- Loading progress bar -->
     <div id="nprogress" style="position:fixed;top:0;left:0;z-index:9999;height:3px;width:0;background:linear-gradient(90deg,#ea580c,#f97316);box-shadow:0 0 8px rgba(234,88,12,0.4);transition:width 0.4s ease,opacity 0.25s ease;pointer-events:none;opacity:0"></div>
     <script is:inline>
