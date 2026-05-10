@@ -512,6 +512,7 @@ import Footer from '../components/Footer.astro';
       var submittedArr = JSON.parse(localStorage.getItem('submitted_listings') || '[]');
       submittedArr.push({
         ref: ref,
+        wpId: result.id || null,
         title: data.title,
         city: data.city,
         price: data.price,

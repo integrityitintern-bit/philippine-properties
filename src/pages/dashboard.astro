@@ -74,6 +74,15 @@ import { WP_API } from '../config.js';
         ))}
       </div>
 
+      <!-- Saved Searches -->
+      <div id="saved-searches-section" class="hidden mb-14">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Saved Searches</h2>
+          <a href="/search" class="text-[#ea580c] text-sm font-semibold hover:underline">Search →</a>
+        </div>
+        <div id="saved-searches-dashboard" class="flex flex-wrap gap-2"></div>
+      </div>
+
       <!-- My Inquiries -->
       <div class="mb-14">
         <div class="flex items-center justify-between mb-6">
@@ -162,6 +171,21 @@ import { WP_API } from '../config.js';
     document.getElementById('stat-submitted').textContent = submitted.length;
     document.getElementById('stat-inquiries').textContent = inquiries.length;
 
+    // Saved searches
+    const savedSearches = JSON.parse(localStorage.getItem('saved_searches') || '[]');
+    const ssSection = document.getElementById('saved-searches-section');
+    const ssDashboard = document.getElementById('saved-searches-dashboard');
+    if (savedSearches.length > 0 && ssSection && ssDashboard) {
+      ssSection.classList.remove('hidden');
+      ssDashboard.innerHTML = savedSearches.map(function(s) {
+        const params = new URLSearchParams();
+        if (s.filters.city) params.set('city', s.filters.city);
+        if (s.filters.listingType) params.set('listing_type', s.filters.listingType);
+        if (s.filters.propertyType) params.set('property_type', s.filters.propertyType);
+        return '<a href="/search?' + params.toString() + '" class="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 hover:border-[#ea580c] text-[#ea580c] text-xs font-semibold px-4 py-2 rounded-full transition-colors">🔍 ' + s.label + '</a>';
+      }).join('');
+    }
+
     // Inquiries sent
     const inquiriesList = document.getElementById('inquiries-list');
     const noInquiries = document.getElementById('no-inquiries');
@@ -181,17 +205,31 @@ import { WP_API } from '../config.js';
       });
     }
 
-    // Submitted listings
+    // Submitted listings — check real WP status for each
     const submittedList = document.getElementById('submitted-list');
     const noSubmitted = document.getElementById('no-submitted');
     if (submitted.length === 0) {
       noSubmitted?.classList.remove('hidden');
     } else {
-      submitted.slice().reverse().forEach(item => {
+      for (const item of submitted.slice().reverse()) {
+        let statusLabel = 'Under Review';
+        let statusColor = 'text-yellow-600 bg-yellow-50';
+        let viewLink = '';
+        if (item.wpId) {
+          try {
+            const wpRes = await fetch(`${WP_API}/property/${item.wpId}?_fields=id,slug,status`);
+            if (wpRes.ok) {
+              const wpData = await wpRes.json();
+              if (wpData.status === 'publish') {
+                statusLabel = 'Live';
+                statusColor = 'text-green-600 bg-green-50';
+                viewLink = `<a href="/property/${wpData.slug}" class="text-[#ea580c] text-xs font-semibold hover:underline ml-2">View →</a>`;
+              }
+            }
+          } catch {}
+        }
         const el = document.createElement('div');
         el.className = 'flex items-center justify-between bg-white border border-gray-100 rounded-xl px-5 py-4';
-        const statusColor = item.status === 'approved' ? 'text-green-400 bg-green-400/10' : 'text-yellow-400 bg-yellow-400/10';
-        const statusLabel = item.status === 'approved' ? 'Live' : 'Pending Review';
         el.innerHTML = `
           <div class="min-w-0 flex-1">
             <p class="text-gray-900 font-semibold text-sm truncate">${item.title || 'Property Listing'}</p>
@@ -200,9 +238,10 @@ import { WP_API } from '../config.js';
           <div class="flex items-center gap-3 ml-4 shrink-0">
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor}">${statusLabel}</span>
             <span class="text-gray-300 text-xs">${new Date(item.date).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}</span>
+            ${viewLink}
           </div>`;
         submittedList?.appendChild(el);
-      });
+      }
     }
     const savedList = document.getElementById('saved-list');
     const noSaved = document.getElementById('no-saved');

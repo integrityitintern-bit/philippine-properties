@@ -72,9 +72,14 @@ import { WP_API } from '../config.js';
           <option value="20000000">₱20M</option>
           <option value="50000000">₱50M</option>
         </select>
-        <button id="clear-filters" class="text-xs text-gray-400 hover:text-[#ea580c] transition-colors underline ml-auto">
-          Clear all filters
-        </button>
+        <div class="flex items-center gap-3 ml-auto">
+          <button id="save-search-btn" class="text-xs font-semibold text-[#ea580c] hover:underline">💾 Save Search</button>
+          <button id="clear-filters" class="text-xs text-gray-400 hover:text-[#ea580c] transition-colors underline">Clear all</button>
+        </div>
+      </div>
+      <div id="saved-searches-bar" class="hidden flex items-center flex-wrap gap-2 pt-2 border-t border-gray-100">
+        <span class="text-xs font-medium text-gray-400 shrink-0">Saved searches:</span>
+        <div id="saved-searches-list" class="flex flex-wrap gap-1.5"></div>
       </div>
     </div>
 
@@ -712,6 +717,91 @@ import { WP_API } from '../config.js';
     renderProperties();
     initOrUpdateMap();
   });
+
+  // ── Save Search ────────────────────────────────────────────────────────────
+  function getCurrentFilters() {
+    return {
+      city: document.getElementById('filter-city').value.trim(),
+      listingType: document.getElementById('filter-listing-type').value,
+      propertyType: document.getElementById('filter-property-type').value,
+      bedrooms: document.getElementById('filter-bedrooms').value,
+      priceMin: document.getElementById('filter-price-min').value,
+      priceMax: document.getElementById('filter-price-max').value,
+    };
+  }
+
+  function formatShortNum(n) {
+    const num = Number(n);
+    if (num >= 1000000) return (num / 1000000).toFixed(0) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+    return num.toString();
+  }
+
+  function buildSearchLabel(f) {
+    const parts = [];
+    if (f.city) parts.push(f.city);
+    if (f.listingType) parts.push(f.listingType);
+    if (f.propertyType) parts.push(f.propertyType);
+    if (f.bedrooms) parts.push(f.bedrooms + '+ beds');
+    if (f.priceMin && f.priceMax) parts.push('₱' + formatShortNum(f.priceMin) + '–₱' + formatShortNum(f.priceMax));
+    else if (f.priceMin) parts.push('From ₱' + formatShortNum(f.priceMin));
+    else if (f.priceMax) parts.push('Up to ₱' + formatShortNum(f.priceMax));
+    return parts.join(', ');
+  }
+
+  function renderSavedSearches() {
+    const searches = JSON.parse(localStorage.getItem('saved_searches') || '[]');
+    const bar = document.getElementById('saved-searches-bar');
+    const list = document.getElementById('saved-searches-list');
+    if (!bar || !list) return;
+    if (searches.length === 0) { bar.classList.add('hidden'); return; }
+    bar.classList.remove('hidden');
+    list.innerHTML = searches.map(s => `
+      <div class="flex items-center gap-0.5 bg-orange-50 border border-orange-200 rounded-full pl-3 pr-1.5 py-1">
+        <button onclick="loadSavedSearch(${s.id})" class="text-xs text-[#ea580c] font-medium hover:underline">${s.label}</button>
+        <button onclick="deleteSavedSearch(${s.id})" class="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center text-sm ml-0.5">&times;</button>
+      </div>
+    `).join('');
+  }
+
+  window.loadSavedSearch = function(id) {
+    const searches = JSON.parse(localStorage.getItem('saved_searches') || '[]');
+    const entry = searches.find(s => s.id === id);
+    if (!entry) return;
+    const f = entry.filters;
+    document.getElementById('filter-city').value = f.city || '';
+    document.getElementById('filter-listing-type').value = f.listingType || '';
+    document.getElementById('filter-property-type').value = f.propertyType || '';
+    document.getElementById('filter-bedrooms').value = f.bedrooms || '';
+    document.getElementById('filter-price-min').value = f.priceMin || '';
+    document.getElementById('filter-price-max').value = f.priceMax || '';
+    applyFilters();
+  };
+
+  window.deleteSavedSearch = function(id) {
+    let searches = JSON.parse(localStorage.getItem('saved_searches') || '[]');
+    searches = searches.filter(s => s.id !== id);
+    localStorage.setItem('saved_searches', JSON.stringify(searches));
+    renderSavedSearches();
+  };
+
+  document.getElementById('save-search-btn')?.addEventListener('click', () => {
+    const filters = getCurrentFilters();
+    const label = buildSearchLabel(filters);
+    if (!label) {
+      alert('Set at least one filter before saving a search.');
+      return;
+    }
+    const searches = JSON.parse(localStorage.getItem('saved_searches') || '[]');
+    searches.unshift({ id: Date.now(), label, filters, date: new Date().toISOString() });
+    if (searches.length > 10) searches.pop();
+    localStorage.setItem('saved_searches', JSON.stringify(searches));
+    renderSavedSearches();
+    const btn = document.getElementById('save-search-btn');
+    if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => { btn.textContent = '💾 Save Search'; }, 2000); }
+  });
+
+  renderSavedSearches();
 
   updateCompareBar();
   fetchProperties();
