@@ -197,39 +197,27 @@ import Footer from '../components/Footer.astro';
     if (file.size > 5 * 1024 * 1024) { alert('Photo must be under 5MB.'); return; }
     var status = document.getElementById('photo-status');
     status.textContent = 'Uploading…'; status.className = 'text-xs mt-1 text-gray-500';
-    var reader = new FileReader();
-    reader.onload = async function(ev) {
-      var base64 = ev.target.result.split(',')[1];
-      var mime = file.type;
-      var binaryStr = atob(base64);
-      var bytes = new Uint8Array(binaryStr.length);
-      for (var i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-      try {
-        var res = await fetch(WP_URL + '/wp-json/wp/v2/media', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + user.token,
-            'Content-Disposition': 'attachment; filename="' + file.name + '"',
-            'Content-Type': mime,
-          },
-          body: bytes,
-        });
-        if (!res.ok) throw new Error('Upload failed.');
-        var data = await res.json();
-        var imgUrl = data.source_url;
-        document.getElementById('avatar-preview').innerHTML = '<img src="' + imgUrl + '" class="w-full h-full object-cover">';
-        // Save URL in user meta
-        await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ meta: { profile_photo: imgUrl } })
-        });
-        status.textContent = 'Photo updated!'; status.className = 'text-xs mt-1 text-green-600';
-      } catch(err) {
-        status.textContent = 'Upload failed: ' + err.message; status.className = 'text-xs mt-1 text-red-500';
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      var fd = new FormData();
+      fd.append('file', file, file.name);
+      var res = await fetch(WP_URL + '/wp-json/wp/v2/media', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + user.token },
+        body: fd,
+      });
+      if (!res.ok) throw new Error('Upload failed.');
+      var data = await res.json();
+      var imgUrl = data.source_url;
+      document.getElementById('avatar-preview').innerHTML = '<img src="' + imgUrl + '" class="w-full h-full object-cover">';
+      await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ meta: { profile_photo: imgUrl } })
+      });
+      status.textContent = 'Photo updated!'; status.className = 'text-xs mt-1 text-green-600';
+    } catch(err) {
+      status.textContent = 'Upload failed: ' + err.message; status.className = 'text-xs mt-1 text-red-500';
+    }
   });
 
   function showMsg(el, text, color) {
