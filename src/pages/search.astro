@@ -479,58 +479,101 @@ import { WP_API } from '../config.js';
     const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
     const badge = acf.listing_type === 'For Rent' ? 'bg-blue-500/90' : acf.listing_type === 'Pre-Selling' ? 'bg-purple-500/90' : 'bg-[#ea580c]';
     const isNew = (Date.now() - new Date(p.date).getTime()) < 7 * 24 * 60 * 60 * 1000;
-    const saved = getSaved().includes(p.id);
-    const heartFill = saved ? '#ea580c' : 'none';
-    const heartStroke = saved ? '#ea580c' : 'currentColor';
+    const isSavedProp = getSaved().includes(p.id);
+    const heartFill = isSavedProp ? '#ea580c' : 'none';
+    const heartStroke = isSavedProp ? '#ea580c' : 'currentColor';
     const inCompare = getCompare().some(x => x.id === p.id);
     const compareBtnColor = inCompare ? '#ea580c' : 'currentColor';
-    // Open house badge
+
+    // Open house / status badges
     const ohRaw = acf.open_house_date ? String(acf.open_house_date).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') : '';
     const ohDate = ohRaw ? new Date(ohRaw) : null;
     const todayMid = new Date(); todayMid.setHours(0,0,0,0);
     const ohBadge = ohDate && ohDate >= todayMid
       ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-600 text-white backdrop-blur-sm uppercase tracking-wider">Open ${ohDate.toLocaleDateString('en-PH', {month:'short',day:'numeric'})}</span>`
       : '';
-    const isSold = acf.property_status === 'Sold' || acf.property_status === 'Reserved';
-    const statusBadge = isSold
+    const isSoldStatus = acf.property_status === 'Sold' || acf.property_status === 'Reserved';
+    const statusBadge = isSoldStatus
       ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${acf.property_status === 'Sold' ? 'bg-red-500' : 'bg-yellow-500'} text-white backdrop-blur-sm uppercase tracking-wider">${acf.property_status}</span>`
       : (isNew ? `<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500 text-white backdrop-blur-sm uppercase tracking-wider">New</span>` : '') + ohBadge;
+
+    // Photo count
+    const photoCount = [image, acf.photo_2, acf.photo_3, acf.photo_4, acf.photo_5,
+      acf.photo_6, acf.photo_7, acf.photo_8, acf.photo_9, acf.photo_10].filter(Boolean).length;
+
+    // Amenities
+    const amenitySources = [acf.amenities, acf.features, acf.property_features].filter(Boolean);
+    const amenityStr = amenitySources.map(s => Array.isArray(s) ? s.join(' ') : String(s)).join(' ').toLowerCase();
+    const hasPool    = /pool|swim/.test(amenityStr)            || !!(acf.swimming_pool || acf.has_pool);
+    const hasGym     = /gym|fitness/.test(amenityStr)          || !!(acf.gym || acf.has_gym);
+    const hasParking = /parking|garage|carport/.test(amenityStr) || !!(acf.parking || acf.garage || acf.has_parking);
+    const hasBalcony = /balcony|terrace/.test(amenityStr)      || !!(acf.balcony);
+
+    const detailItems = [
+      acf.bedrooms  ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 12V8.5A1.5 1.5 0 014.5 7H8m-5 5v4m18-4v4M8 7h8a1 1 0 011 1v4H7V8a1 1 0 011-1z"/></svg><span class="font-semibold text-gray-700">${acf.bedrooms}</span></span>` : '',
+      acf.bathrooms ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16M4 12a2 2 0 01-2-2V8.5A1.5 1.5 0 013.5 7H6m-4 5v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg><span class="font-semibold text-gray-700">${acf.bathrooms}</span></span>` : '',
+      acf.floor_area ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg><span class="font-semibold text-gray-700">${acf.floor_area}</span><span class="text-gray-400">m²</span></span>` : '',
+      hasPool    ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 0a4 4 0 014 4H8a4 4 0 014-4z"/></svg><span class="text-blue-500 font-semibold">Pool</span></span>` : '',
+      hasGym     ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8v8M18 8v8M3 10v4M21 10v4M9 12h6"/></svg><span class="font-semibold">Gym</span></span>` : '',
+      hasParking ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 17H3a2 2 0 01-2-2v-4l2.5-5h13l2.5 5v4a2 2 0 01-2 2h-2m-9 0a1.5 1.5 0 103 0m6 0a1.5 1.5 0 103 0"/></svg><span class="font-semibold">Parking</span></span>` : '',
+      hasBalcony ? `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 10v8h18v-8M8 10V6m4 4V6m4 4V6"/></svg><span class="font-semibold">Balcony</span></span>` : '',
+    ].filter(Boolean).join('');
+
+    // Agent
+    const agentName  = acf.agent_name || '';
+    const agentPhoto = typeof acf.agent_photo === 'string' ? acf.agent_photo : '';
+    const agentInitial = agentName ? agentName.trim()[0].toUpperCase() : '';
+    const agentAvatar = agentPhoto
+      ? `<img src="${agentPhoto}" alt="${agentName}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0" loading="lazy"/>`
+      : agentName
+        ? `<div class="w-8 h-8 rounded-full bg-[#ea580c] flex items-center justify-center text-white text-xs font-bold shrink-0">${agentInitial}</div>`
+        : `<div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5.33 0-8 2.67-8 4v1h16v-1c0-1.33-2.67-4-8-4z"/></svg></div>`;
+    const agentLabel = agentName || 'Integrity Realty';
+    const propTypeBadge = acf.property_type ? `<span class="ml-auto text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full capitalize shrink-0">${acf.property_type}</span>` : '';
+
     return `
-      <a href="/property/${p.slug}" class="group bg-white rounded-xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-gray-100 flex flex-col card-enter">
-        <div class="relative h-48 overflow-hidden bg-gray-50">
-          ${image ? `<img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
+      <a href="/property/${p.slug}" class="group bg-white rounded-2xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-gray-200 flex flex-col card-enter">
+        <div class="relative h-48 overflow-hidden bg-gray-100">
+          ${image ? `<img src="${image}" alt="${title.replace(/"/g,'&quot;')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
           <div class="absolute top-3 left-3 flex flex-col gap-1.5">
             ${acf.listing_type ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
             ${statusBadge}
           </div>
-          <button class="save-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" data-id="${p.id}" aria-label="Save property">
-            <svg class="save-icon w-4 h-4" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-            </svg>
-          </button>
-          <button class="qv-btn absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-gray-600 hover:text-[#ea580c] text-xs font-semibold px-3 py-1.5 rounded-full shadow flex items-center gap-1.5 transition-colors opacity-0 group-hover:opacity-100"
+          <div class="absolute top-3 right-3 flex flex-col gap-1.5">
+            <button class="compare-btn w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
+              data-id="${p.id}" data-slug="${p.slug}" data-title="${title.replace(/"/g,'&quot;')}" data-price="${price}" data-image="${image}"
+              title="Add to compare" aria-label="Compare">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="${compareBtnColor}" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+            </button>
+            <button class="save-btn w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" data-id="${p.id}" aria-label="Save property">
+              <svg class="save-icon w-3.5 h-3.5" fill="${heartFill}" stroke="${heartStroke}" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+              </svg>
+            </button>
+          </div>
+          ${photoCount > 0 ? `<div class="absolute bottom-2 left-2 flex items-center gap-1 bg-black/55 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-lg pointer-events-none"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${photoCount}</div>` : ''}
+          <button class="qv-btn absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm text-gray-600 hover:text-[#ea580c] text-xs font-semibold px-3 py-1.5 rounded-full shadow flex items-center gap-1.5 transition-colors opacity-0 group-hover:opacity-100"
             data-prop='${JSON.stringify({id:p.id,slug:p.slug,title,price,image,city,bedrooms:acf.bedrooms,bathrooms:acf.bathrooms,floor_area:acf.floor_area,agent_phone:acf.agent_phone}).replace(/'/g,"&#39;")}'>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             Quick View
           </button>
-          <button class="compare-btn absolute top-12 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
-            data-id="${p.id}" data-slug="${p.slug}" data-title="${title.replace(/"/g,'&quot;')}" data-price="${price}" data-image="${image}"
-            title="Add to compare" aria-label="Compare">
-            <svg class="w-4 h-4" fill="none" stroke="${compareBtnColor}" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
-          </button>
         </div>
         <div class="p-4 flex flex-col flex-1">
-          <p class="text-[#ea580c] font-bold text-lg leading-tight mb-1">${price}</p>
-          <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-2 line-clamp-2">${title}</h3>
+          <p class="text-[#f97316] font-bold text-lg leading-tight mb-1">${price}</p>
+          <h3 class="text-gray-900 font-semibold text-sm leading-snug mb-1.5 line-clamp-2">${title}</h3>
           ${city ? `<p class="text-gray-400 text-xs mb-3 flex items-center gap-1"><svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>${city}</p>` : ''}
-          <div class="flex items-center gap-3 text-gray-400 text-xs mt-auto pt-3 border-t border-gray-100">
-            ${acf.bedrooms ? `<span>🛏 ${acf.bedrooms}</span>` : ''}
-            ${acf.bathrooms ? `<span>🚿 ${acf.bathrooms}</span>` : ''}
-            ${acf.floor_area ? `<span>📐 ${acf.floor_area} m²</span>` : ''}
-            ${(acf.price && acf.floor_area) ? `<span class="text-gray-300">·</span><span class="text-gray-400">₱${Math.round(Number(acf.price)/Number(acf.floor_area)).toLocaleString('en-PH')}/m²</span>` : ''}
-            ${acf.property_type ? `<span class="ml-auto capitalize text-[10px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">${acf.property_type}</span>` : ''}
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500 py-3 border-t border-b border-gray-100">
+            ${detailItems || (acf.property_type ? `<span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full capitalize">${acf.property_type}</span>` : '<span class="text-gray-300 text-xs">—</span>')}
+          </div>
+          <div class="flex items-center gap-2.5 mt-3">
+            ${agentAvatar}
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-gray-700 truncate">${agentLabel}</p>
+              <p class="text-[10px] text-gray-400 uppercase tracking-wide">Verified Agent</p>
+            </div>
+            ${propTypeBadge}
           </div>
         </div>
       </a>`;
