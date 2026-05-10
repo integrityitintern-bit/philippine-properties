@@ -200,7 +200,7 @@ import Footer from '../components/Footer.astro';
     try {
       var fd = new FormData();
       fd.append('file', file, file.name);
-      var res = await fetch(WP_URL + '/wp-json/wp/v2/media', {
+      var res = await fetch('/api/upload-media', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + user.token },
         body: fd,
