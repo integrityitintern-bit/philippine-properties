@@ -146,7 +146,7 @@ import Footer from '../components/Footer.astro';
     } catch(e) {}
   })();
 
-  // Save profile
+  // Save profile — use URL-encoded body (CORS-safe, no Content-Type preflight)
   document.getElementById('save-btn').addEventListener('click', async function() {
     var btn = this;
     var msg = document.getElementById('save-msg');
@@ -155,10 +155,12 @@ import Footer from '../components/Footer.astro';
     if (!name) { showMsg(msg, 'Name is required.', 'red'); return; }
     btn.textContent = 'Saving…'; btn.disabled = true;
     try {
+      var body = new URLSearchParams({ name: name });
+      body.append('meta[phone]', phone);
       var res = await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, meta: { phone: phone } })
+        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
       });
       if (!res.ok) throw new Error('Failed to save.');
       var updated = JSON.parse(localStorage.getItem('pp_user'));
@@ -171,7 +173,7 @@ import Footer from '../components/Footer.astro';
     btn.textContent = 'Save Changes'; btn.disabled = false;
   });
 
-  // Change password
+  // Change password — use URL-encoded body (CORS-safe)
   document.getElementById('pass-btn').addEventListener('click', async function() {
     var btn = this;
     var msg = document.getElementById('pass-msg');
@@ -182,10 +184,11 @@ import Footer from '../components/Footer.astro';
     if (np.length < 8) { showMsg(msg, 'Password must be at least 8 characters.', 'red'); return; }
     btn.textContent = 'Updating…'; btn.disabled = true;
     try {
+      var body = new URLSearchParams({ password: np });
       var res = await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: np })
+        headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
       });
       if (!res.ok) throw new Error('Failed to update password.');
       document.getElementById('field-newpass').value = '';
@@ -230,10 +233,12 @@ import Footer from '../components/Footer.astro';
 
         // Also save to WP user meta so it loads on other devices
         try {
+          var metaBody = new URLSearchParams();
+          metaBody.append('meta[profile_photo]', dataUrl);
           await fetch(WP_URL + '/wp-json/wp/v2/users/me', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ meta: { profile_photo: dataUrl } })
+            headers: { 'Authorization': 'Bearer ' + user.token, 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: metaBody.toString(),
           });
         } catch(e) {}
       };
