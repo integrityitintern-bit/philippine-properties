@@ -469,25 +469,45 @@ import Footer from '../components/Footer.astro';
   }
 
   async function submitListing() {
+    // Validate required fields
+    var name = (document.getElementById('p-name') as HTMLInputElement).value.trim();
+    var phone = (document.getElementById('p-phone') as HTMLInputElement).value.trim();
+    var email = (document.getElementById('p-email') as HTMLInputElement).value.trim();
+    var price = (document.getElementById('p-price') as HTMLInputElement).value.trim();
+    var title = (document.getElementById('p-title') as HTMLInputElement).value.trim();
+    if (!name || !phone || !email) {
+      alert('Please fill in your Full Name, Phone, and Email in Step 4.');
+      goToStep(4);
+      return;
+    }
+    if (!title) {
+      alert('Please enter a property title.');
+      goToStep(1);
+      return;
+    }
+
     var btn = document.getElementById('submit-btn');
     btn.textContent = 'Submitting...';
     btn.disabled = true;
 
+    var agentPhoto = localStorage.getItem('pp_profile_photo') || '';
+
     var data = {
-      listing_type: document.getElementById('p-listing-type').value,
-      property_type: document.getElementById('p-property-type').value,
-      title: document.getElementById('p-title').value,
-      price: document.getElementById('p-price').value,
-      city: document.getElementById('p-city').value,
-      province: document.getElementById('p-province').value,
-      bedrooms: document.getElementById('p-bedrooms').value,
-      bathrooms: document.getElementById('p-bathrooms').value,
-      floor_area: document.getElementById('p-floor-area').value,
-      address: document.getElementById('p-address').value,
-      description: document.getElementById('p-description').value,
-      name: document.getElementById('p-name').value,
-      phone: document.getElementById('p-phone').value,
-      email: document.getElementById('p-email').value,
+      listing_type: (document.getElementById('p-listing-type') as HTMLInputElement).value,
+      property_type: (document.getElementById('p-property-type') as HTMLInputElement).value,
+      title,
+      price,
+      city: (document.getElementById('p-city') as HTMLInputElement).value,
+      province: (document.getElementById('p-province') as HTMLInputElement).value,
+      bedrooms: (document.getElementById('p-bedrooms') as HTMLInputElement).value,
+      bathrooms: (document.getElementById('p-bathrooms') as HTMLInputElement).value,
+      floor_area: (document.getElementById('p-floor-area') as HTMLInputElement).value,
+      address: (document.getElementById('p-address') as HTMLInputElement).value,
+      description: (document.getElementById('p-description') as HTMLInputElement).value,
+      name,
+      phone,
+      email,
+      agent_photo: agentPhoto,
       photos: photos.map(function(p) {
         return p.type === 'file'
           ? { type: 'file', data: p.preview, name: p.name }
@@ -529,4 +549,14 @@ import Footer from '../components/Footer.astro';
 
   (window as any).goToStep = goToStep;
   (window as any).submitListing = submitListing;
+
+  // Pre-fill Step 4 contact fields from logged-in user
+  (function() {
+    var user = (window as any).ppAuth && (window as any).ppAuth.getUser();
+    if (!user) return;
+    var nameEl = document.getElementById('p-name') as HTMLInputElement;
+    var emailEl = document.getElementById('p-email') as HTMLInputElement;
+    if (nameEl && !nameEl.value) nameEl.value = user.name || '';
+    if (emailEl && !emailEl.value) emailEl.value = user.email || '';
+  })();
 </script>
