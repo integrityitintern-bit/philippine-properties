@@ -242,7 +242,7 @@ import { WP_API } from '../config.js';
 
   async function fetchProperties() {
     try {
-      const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish&_fields=id,slug,title,date,acf,_embedded`);
+      const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish`);
       allProperties = await res.json();
       // Build city autocomplete
       const cities = [...new Set(allProperties.map(p => p.acf?.location_city).filter(Boolean))].sort();
