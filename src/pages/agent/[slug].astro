@@ -42,7 +42,7 @@ const agentPhoto: string = agent.photo || '';
 const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/, '63') : '';
 ---
 
-<Layout title={`${agent.name} — Properties`} description={`Browse ${agent.listings.length} properties listed by ${agent.name} on Integrity Real Estate.`}>
+<Layout title={`${agent.name} — Properties`} description={`Browse ${agent.listings.length} properties listed by ${agent.name}.`}>
   <Navbar />
 
   <!-- Agent Header -->
@@ -63,7 +63,7 @@ const whatsappPhone = agent.phone ? agent.phone.replace(/\D/g, '').replace(/^0/,
         }
         <div class="flex-1 min-w-0">
           <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{agent.name}</h1>
-          <p class="text-gray-400 text-sm mt-1">Integrity Real Estate Agent · {agent.listings.length} listing{agent.listings.length !== 1 ? 's' : ''}</p>
+          <p class="text-gray-400 text-sm mt-1">Licensed Agent · {agent.listings.length} listing{agent.listings.length !== 1 ? 's' : ''}</p>
           <div class="flex items-center gap-1.5 mt-2">
             <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
             <span class="text-xs text-gray-400">Typically responds within 24 hours</span>
