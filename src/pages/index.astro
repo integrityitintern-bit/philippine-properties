@@ -10,13 +10,13 @@ let totalProperties = 0;
 let totalAgents = 0;
 let totalCities = 0;
 try {
-  const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish&_fields=id,slug,title,date,acf,_embedded`);
+  const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish`);
   featuredProperties = await res.json();
 } catch (e) {
   console.error('Failed to fetch properties:', e);
 }
 try {
-  const statsRes = await fetch(`${WP_API}/property?per_page=100&status=publish&_fields=id,acf`);
+  const statsRes = await fetch(`${WP_API}/property?per_page=100&status=publish`);
   const allProps = await statsRes.json();
   if (Array.isArray(allProps)) {
     totalProperties = allProps.length;
@@ -138,10 +138,10 @@ const localBusinessJsonLd = {
   <section class="bg-gray-50 border-b border-gray-100 py-10">
     <div class="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
       {[
-        { n: '5,000+', l: 'Active Listings' },
-        { n: '50+',    l: 'Cities Covered' },
-        { n: '10,000+',l: 'Happy Clients' },
-        { n: '15+',    l: 'Years Experience' },
+        { n: totalProperties > 0 ? totalProperties + '+' : '—', l: 'Active Listings' },
+        { n: totalCities > 0 ? totalCities + '+' : '—',      l: 'Cities Covered' },
+        { n: totalAgents > 0 ? totalAgents + '+' : '—',      l: 'Active Agents' },
+        { n: '100%',                                           l: 'Free to List' },
       ].map(s => (
         <div>
           <p class="text-3xl font-bold gradient-text">{s.n}</p>
