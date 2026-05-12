@@ -6,7 +6,7 @@ import { WP_API } from '../../config.js';
 
 export async function getStaticPaths() {
   try {
-    const res = await fetch(`${WP_API}/property?per_page=100&status=publish`);
+    const res = await fetch(`${WP_API}/property?per_page=100&status=publish&_fields=id,slug`);
     const properties = await res.json();
     return properties.map((p: any) => ({
       params: { slug: p.slug },
@@ -63,6 +63,12 @@ const jsonLd = {
   ...(acf.bedrooms ? { "numberOfRooms": Number(acf.bedrooms) } : {}),
   ...(acf.floor_area ? { "floorSize": { "@type": "QuantitativeValue", "value": Number(acf.floor_area), "unitCode": "MTK" } } : {}),
 };
+
+// CDN helper — wraps WP image URLs through wsrv.nl for resize + WebP conversion
+function cdnUrl(url: string, w: number): string {
+  if (!url || url.startsWith('data:')) return url;
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${w}&q=82&output=webp`;
+}
 
 // Virtual tour
 const vtUrl = acf.virtual_tour_url || '';
@@ -136,7 +142,7 @@ try {
           <div class="rounded-2xl overflow-hidden bg-gray-100 h-72 md:h-[420px] relative group cursor-pointer"
                onclick="openLightbox(0)">
             {galleryImages.length > 0
-              ? <img src={galleryImages[0]} alt={title} class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+              ? <img src={cdnUrl(galleryImages[0], 1200)} alt={title} class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
               : <div class="w-full h-full flex items-center justify-center text-6xl opacity-20">🏠</div>
             }
             {galleryImages.length > 1 && (
@@ -164,7 +170,7 @@ try {
                   data-idx={i}
                   onclick={`openLightbox(${i})`}
                 >
-                  <img src={img} alt="" class="w-full h-full object-cover" loading="lazy" />
+                  <img src={cdnUrl(img, 200)} alt="" class="w-full h-full object-cover" loading="lazy" />
                 </button>
               ))}
             </div>

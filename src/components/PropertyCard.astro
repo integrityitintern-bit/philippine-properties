@@ -5,6 +5,7 @@ const title = property.title?.rendered || 'Property';
 const slug = property.slug;
 const propertyId = property.id;
 const image = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+const cdnImage = image ? `https://wsrv.nl/?url=${encodeURIComponent(image)}&w=600&q=82&output=webp` : '';
 const price = acf.price ? '₱' + Number(acf.price).toLocaleString('en-PH') : 'Price on Request';
 const listingType = acf.listing_type || '';
 const city = [acf.location_city, acf.location_province].filter(Boolean).join(', ');
@@ -51,8 +52,8 @@ const agentInitial = agentName ? agentName.trim()[0].toUpperCase() : '';
 
   <!-- Image -->
   <div class="relative h-48 overflow-hidden bg-gray-100">
-    {image
-      ? <img src={image} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+    {cdnImage
+      ? <img src={cdnImage} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       : <div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>
     }
 
@@ -79,7 +80,7 @@ const agentInitial = agentName ? agentName.trim()[0].toUpperCase() : '';
     <div class="absolute top-3 right-3 flex flex-col gap-1.5">
       <button
         class="compare-btn w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
-        data-id={propertyId} data-slug={slug} data-title={title} data-price={price} data-image={image}
+        data-id={propertyId} data-slug={slug} data-title={title} data-price={price} data-image={cdnImage || image}
         aria-label="Compare" title="Add to compare"
       >
         <svg class="compare-icon w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

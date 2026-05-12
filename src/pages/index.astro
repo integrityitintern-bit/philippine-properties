@@ -10,13 +10,13 @@ let totalProperties = 0;
 let totalAgents = 0;
 let totalCities = 0;
 try {
-  const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish`);
+  const res = await fetch(`${WP_API}/property?_embed&per_page=6&status=publish&_fields=id,slug,title,date,acf,_embedded`);
   featuredProperties = await res.json();
 } catch (e) {
   console.error('Failed to fetch properties:', e);
 }
 try {
-  const statsRes = await fetch(`${WP_API}/property?per_page=100&status=publish`);
+  const statsRes = await fetch(`${WP_API}/property?per_page=100&status=publish&_fields=id,acf`);
   const allProps = await statsRes.json();
   if (Array.isArray(allProps)) {
     totalProperties = allProps.length;

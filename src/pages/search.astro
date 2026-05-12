@@ -242,7 +242,7 @@ import { WP_API } from '../config.js';
 
   async function fetchProperties() {
     try {
-      const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish`);
+      const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish&_fields=id,slug,title,date,acf,_embedded`);
       allProperties = await res.json();
       // Build city autocomplete
       const cities = [...new Set(allProperties.map(p => p.acf?.location_city).filter(Boolean))].sort();
@@ -471,6 +471,11 @@ import { WP_API } from '../config.js';
     });
   }
 
+  function cdnImg(url, w) {
+    if (!url || url.startsWith('data:')) return url;
+    return 'https://wsrv.nl/?url=' + encodeURIComponent(url) + '&w=' + (w || 600) + '&q=82&output=webp';
+  }
+
   function cardHTML(p) {
     const acf = p.acf || {};
     const title = p.title?.rendered || 'Property';
@@ -534,14 +539,14 @@ import { WP_API } from '../config.js';
     return `
       <a href="/property/${p.slug}" class="group bg-white rounded-2xl shadow-sm hover:shadow-md hover:border-[#ea580c]/40 transition-all overflow-hidden border border-gray-200 flex flex-col card-enter">
         <div class="relative h-48 overflow-hidden bg-gray-100">
-          ${image ? `<img src="${image}" alt="${title.replace(/"/g,'&quot;')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
+          ${image ? `<img src="${cdnImg(image)}" alt="${title.replace(/"/g,'&quot;')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>` : '<div class="w-full h-full flex items-center justify-center text-5xl opacity-20">🏠</div>'}
           <div class="absolute top-3 left-3 flex flex-col gap-1.5">
             ${acf.listing_type ? `<span class="text-xs font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm ${badge}">${acf.listing_type}</span>` : ''}
             ${statusBadge}
           </div>
           <div class="absolute top-3 right-3 flex flex-col gap-1.5">
             <button class="compare-btn w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-colors"
-              data-id="${p.id}" data-slug="${p.slug}" data-title="${title.replace(/"/g,'&quot;')}" data-price="${price}" data-image="${image}"
+              data-id="${p.id}" data-slug="${p.slug}" data-title="${title.replace(/"/g,'&quot;')}" data-price="${price}" data-image="${cdnImg(image, 200)}"
               title="Add to compare" aria-label="Compare">
               <svg class="w-3.5 h-3.5" fill="none" stroke="${compareBtnColor}" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
