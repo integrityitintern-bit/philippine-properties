@@ -620,7 +620,7 @@ try {
     btn.textContent = 'Sending...';
     btn.disabled = true;
     try {
-      await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+      await fetch('https://formsubmit.co/ajax/[your-email@domain.com]', {
         method: 'POST',
         body: new FormData(form),
       });
@@ -901,7 +901,7 @@ try {
       e.preventDefault();
       if (viewingSubmit) { viewingSubmit.textContent = 'Sending...'; viewingSubmit.disabled = true; }
       try {
-        await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+        await fetch('https://formsubmit.co/ajax/[your-email@domain.com]', {
           method: 'POST',
           body: new FormData(viewingForm),
         });

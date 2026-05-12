@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard
 Disallow: /login
 
-Sitemap: https://integrityrealty.ph/sitemap.xml
+Sitemap: https://philippine-properties.pages.dev/sitemap-index.xml

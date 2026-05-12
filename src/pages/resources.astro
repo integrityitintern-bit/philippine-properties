@@ -348,7 +348,7 @@ import { WP_API } from '../config.js';
         fd.append('email', email);
         fd.append('_subject', 'New Newsletter Subscriber');
         fd.append('_captcha', 'false');
-        await fetch('https://formsubmit.co/ajax/integrityitintern@integrityrealty.ph', {
+        await fetch('https://formsubmit.co/ajax/[your-email@domain.com]', {
           method: 'POST',
           body: fd,
         });
