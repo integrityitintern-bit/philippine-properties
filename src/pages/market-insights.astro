@@ -1,0 +1,281 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { WP_API } from '../config.js';
+
+interface CityData {
+  city: string;
+  count: number;
+  prices: number[];
+  avgPrice: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  types: string[];
+  topType: string;
+  forSale: number;
+  forRent: number;
+  preSelling: number;
+}
+
+let cityStats: CityData[] = [];
+let totalListings = 0;
+let totalCities = 0;
+let avgPhPrice = 0;
+let allProps: any[] = [];
+
+try {
+  const res = await fetch(`${WP_API}/property?per_page=100&status=publish`);
+  allProps = await res.json();
+
+  if (Array.isArray(allProps)) {
+    totalListings = allProps.length;
+    const cityMap: { [key: string]: CityData } = {};
+
+    allProps.forEach((p: any) => {
+      const city = p.acf?.location_city?.trim();
+      const price = parseFloat(p.acf?.price);
+      const propType = p.acf?.property_type || 'Other';
+      const listingType = p.acf?.listing_type || '';
+      if (!city) return;
+      if (!cityMap[city]) {
+        cityMap[city] = { city, count: 0, prices: [], avgPrice: null, minPrice: null, maxPrice: null, types: [], topType: 'Various', forSale: 0, forRent: 0, preSelling: 0 };
+      }
+      cityMap[city].count++;
+      if (!isNaN(price) && price > 0) cityMap[city].prices.push(price);
+      cityMap[city].types.push(propType);
+      if (listingType === 'For Sale') cityMap[city].forSale++;
+      else if (listingType === 'For Rent') cityMap[city].forRent++;
+      else if (listingType === 'Pre-Selling') cityMap[city].preSelling++;
+    });
+
+    cityStats = Object.values(cityMap).map(d => {
+      const tc: { [key: string]: number } = {};
+      d.types.forEach(t => { tc[t] = (tc[t] || 0) + 1; });
+      const topType = Object.entries(tc).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Various';
+      const avg = d.prices.length ? d.prices.reduce((a, b) => a + b, 0) / d.prices.length : null;
+      return { ...d, avgPrice: avg, minPrice: d.prices.length ? Math.min(...d.prices) : null, maxPrice: d.prices.length ? Math.max(...d.prices) : null, topType };
+    }).sort((a, b) => b.count - a.count);
+
+    totalCities = cityStats.length;
+    const allPrices = allProps.map((p: any) => parseFloat(p.acf?.price)).filter(n => !isNaN(n) && n > 0);
+    avgPhPrice = allPrices.length ? allPrices.reduce((a, b) => a + b, 0) / allPrices.length : 0;
+  }
+} catch {}
+
+function fmt(n: number): string {
+  if (!n || isNaN(n)) return '—';
+  if (n >= 1_000_000_000) return '₱' + (n / 1_000_000_000).toFixed(1) + 'B';
+  if (n >= 1_000_000) return '₱' + (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000) return '₱' + (n / 1_000).toFixed(0) + 'K';
+  return '₱' + n.toLocaleString('en-PH');
+}
+
+const typeIcons: { [key: string]: string } = {
+  'Condo': '🏢', 'House': '🏡', 'Townhouse': '🏘', 'Apartment': '🏬',
+  'Land & Lot': '🌿', 'Commercial': '🏪', 'Lot': '🌿', 'Other': '🏠', 'Various': '🏠',
+};
+
+// Pre-compute for template — no generics in JSX
+const typeCountMap: { [key: string]: number } = {};
+allProps.forEach((p: any) => {
+  const t = p.acf?.property_type || 'Other';
+  typeCountMap[t] = (typeCountMap[t] || 0) + 1;
+});
+const typeBreakdown = Object.entries(typeCountMap)
+  .sort((a, b) => b[1] - a[1])
+  .map(([propType, count]) => ({ propType, count, icon: typeIcons[propType] || '🏠' }));
+
+const totalForPct = totalListings || 1;
+const listingTypeSplit = [
+  { label: 'For Sale',    count: allProps.filter((p: any) => p.acf?.listing_type === 'For Sale').length,    color: 'bg-[#ea580c]',  icon: '🏠',  href: '/search?listing_type=For+Sale' },
+  { label: 'For Rent',    count: allProps.filter((p: any) => p.acf?.listing_type === 'For Rent').length,    color: 'bg-blue-500',   icon: '🔑',  href: '/search?listing_type=For+Rent' },
+  { label: 'Pre-Selling', count: allProps.filter((p: any) => p.acf?.listing_type === 'Pre-Selling').length, color: 'bg-purple-500', icon: '🏗️', href: '/pre-selling' },
+].map(item => ({ ...item, pct: Math.round((item.count / totalForPct) * 100) }));
+---
+
+<Layout
+  title="Philippine Real Estate Market Insights"
+  description="Explore real estate price trends, average property prices, and market data per city across the Philippines. Data-driven insights from Integrity Realty."
+>
+  <Navbar />
+
+  <!-- Hero -->
+  <section class="relative py-20 bg-gradient-to-br from-[#0a2240] via-[#1a3a5c] to-[#0d2137] overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background-image:url('/hero-bg.jpg');background-size:cover;background-position:center;"></div>
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent"></div>
+    <div class="relative z-10 max-w-4xl mx-auto px-4 text-center text-white">
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-xs uppercase tracking-widest text-white/80 mb-6">
+        <span class="w-1.5 h-1.5 bg-[#ea580c] rounded-full"></span>
+        Integrity Realty — Market Data
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold mb-4" style="font-family:'Playfair Display',serif;">
+        Philippine Real Estate
+        <span class="block italic text-[#fb923c]">Market Insights</span>
+      </h1>
+      <p class="text-white/70 text-lg font-light mb-10 max-w-2xl mx-auto">
+        Live pricing data and market trends based on active listings across {totalCities > 0 ? totalCities + '+' : 'multiple'} Philippine cities.
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { value: totalListings > 0 ? totalListings + '+' : '—', label: 'Active Listings' },
+          { value: totalCities > 0 ? totalCities + '' : '—',      label: 'Cities Covered' },
+          { value: avgPhPrice > 0 ? fmt(avgPhPrice) : '—',        label: 'National Avg. Price' },
+          { value: '~20 Yrs',                                       label: 'Market Expertise' },
+        ].map(s => (
+          <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
+            <p class="text-2xl font-bold text-white">{s.value}</p>
+            <p class="text-white/60 text-xs mt-1 tracking-wide">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclaimer -->
+  <div class="bg-blue-50 border-b border-blue-100 py-3 px-4 text-center">
+    <p class="text-blue-600 text-xs">
+      📊 Data is based on active listings from our property database. Prices reflect listed asking prices and may vary. Last updated: {new Date().toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}.
+    </p>
+  </div>
+
+  <!-- City Breakdown Table -->
+  <section class="py-16 max-w-6xl mx-auto px-4">
+    <div class="mb-10">
+      <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">City-Level Data</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Price Breakdown by City</h2>
+      <p class="text-gray-400 text-sm mt-1">Sorted by number of listings. Click a city to browse properties.</p>
+    </div>
+
+    {cityStats.length > 0 ? (
+      <div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
+        <table class="w-full text-sm bg-white">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100 text-left">
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">City</th>
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest text-right">Listings</th>
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest text-right hidden sm:table-cell">Avg. Price</th>
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest text-right hidden md:table-cell">Min Price</th>
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest text-right hidden md:table-cell">Max Price</th>
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest hidden lg:table-cell">Top Type</th>
+              <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-widest text-right">Browse</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            {cityStats.map((stat, i) => (
+              <tr class={`hover:bg-orange-50/50 transition-colors ${i % 2 === 0 ? '' : 'bg-gray-50/30'}`}>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-gray-300 text-xs w-5 text-right shrink-0">{i + 1}</span>
+                    <span class="font-semibold text-gray-900">{stat.city}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-4 text-right">
+                  <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">{stat.count}</span>
+                </td>
+                <td class="px-5 py-4 text-right hidden sm:table-cell font-semibold text-[#ea580c]">
+                  {stat.avgPrice ? fmt(stat.avgPrice) : <span class="text-gray-300 font-normal">—</span>}
+                </td>
+                <td class="px-5 py-4 text-right hidden md:table-cell text-gray-500">
+                  {stat.minPrice ? fmt(stat.minPrice) : '—'}
+                </td>
+                <td class="px-5 py-4 text-right hidden md:table-cell text-gray-500">
+                  {stat.maxPrice ? fmt(stat.maxPrice) : '—'}
+                </td>
+                <td class="px-5 py-4 hidden lg:table-cell">
+                  <span class="flex items-center gap-1.5 text-gray-500 text-xs">
+                    <span>{typeIcons[stat.topType] || '🏠'}</span>
+                    <span>{stat.topType}</span>
+                  </span>
+                </td>
+                <td class="px-5 py-4 text-right">
+                  <a href={`/search?city=${encodeURIComponent(stat.city)}`} class="text-xs font-semibold text-[#ea580c] hover:underline whitespace-nowrap">View →</a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="text-center py-16 bg-gray-50 rounded-2xl">
+        <p class="text-5xl mb-4 opacity-20">📊</p>
+        <p class="text-gray-400">No listing data available yet.</p>
+      </div>
+    )}
+  </section>
+
+  <!-- Property Type Breakdown -->
+  {typeBreakdown.length > 0 && (
+    <section class="py-16 bg-gray-50 border-y border-gray-100">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="mb-10">
+          <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Market Composition</p>
+          <h2 class="text-2xl font-bold text-gray-900">What's Available in the Market</h2>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {typeBreakdown.map((tb) => (
+            <a
+              href={`/search?property_type=${encodeURIComponent(tb.propType)}`}
+              class="bg-white rounded-2xl border border-gray-100 p-5 text-center hover:border-[#ea580c]/40 hover:bg-orange-50 transition-all group"
+            >
+              <span class="text-3xl block mb-2">{tb.icon}</span>
+              <p class="font-bold text-2xl text-[#ea580c] group-hover:scale-105 transition-transform">{tb.count}</p>
+              <p class="text-gray-500 text-xs mt-1 font-medium">{tb.propType}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Listing Type Split -->
+  {totalListings > 0 && (
+    <section class="py-16 max-w-5xl mx-auto px-4">
+      <div class="mb-10">
+        <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Market Overview</p>
+        <h2 class="text-2xl font-bold text-gray-900">Listings by Type</h2>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-6">
+        {listingTypeSplit.map((item) => (
+          <a href={item.href} class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-2xl">{item.icon}</span>
+              <span class="text-3xl font-bold text-gray-900 group-hover:text-[#ea580c] transition-colors">{item.count}</span>
+            </div>
+            <p class="font-semibold text-gray-700 mb-3">{item.label}</p>
+            <div class="w-full bg-gray-100 rounded-full h-2">
+              <div class={`${item.color} h-2 rounded-full`} style={`width:${item.pct}%`}></div>
+            </div>
+            <p class="text-gray-400 text-xs mt-2">{item.pct}% of total listings</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Trust Banner -->
+  <section class="py-16 bg-[#1a5276]">
+    <div class="max-w-4xl mx-auto px-4 text-center text-white">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3" style="font-family:'Playfair Display',serif;">Ready to Make a Data-Driven Decision?</h2>
+      <p class="text-white/70 text-base mb-8 font-light">Talk to an Integrity Realty agent who knows the market in your target city.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/search" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-lg">Browse All Listings</a>
+        <a href="/contact" class="border border-white/30 hover:bg-white/10 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors">Talk to an Agent</a>
+      </div>
+      <div class="mt-10 grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
+        {[
+          { v: '2,000+', l: 'Clients Served' },
+          { v: '2,500+', l: 'Closed Transactions' },
+          { v: '~20 Yrs', l: 'Market Experience' },
+        ].map(s => (
+          <div>
+            <p class="text-2xl font-bold">{s.v}</p>
+            <p class="text-white/50 text-xs mt-1">{s.l}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
