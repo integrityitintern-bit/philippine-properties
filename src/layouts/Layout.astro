@@ -172,6 +172,112 @@ const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Pro
       s0.parentNode.insertBefore(s1,s0);})();
     </script>
     -->
+    <!-- Integrity AI Chatbot -->
+    <div id="ai-chat-widget" class="fixed bottom-36 md:bottom-20 right-4 md:right-6 z-50 print:hidden">
+      <button id="ai-chat-toggle"
+        class="relative w-12 h-12 bg-[#1a5276] hover:bg-[#154360] text-white rounded-full shadow-xl shadow-blue-900/30 flex items-center justify-center transition-all duration-300 hover:scale-110"
+        aria-label="Chat with Integrity AI">
+        <svg id="ai-icon-chat" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+        </svg>
+        <svg id="ai-icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+      </button>
+      <div id="ai-chat-window" class="absolute bottom-14 right-0 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden" style="display:none">
+        <div class="bg-[#1a5276] px-4 py-3 flex items-center gap-3">
+          <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-bold text-sm leading-none">Integrity AI</p>
+            <p class="text-white/60 text-xs mt-0.5">Powered by Integrity Realty</p>
+          </div>
+          <span class="flex items-center gap-1 text-green-300 text-xs"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>Online</span>
+        </div>
+        <div id="ai-msgs" class="p-3 space-y-3 overflow-y-auto" style="height:260px;"></div>
+        <div id="ai-quick" class="px-3 pb-2 flex flex-wrap gap-1.5"></div>
+        <div class="border-t border-gray-100 p-2.5 flex gap-2">
+          <input id="ai-input" type="text" placeholder="Ask about properties..."
+            class="flex-1 text-xs px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1a5276] transition-colors"/>
+          <button id="ai-send" class="w-8 h-8 bg-[#1a5276] hover:bg-[#154360] text-white rounded-xl flex items-center justify-center transition-colors shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <script is:inline>
+    (function(){
+      var toggle=document.getElementById('ai-chat-toggle');
+      var win=document.getElementById('ai-chat-window');
+      var msgs=document.getElementById('ai-msgs');
+      var quickArea=document.getElementById('ai-quick');
+      var inp=document.getElementById('ai-input');
+      var sendBtn=document.getElementById('ai-send');
+      var iconChat=document.getElementById('ai-icon-chat');
+      var iconClose=document.getElementById('ai-icon-close');
+      var opened=false;
+      var kb=[
+        {p:['area','cover','location','where','city','manila','cebu','davao','province'],a:'We cover 50+ cities across the Philippines including Metro Manila, Cebu, Davao, and provincial areas. <a href="/search" class="text-[#1a5276] underline font-medium">Browse by location →</a>'},
+        {p:['list','sell','post','submit','publish'],a:'Listing your property is FREE! <a href="/list-property" class="text-[#1a5276] underline font-medium">Click here to list →</a> and your property goes live after our team verifies it.'},
+        {p:['pre-sell','presell','pre sell','developer','off-plan'],a:'We have pre-selling projects from top developers! View them on our <a href="/pre-selling" class="text-[#1a5276] underline font-medium">Pre-Selling Hub →</a>'},
+        {p:['agent','contact','call','phone','speak','email','reach'],a:'Reach our agents on WhatsApp: <a href="https://wa.me/639691967170" class="text-[#1a5276] underline font-medium" target="_blank">+63 969 196 7170</a>, or <a href="/agents" class="text-[#1a5276] underline font-medium">browse our team →</a>'},
+        {p:['rent','rental','lease','for rent'],a:'We have rental properties across the Philippines. <a href="/search?listing_type=For+Rent" class="text-[#1a5276] underline font-medium">Browse For Rent →</a>'},
+        {p:['buy','purchase','sale','for sale','buying'],a:'We have properties for sale across Metro Manila and beyond. <a href="/search?listing_type=For+Sale" class="text-[#1a5276] underline font-medium">Browse For Sale →</a>'},
+        {p:['price','cost','much','budget','afford','payment','scheme'],a:'Prices vary by location and type. Use our <a href="/search" class="text-[#1a5276] underline font-medium">search filters</a> to set your budget. Our agents can advise on bank financing and payment schemes.'},
+        {p:['open house','viewing','visit','schedule','open'],a:'We hold regular open house events! See upcoming dates on our <a href="/open-house" class="text-[#1a5276] underline font-medium">Open House Calendar →</a>'},
+        {p:['market','insight','trend','average','data','report'],a:'Get price trends and area insights on our <a href="/market-insights" class="text-[#1a5276] underline font-medium">Market Insights page →</a>'},
+        {p:['integrity','company','about','history','trust','who','year','decade'],a:'Integrity Realty has served 2,000+ clients with 2,500+ closed transactions over nearly two decades. Our name is our promise. <a href="/about" class="text-[#1a5276] underline font-medium">Learn more →</a>'},
+        {p:['hi','hello','hey','good morning','good afternoon','good evening','howdy'],a:'Hello! Welcome to Integrity Realty. How can I help you find your dream property today? 😊'},
+        {p:['thank','thanks','okay','ok','great','perfect','awesome','noted','cool'],a:"You're welcome! Is there anything else I can help you with?"},
+      ];
+      function reply(text){
+        var lower=text.toLowerCase();
+        for(var i=0;i<kb.length;i++){for(var j=0;j<kb[i].p.length;j++){if(lower.includes(kb[i].p[j]))return kb[i].a;}}
+        return 'I\'m not sure about that. Please <a href="/contact" class="text-[#1a5276] underline font-medium">contact us</a> or WhatsApp us at <a href="https://wa.me/639691967170" class="text-[#1a5276] underline font-medium" target="_blank">+63 969 196 7170</a> and our team will assist you!';
+      }
+      function addMsg(html,isUser){
+        var d=document.createElement('div');
+        d.className='flex gap-2'+(isUser?' justify-end':'');
+        d.innerHTML=isUser
+          ?'<div class="bg-[#1a5276] text-white rounded-2xl rounded-tr-sm px-3 py-2 text-xs max-w-[85%]">'+html+'</div>'
+          :'<div class="w-6 h-6 bg-[#1a5276] rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white font-bold" style="font-size:9px">AI</div><div class="bg-gray-100 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-gray-700 max-w-[85%] leading-relaxed">'+html+'</div>';
+        msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+      }
+      var quickReplies=['Areas covered','How to list a property','Pre-selling properties','Open house schedule','Contact an agent'];
+      function initChat(){
+        msgs.innerHTML='';quickArea.innerHTML='';
+        addMsg('Hi! I\'m <strong>Integrity AI</strong>, your property assistant. 👋<br/>How can I help you today?',false);
+        quickReplies.forEach(function(q){
+          var b=document.createElement('button');
+          b.className='text-[10px] bg-white border border-gray-200 hover:border-[#1a5276] hover:text-[#1a5276] rounded-full px-2.5 py-1 transition-colors';
+          b.textContent=q;
+          b.addEventListener('click',function(){inp.value=q;handleSend();quickArea.innerHTML='';});
+          quickArea.appendChild(b);
+        });
+      }
+      function handleSend(){
+        var t=inp.value.trim();if(!t)return;
+        addMsg(t,true);inp.value='';quickArea.innerHTML='';
+        var typing=document.createElement('div');
+        typing.id='ai-typing';typing.className='flex gap-2';
+        typing.innerHTML='<div class="w-6 h-6 bg-[#1a5276] rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white font-bold" style="font-size:9px">AI</div><div class="bg-gray-100 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-gray-400">Typing…</div>';
+        msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
+        setTimeout(function(){var t2=document.getElementById('ai-typing');if(t2)t2.remove();addMsg(reply(t),false);},700);
+      }
+      if(toggle){toggle.addEventListener('click',function(){
+        opened=!opened;
+        win.style.display=opened?'block':'none';
+        iconChat.classList.toggle('hidden',opened);
+        iconClose.classList.toggle('hidden',!opened);
+        if(opened&&msgs.children.length===0)initChat();
+        if(opened)msgs.scrollTop=msgs.scrollHeight;
+      });}
+      if(sendBtn)sendBtn.addEventListener('click',handleSend);
+      if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter')handleSend();});
+    })();
+    </script>
     <!-- Mobile bottom spacer (matches tab bar height) -->
     <div class="h-16 md:hidden print:hidden"></div>
     <!-- Mobile bottom tab bar -->
