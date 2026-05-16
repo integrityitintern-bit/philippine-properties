@@ -9,11 +9,13 @@ export const GET: APIRoute = async () => {
     const res = await fetch(`${WP_API}/property?per_page=100&status=publish&_fields=slug,modified`);
     properties = await res.json();
     if (!Array.isArray(properties)) properties = [];
+    properties = properties.filter((p: any) => p.slug && p.slug !== 'test');
   } catch {}
 
   const staticPages = [
     { path: '', priority: '1.0', freq: 'daily' },
     { path: '/search', priority: '0.9', freq: 'daily' },
+    { path: '/properties', priority: '0.9', freq: 'daily' },
     { path: '/agents', priority: '0.8', freq: 'weekly' },
     { path: '/resources', priority: '0.8', freq: 'weekly' },
     { path: '/about', priority: '0.7', freq: 'monthly' },
@@ -25,6 +27,7 @@ export const GET: APIRoute = async () => {
   const today = new Date().toISOString().split('T')[0];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticPages.map(p => `  <url>
     <loc>${SITE}${p.path}</loc>

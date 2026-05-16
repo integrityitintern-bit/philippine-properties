@@ -486,11 +486,12 @@ import Footer from '../components/Footer.astro';
       return;
     }
 
-    var btn = document.getElementById('submit-btn');
-    btn.textContent = 'Submitting...';
-    btn.disabled = true;
+    var btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+    if (btn) { btn.textContent = 'Submitting...'; btn.disabled = true; }
 
     var agentPhoto = localStorage.getItem('pp_profile_photo') || '';
+    var currentUser = (window as any).ppAuth && (window as any).ppAuth.getUser();
+    var jwtToken = currentUser ? currentUser.token : '';
 
     var data = {
       listing_type: (document.getElementById('p-listing-type') as HTMLInputElement).value,
@@ -508,6 +509,9 @@ import Footer from '../components/Footer.astro';
       phone,
       email,
       agent_photo: agentPhoto,
+      jwt_token: jwtToken,
+      author_email: currentUser ? currentUser.email : email,
+      author_name: currentUser ? currentUser.name : name,
       photos: photos.map(function(p) {
         return p.type === 'file'
           ? { type: 'file', data: p.preview, name: p.name }
@@ -541,9 +545,9 @@ import Footer from '../components/Footer.astro';
       });
       localStorage.setItem('submitted_listings', JSON.stringify(submittedArr));
     } catch(err) {
-      btn.textContent = 'Submit Listing ✓';
-      btn.disabled = false;
-      alert('Error: ' + (err.message || 'Please try again.'));
+      if (btn) { btn.textContent = 'Submit Listing ✓'; btn.disabled = false; }
+      const msg = err instanceof Error ? err.message : 'Please try again.';
+      alert('Error: ' + msg);
     }
   }
 
