@@ -7,8 +7,8 @@ const {
   ogImage = '/hero-bg.jpg',
   ogType = 'website',
 } = Astro.props;
-const siteName = '[Your Brand]';
-const fullTitle = title === 'Real Estate Portal' ? `${siteName} | Philippine Properties` : `${title} | ${siteName}`;
+const siteName = 'Philippine Properties';
+const fullTitle = title === 'Real Estate Portal' ? siteName : `${title} | ${siteName}`;
 ---
 <!doctype html>
 <html lang="en">
