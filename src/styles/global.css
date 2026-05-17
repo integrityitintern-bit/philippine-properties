@@ -58,3 +58,20 @@
   background-clip: text;
 }
 
+/* ── Mesh gradient section backgrounds ── */
+.mesh-dark {
+  background-color: #0f172a;
+  background-image:
+    radial-gradient(at 15% 50%, rgba(234, 88, 12, 0.20) 0px, transparent 55%),
+    radial-gradient(at 85% 15%, rgba(251, 146, 60, 0.12) 0px, transparent 55%),
+    radial-gradient(at 50% 90%, rgba(234, 88, 12, 0.08) 0px, transparent 50%);
+}
+
+.mesh-orange {
+  background-color: #f9fafb;
+  background-image:
+    radial-gradient(at 20% 50%, rgba(234, 88, 12, 0.07) 0px, transparent 55%),
+    radial-gradient(at 80% 20%, rgba(251, 146, 60, 0.05) 0px, transparent 55%),
+    radial-gradient(at 60% 80%, rgba(234, 88, 12, 0.04) 0px, transparent 50%);
+}
+
