@@ -1,6 +1,6 @@
 {
-  "name": "[Your Brand]",
-  "short_name": "[Brand]",
+  "name": "Philippine Real Estate Properties",
+  "short_name": "PH Properties",
   "description": "Find your dream property in the Philippines",
   "start_url": "/",
   "display": "standalone",

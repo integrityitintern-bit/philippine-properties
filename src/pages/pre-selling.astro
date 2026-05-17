@@ -1,0 +1,200 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import { WP_API } from '../config.js';
+
+let preSelling: any[] = [];
+let allPreSelling: any[] = [];
+try {
+  const res = await fetch(`${WP_API}/property?_embed&per_page=100&status=publish`);
+  const all = await res.json();
+  if (Array.isArray(all)) {
+    allPreSelling = all.filter((p: any) => p.acf?.listing_type === 'Pre-Selling');
+    preSelling = allPreSelling;
+  }
+} catch {}
+
+const cities = [...new Set(allPreSelling.map((p: any) => p.acf?.location_city).filter(Boolean))].sort();
+const developers = [...new Set(allPreSelling.map((p: any) => p.acf?.developer_name || p.acf?.agent_name).filter(Boolean))].sort();
+---
+
+<Layout
+  title="Pre-Selling Properties in the Philippines"
+  description="Discover pre-selling condos, houses, and developments from top Philippine developers. Get the best prices before launch with Integrity Realty."
+>
+  <Navbar />
+
+  <!-- Hero -->
+  <section class="relative py-24 overflow-hidden bg-gradient-to-br from-[#0a2240] via-[#1a3a5c] to-[#1a5276]">
+    <div class="absolute inset-0 opacity-10" style="background-image:url('/hero-bg.jpg');background-size:cover;background-position:center;"></div>
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent"></div>
+    <div class="relative z-10 max-w-4xl mx-auto px-4 text-center text-white">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-xs px-4 py-2 rounded-full mb-6 tracking-widest uppercase">
+        <span class="w-1.5 h-1.5 bg-[#ea580c] rounded-full"></span>
+        Integrity Realty — Pre-Selling Hub
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight" style="font-family:'Playfair Display',serif;">
+        Pre-Selling Properties
+        <span class="block italic text-[#fb923c]">Buy Before Launch</span>
+      </h1>
+      <p class="text-white/70 text-lg mb-8 max-w-2xl mx-auto leading-relaxed font-light">
+        Get the best prices on pre-selling condos and developments from top Philippine developers — before they go up.
+      </p>
+      <div class="flex flex-wrap justify-center gap-3 text-sm">
+        <div class="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5">
+          <span class="text-green-400">✓</span><span>Lower entry price</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5">
+          <span class="text-green-400">✓</span><span>Flexible payment terms</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5">
+          <span class="text-green-400">✓</span><span>DHSUD/HLURB permitted</span>
+        </div>
+        <div class="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5">
+          <span class="text-green-400">✓</span><span>High appreciation potential</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What is Pre-Selling -->
+  <section class="py-16 bg-white">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="grid md:grid-cols-3 gap-6">
+        {[
+          {
+            icon: '💰',
+            title: 'Lower Price Now',
+            desc: 'Pre-selling units are priced 15–30% lower than completed units. Lock in the best rate before the price increases upon turnover.',
+          },
+          {
+            icon: '📋',
+            title: 'Flexible Payment Schemes',
+            desc: 'Spread payments over the construction period — typically 2–5 years — before bank financing kicks in. Ideal for OFWs and first-time buyers.',
+          },
+          {
+            icon: '📈',
+            title: 'Capital Appreciation',
+            desc: 'Properties in key locations appreciate 10–20% by turnover. Pre-selling is one of the most powerful real estate investment strategies.',
+          },
+        ].map(c => (
+          <div class="bg-gray-50 rounded-2xl p-6 hover:bg-orange-50 transition-colors group">
+            <span class="text-4xl mb-4 block">{c.icon}</span>
+            <h3 class="font-bold text-gray-900 mb-2 group-hover:text-[#ea580c] transition-colors">{c.title}</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{c.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  {cities.length > 0 && (
+    <section class="bg-gray-50 border-y border-gray-100 py-4 sticky top-16 z-20">
+      <div class="max-w-7xl mx-auto px-4 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-widest mr-2">Filter:</span>
+        <button id="filter-all" onclick="filterCity('all')" class="filter-btn active text-xs px-3 py-1.5 rounded-full border font-medium transition-colors bg-[#ea580c] text-white border-[#ea580c]">All Cities</button>
+        {cities.map(city => (
+          <button onclick={`filterCity('${city}')`} class="filter-btn text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:border-[#ea580c] hover:text-[#ea580c] font-medium transition-colors">{city}</button>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Listings -->
+  <section class="py-16 max-w-7xl mx-auto px-4">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-1">Available Now</p>
+        <h2 class="text-2xl font-bold text-gray-900">Pre-Selling Projects <span id="count-badge" class="text-base text-gray-400 font-normal ml-2">{preSelling.length} listings</span></h2>
+      </div>
+      <a href="/contact" class="hidden sm:inline-flex items-center gap-2 text-sm text-[#ea580c] font-semibold hover:underline">
+        Get payment scheme info →
+      </a>
+    </div>
+
+    {preSelling.length > 0 ? (
+      <div id="pre-selling-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {preSelling.map((property: any) => (
+          <div class="property-card" data-city={property.acf?.location_city || ''}>
+            <PropertyCard property={property} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-24 bg-gray-50 rounded-2xl">
+        <span class="text-6xl block mb-4 opacity-20">🏗️</span>
+        <p class="text-gray-400 text-lg mb-2">No pre-selling listings at the moment.</p>
+        <p class="text-gray-300 text-sm mb-6">Check back soon or contact us for upcoming projects.</p>
+        <a href="/contact" class="inline-block bg-[#ea580c] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#c2410c] transition-colors">
+          Inquire About Upcoming Projects
+        </a>
+      </div>
+    )}
+  </section>
+
+  <!-- Trust Section -->
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <div class="inline-flex items-center gap-2 bg-white border border-gray-100 rounded-xl shadow-sm px-5 py-3 mb-8">
+        <span class="text-[#ea580c]">🛡️</span>
+        <span class="text-sm font-semibold text-gray-700">All projects listed are DHSUD / HLURB registered</span>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4" style="font-family:'Playfair Display',serif;">Why Buy Pre-Selling Through Integrity Realty?</h2>
+      <p class="text-gray-500 mb-10 max-w-2xl mx-auto">With 2,000+ clients served and 2,500+ closed transactions, we guide you from reservation to turnover — safely and transparently.</p>
+      <div class="grid sm:grid-cols-3 gap-6 text-left">
+        {[
+          { title: 'Verified Developers', desc: 'We only partner with accredited developers with clean track records and government-issued permits.', icon: '✅' },
+          { title: 'Payment Scheme Guidance', desc: 'Our agents help you structure the most affordable payment scheme for your budget and timeline.', icon: '📊' },
+          { title: 'End-to-End Support', desc: 'From reservation, contract signing, to bank loan processing and turnover — we are with you every step.', icon: '🤝' },
+        ].map(item => (
+          <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <span class="text-2xl block mb-3">{item.icon}</span>
+            <h3 class="font-bold text-gray-900 mb-2">{item.title}</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+      <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <a href="/contact" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-lg shadow-orange-900/20">
+          Inquire About a Project
+        </a>
+        <a href="https://wa.me/639691967170?text=Hi!+I'm+interested+in+pre-selling+properties." target="_blank" rel="noopener"
+          class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1da850] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-lg">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chat on WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script is:inline>
+function filterCity(city) {
+  var cards = document.querySelectorAll('.property-card');
+  var btns = document.querySelectorAll('.filter-btn');
+  var count = 0;
+  cards.forEach(function(card) {
+    var cardCity = card.getAttribute('data-city') || '';
+    var show = city === 'all' || cardCity === city;
+    card.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+  btns.forEach(function(btn) {
+    var isActive = (city === 'all' && btn.id === 'filter-all') || btn.textContent.trim() === city;
+    if (isActive) {
+      btn.classList.add('bg-[#ea580c]', 'text-white', 'border-[#ea580c]');
+      btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+    } else {
+      btn.classList.remove('bg-[#ea580c]', 'text-white', 'border-[#ea580c]');
+      btn.classList.add('text-gray-600', 'border-gray-200');
+    }
+  });
+  var badge = document.getElementById('count-badge');
+  if (badge) badge.textContent = count + ' listing' + (count !== 1 ? 's' : '');
+}
+</script>
