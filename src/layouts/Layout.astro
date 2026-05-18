@@ -55,6 +55,18 @@ const fullTitle = title === 'Real Estate Portal' ? siteName : `${title} | ${site
       })(window,document,"clarity","script","XXXXXXXXXX");
     </script>
     -->
+  <!-- Dark mode: apply class before paint to avoid flash -->
+  <script is:inline>
+    (function(){
+      if(localStorage.getItem('pp_dark')==='1'){
+        document.documentElement.classList.add('dark');
+      }
+      document.addEventListener('astro:page-load',function(){
+        if(localStorage.getItem('pp_dark')==='1') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      });
+    })();
+  </script>
   </head>
   <body class="min-h-screen">
     <!-- Loading progress bar -->

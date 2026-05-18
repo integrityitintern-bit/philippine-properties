@@ -1,0 +1,220 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Loan Eligibility Checker"
+  description="Check if you qualify for a home loan in the Philippines. Estimate your maximum loanable amount based on your income."
+>
+  <Navbar />
+
+  <section class="bg-gradient-to-br from-[#ea580c] to-[#f97316] text-white py-16">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <p class="text-xs font-semibold tracking-widest uppercase mb-3 text-white/70">Free Tool</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3" style="font-family:'Playfair Display',serif;">Home Loan Eligibility Checker</h1>
+      <p class="text-white/80 text-lg">Get a quick estimate of how much you can borrow — in seconds.</p>
+    </div>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-4 py-16">
+    <div class="grid lg:grid-cols-2 gap-10">
+
+      <!-- Inputs -->
+      <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-7">
+        <h2 class="font-bold text-gray-900 text-lg mb-6">Your Financial Profile</h2>
+        <div class="space-y-5">
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Monthly Gross Income (₱)</label>
+            <input type="number" id="le-income" value="50000" min="0" step="1000"
+              class="w-full px-4 py-3 text-gray-900 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50" />
+            <p class="text-xs text-gray-400 mt-1">Before tax deductions</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Employment Type</label>
+            <div class="grid grid-cols-3 gap-2">
+              {[
+                { id: 'emp-employed', value: 'employed', label: '💼 Employed' },
+                { id: 'emp-self', value: 'self', label: '🏢 Self-Employed' },
+                { id: 'emp-ofw', value: 'ofw', label: '✈️ OFW' },
+              ].map(opt => (
+                <label class="cursor-pointer">
+                  <input type="radio" name="emp-type" value={opt.value} id={opt.id} class="sr-only peer" checked={opt.value === 'employed'} />
+                  <div class="peer-checked:border-[#ea580c] peer-checked:bg-orange-50 peer-checked:text-[#ea580c] border border-gray-200 rounded-xl py-3 text-center text-xs font-semibold text-gray-500 transition-all hover:border-gray-300">
+                    {opt.label}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Existing Monthly Obligations (₱)</label>
+            <input type="number" id="le-obligations" value="0" min="0" step="500"
+              class="w-full px-4 py-3 text-gray-900 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#ea580c] bg-gray-50" />
+            <p class="text-xs text-gray-400 mt-1">Car loans, credit cards, other loans</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Loan Term</label>
+            <div class="flex gap-2 flex-wrap">
+              {[10, 15, 20, 25, 30].map(yr => (
+                <label class="cursor-pointer">
+                  <input type="radio" name="le-term" value={yr} class="sr-only peer le-term-radio" checked={yr === 20} />
+                  <div class="peer-checked:border-[#ea580c] peer-checked:bg-orange-50 peer-checked:text-[#ea580c] border border-gray-200 rounded-xl px-4 py-2 text-xs font-semibold text-gray-500 hover:border-gray-300 transition-all">
+                    {yr} yrs
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+              Interest Rate: <span id="le-rate-display">6.5%</span>
+            </label>
+            <input type="range" id="le-rate" min="3" max="12" step="0.25" value="6.5"
+              class="w-full accent-[#ea580c]" />
+            <div class="flex justify-between text-xs text-gray-400 mt-1"><span>3%</span><span>12%</span></div>
+          </div>
+
+          <button id="le-calculate" class="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold py-3.5 rounded-xl transition-colors">
+            Check My Eligibility →
+          </button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="flex flex-col gap-5">
+
+        <!-- Max loanable -->
+        <div class="bg-gradient-to-br from-[#ea580c] to-[#f97316] text-white rounded-2xl p-7 text-center shadow-xl shadow-orange-200/50">
+          <p class="text-white/70 text-xs font-semibold uppercase tracking-widest mb-2">Estimated Max Loanable Amount</p>
+          <p id="le-max-loan" class="text-4xl md:text-5xl font-bold mb-1">₱0</p>
+          <p class="text-white/60 text-xs">Based on 30% debt-service ratio</p>
+        </div>
+
+        <!-- Monthly amortization -->
+        <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-6 text-center">
+          <p class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">Est. Monthly Amortization</p>
+          <p id="le-monthly" class="text-3xl font-bold text-gray-900 mb-1">₱0</p>
+          <p class="text-gray-400 text-xs">Principal + Interest</p>
+        </div>
+
+        <!-- Property price range -->
+        <div class="bg-orange-50 border border-orange-100 rounded-2xl p-6">
+          <p class="text-[#ea580c] text-xs font-semibold uppercase tracking-widest mb-3">Properties in Your Budget</p>
+          <p class="text-gray-700 text-sm mb-4">With <span id="le-dp-note" class="font-semibold">20% down payment</span>, you can afford properties up to:</p>
+          <p id="le-max-price" class="text-2xl font-bold text-gray-900 mb-4">₱0</p>
+          <a id="le-search-link" href="/search"
+            class="inline-flex items-center gap-2 bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors">
+            View Matching Properties →
+          </a>
+        </div>
+
+        <!-- Eligibility notes -->
+        <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-6 space-y-3">
+          <p class="font-semibold text-gray-900 text-sm">Key Requirements</p>
+          <ul id="le-requirements" class="space-y-2 text-sm text-gray-500">
+            <li class="flex items-start gap-2"><span class="text-green-500 mt-0.5">✓</span> Must be 21–65 years old</li>
+            <li class="flex items-start gap-2"><span id="le-req-income" class="mt-0.5">✓</span> <span id="le-req-income-text">Minimum income qualification met</span></li>
+            <li class="flex items-start gap-2"><span class="text-green-500 mt-0.5">✓</span> At least 2 years of employment/business</li>
+            <li class="flex items-start gap-2"><span class="text-green-500 mt-0.5">✓</span> No adverse credit history</li>
+          </ul>
+        </div>
+
+        <p class="text-gray-300 text-xs">
+          This is an estimate only. Actual loan approval depends on full bank assessment, credit score, collateral appraisal, and bank-specific policies. Consult our agents for a full pre-qualification.
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-14 bg-gray-900 rounded-2xl p-8 md:p-10 text-center text-white">
+      <h3 class="text-2xl font-bold mb-3" style="font-family:'Playfair Display',serif;">Ready to Start Your Property Search?</h3>
+      <p class="text-gray-400 mb-7">Our agents can connect you with bank partners for fast pre-approval.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/search" class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors">
+          Browse Properties
+        </a>
+        <a href="/contact" class="border border-white/20 hover:border-white/50 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors">
+          Talk to an Agent
+        </a>
+        <a href="/mortgage-calculator" class="border border-white/20 hover:border-white/50 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors text-sm">
+          Mortgage Calculator →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script is:inline>
+  (function() {
+    function fmt(n) { return '₱' + Math.round(n).toLocaleString('en-PH'); }
+
+    function calculate() {
+      var income = parseFloat(document.getElementById('le-income').value) || 0;
+      var obligations = parseFloat(document.getElementById('le-obligations').value) || 0;
+      var rateInput = parseFloat(document.getElementById('le-rate').value) || 6.5;
+      var termRadio = document.querySelector('input[name="le-term"]:checked');
+      var term = termRadio ? parseInt(termRadio.value) : 20;
+      var empRadio = document.querySelector('input[name="emp-type"]:checked');
+      var empType = empRadio ? empRadio.value : 'employed';
+
+      // Debt-service ratio by employment type
+      var dsr = empType === 'ofw' ? 0.35 : empType === 'self' ? 0.30 : 0.30;
+      var maxMonthlyPayment = income * dsr - obligations;
+      if (maxMonthlyPayment < 0) maxMonthlyPayment = 0;
+
+      // Reverse-solve: given monthly payment, find loan principal
+      var mRate = rateInput / 100 / 12;
+      var n = term * 12;
+      var maxLoan = mRate > 0
+        ? maxMonthlyPayment * (1 - Math.pow(1 + mRate, -n)) / mRate
+        : maxMonthlyPayment * n;
+
+      // Actual monthly on that loan
+      var monthly = maxLoan > 0 && mRate > 0
+        ? maxLoan * (mRate * Math.pow(1 + mRate, n)) / (Math.pow(1 + mRate, n) - 1)
+        : (maxLoan / n);
+
+      // Property price assuming 20% down
+      var maxPrice = maxLoan / 0.80;
+
+      document.getElementById('le-max-loan').textContent = fmt(maxLoan);
+      document.getElementById('le-monthly').textContent = fmt(monthly);
+      document.getElementById('le-max-price').textContent = fmt(maxPrice);
+
+      var incomeReq = document.getElementById('le-req-income');
+      var incomeText = document.getElementById('le-req-income-text');
+      if (income < 20000) {
+        if (incomeReq) { incomeReq.textContent = '✗'; incomeReq.style.color = '#ef4444'; }
+        if (incomeText) incomeText.textContent = 'Income may be below minimum (₱20,000/mo required by most banks)';
+      } else {
+        if (incomeReq) { incomeReq.textContent = '✓'; incomeReq.style.color = '#22c55e'; }
+        if (incomeText) incomeText.textContent = 'Income qualification likely met';
+      }
+
+      var searchPrice = Math.round(maxPrice / 100000) * 100000;
+      var link = document.getElementById('le-search-link');
+      if (link) link.href = '/search?price_max=' + searchPrice;
+    }
+
+    document.getElementById('le-rate').addEventListener('input', function() {
+      document.getElementById('le-rate-display').textContent = this.value + '%';
+      calculate();
+    });
+    document.getElementById('le-income').addEventListener('input', calculate);
+    document.getElementById('le-obligations').addEventListener('input', calculate);
+    document.querySelectorAll('input[name="emp-type"]').forEach(function(r) { r.addEventListener('change', calculate); });
+    document.querySelectorAll('input[name="le-term"]').forEach(function(r) { r.addEventListener('change', calculate); });
+    document.getElementById('le-calculate').addEventListener('click', calculate);
+
+    calculate();
+  })();
+</script>

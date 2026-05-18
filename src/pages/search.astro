@@ -236,14 +236,18 @@ import { WP_API } from '../config.js';
   let filteredProperties = [];
 
   // Currency toggle
-  let activeCurrency = 'PHP';
-  const RATES = { PHP: 1, USD: 1/56, SGD: 1/42 };
-  const SYMBOLS = { PHP: '₱', USD: '$', SGD: 'S$' };
-  function formatPrice(phpAmount) {
+  let activeCurrency = (localStorage.getItem('pp_currency') || 'PHP') as 'PHP' | 'USD';
+  const RATES: Record<string, number> = { PHP: 1, USD: 1/56, SGD: 1/42 };
+  const SYMBOLS: Record<string, string> = { PHP: '₱', USD: '$', SGD: 'S$' };
+  function formatPrice(phpAmount: string | number) {
     if (!phpAmount) return 'Price on Request';
     const val = Math.round(Number(phpAmount) * RATES[activeCurrency]);
     return SYMBOLS[activeCurrency] + val.toLocaleString('en-PH');
   }
+  window.addEventListener('pp:currency', (e: Event) => {
+    activeCurrency = (e as CustomEvent).detail;
+    renderProperties();
+  });
 
   // Map area filter
   let mapBoundsActive = false;

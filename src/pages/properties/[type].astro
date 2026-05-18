@@ -1,0 +1,133 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import { WP_API } from '../../config.js';
+
+export function getStaticPaths() {
+  return [
+    { params: { type: 'house' },      props: { label: 'House & Lot',    apiValue: 'House & Lot',    emoji: '🏡', desc: 'Browse house and lot properties for sale and rent across the Philippines.' } },
+    { params: { type: 'condo' },      props: { label: 'Condominium',     apiValue: 'Condo',          emoji: '🏢', desc: 'Find condominiums in Metro Manila, Cebu, Davao, and top Philippine cities.' } },
+    { params: { type: 'townhouse' },  props: { label: 'Townhouse',       apiValue: 'Townhouse',      emoji: '🏘️', desc: 'Explore townhouse listings for sale and rent in the Philippines.' } },
+    { params: { type: 'apartment' },  props: { label: 'Apartment',       apiValue: 'Apartment',      emoji: '🏬', desc: 'Discover apartments for rent and sale across Philippine cities.' } },
+    { params: { type: 'land' },       props: { label: 'Land & Lot',      apiValue: 'Land & Lot',     emoji: '🌿', desc: 'Find lots and land for sale across the Philippines — residential and commercial.' } },
+    { params: { type: 'commercial' }, props: { label: 'Commercial',      apiValue: 'Commercial',     emoji: '🏪', desc: 'Browse commercial properties, office spaces, and warehouses in the Philippines.' } },
+  ];
+}
+
+const { type } = Astro.params;
+const { label, apiValue, emoji, desc } = Astro.props;
+
+let properties: any[] = [];
+try {
+  const res = await fetch(`${WP_API}/property?per_page=100&status=publish&_embed`);
+  const all = await res.json();
+  if (Array.isArray(all)) {
+    properties = all.filter((p: any) => {
+      const pt = (p.acf?.property_type || '').toLowerCase();
+      const av = apiValue.toLowerCase();
+      return pt.includes(av.split(' ')[0].toLowerCase());
+    });
+  }
+} catch {}
+
+const totalCount = properties.length;
+const cities = [...new Set(properties.map((p: any) => p.acf?.location_city).filter(Boolean))].sort();
+---
+
+<Layout
+  title={`${label} for Sale & Rent in Philippines`}
+  description={`${desc} ${totalCount > 0 ? totalCount + '+ listings available.' : ''}`}
+>
+  <Navbar />
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 text-white py-16">
+    <div class="max-w-5xl mx-auto px-4">
+      <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-3">Browse by Property Type</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3" style="font-family:'Playfair Display',serif;">
+        {emoji} {label} in the Philippines
+      </h1>
+      <p class="text-gray-400 text-lg mb-6">{desc}</p>
+      <div class="flex flex-wrap gap-3 items-center">
+        {totalCount > 0 && (
+          <span class="bg-white/10 border border-white/20 text-white/80 text-xs px-4 py-2 rounded-full">
+            {totalCount}+ listings
+          </span>
+        )}
+        <a href={`/search?property_type=${encodeURIComponent(apiValue)}`}
+          class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">
+          View All {label} →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- City quick links -->
+  {cities.length > 0 && (
+    <section class="border-b border-gray-100 bg-gray-50 py-4">
+      <div class="max-w-7xl mx-auto px-4 flex items-center gap-3 overflow-x-auto" style="scrollbar-width:none;">
+        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest shrink-0">By City:</span>
+        {cities.slice(0, 12).map((city: string) => (
+          <a href={`/search?property_type=${encodeURIComponent(apiValue)}&city=${encodeURIComponent(city)}`}
+            class="shrink-0 text-xs text-gray-600 hover:text-[#ea580c] border border-gray-200 hover:border-[#ea580c]/40 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
+            {city}
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Listings -->
+  <section class="max-w-7xl mx-auto px-4 py-14">
+    {properties.length > 0 ? (
+      <div>
+        <div class="flex items-end justify-between mb-8">
+          <h2 class="text-xl font-bold text-gray-900">{label} Listings <span class="text-gray-400 text-base font-normal">({totalCount})</span></h2>
+          <a href={`/search?property_type=${encodeURIComponent(apiValue)}`}
+            class="text-[#ea580c] text-sm font-semibold hover:text-[#f97316] transition-colors">
+            View all →
+          </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {properties.slice(0, 9).map((property: any) => (
+            <PropertyCard property={property} />
+          ))}
+        </div>
+        {properties.length > 9 && (
+          <div class="text-center mt-10">
+            <a href={`/search?property_type=${encodeURIComponent(apiValue)}`}
+              class="inline-flex items-center gap-2 bg-white border-2 border-[#ea580c] text-[#ea580c] hover:bg-[#ea580c] hover:text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+              See all {totalCount} {label} listings →
+            </a>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div class="text-center py-20">
+        <p class="text-5xl mb-4 opacity-20">{emoji}</p>
+        <p class="text-gray-500 text-lg">No {label} listings yet.</p>
+        <a href="/list-property" class="mt-4 inline-block text-[#ea580c] font-semibold hover:underline">Be first to list →</a>
+      </div>
+    )}
+  </section>
+
+  <!-- SEO content block -->
+  <section class="bg-gray-50 border-t border-gray-100 py-14">
+    <div class="max-w-3xl mx-auto px-4 prose prose-sm text-gray-500">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">{label} for Sale & Rent in the Philippines</h2>
+      <p>
+        Philippine Real Estate Properties offers a wide selection of {label.toLowerCase()} listings across Metro Manila, Cebu,
+        Davao, and 50+ cities nationwide. Whether you're a first-time buyer, an OFW investor, or looking to rent,
+        our team of licensed agents is ready to assist.
+      </p>
+      <p class="mt-4">
+        Use our <a href="/mortgage-calculator" class="text-[#ea580c] hover:underline">Mortgage Calculator</a> to estimate your monthly payments,
+        or check your <a href="/loan-eligibility" class="text-[#ea580c] hover:underline">Loan Eligibility</a> before making an offer.
+      </p>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

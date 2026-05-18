@@ -85,28 +85,44 @@ const localBusinessJsonLd = {
 
       <!-- Search Bar — glassmorphism -->
       <form action="/search" method="GET"
-        class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 max-w-3xl mx-auto shadow-2xl flex flex-col sm:flex-row gap-3"
+        class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 max-w-3xl mx-auto shadow-2xl"
       >
-        <input
-          type="text"
-          name="city"
-          placeholder="City, area, or landmark..."
-          class="flex-1 px-5 py-3.5 text-white placeholder-white/50 text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] focus:bg-white/20 backdrop-blur-sm transition-all"
-        />
-        <select name="listing_type"
-          class="px-4 py-3.5 text-white text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] backdrop-blur-sm transition-all"
-          style="color-scheme: dark;"
-        >
-          <option value="" class="bg-gray-900">Property?</option>
-          <option value="For Sale" class="bg-gray-900">For Sale</option>
-          <option value="For Rent" class="bg-gray-900">For Rent</option>
-          <option value="Pre-Selling" class="bg-gray-900">Pre-Selling</option>
-        </select>
-        <button type="submit"
-          class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-orange-900/30"
-        >
-          Search
-        </button>
+        <div class="flex flex-col sm:flex-row gap-3 mb-3 sm:mb-0">
+          <input
+            type="text"
+            name="city"
+            placeholder="City, area, or landmark..."
+            class="flex-1 px-5 py-3.5 text-white placeholder-white/50 text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] focus:bg-white/20 backdrop-blur-sm transition-all"
+          />
+          <button type="submit"
+            class="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold px-8 py-3.5 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-orange-900/30 sm:self-auto"
+          >
+            Search
+          </button>
+        </div>
+        <div class="flex gap-3 mt-2">
+          <select name="listing_type"
+            class="flex-1 px-4 py-2.5 text-white/80 text-xs rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] backdrop-blur-sm transition-all"
+            style="color-scheme: dark;"
+          >
+            <option value="" class="bg-gray-900">Any Type</option>
+            <option value="For Sale" class="bg-gray-900">For Sale</option>
+            <option value="For Rent" class="bg-gray-900">For Rent</option>
+            <option value="Pre-Selling" class="bg-gray-900">Pre-Selling</option>
+          </select>
+          <select name="property_type"
+            class="flex-1 px-4 py-2.5 text-white/80 text-xs rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-[#ea580c] backdrop-blur-sm transition-all"
+            style="color-scheme: dark;"
+          >
+            <option value="" class="bg-gray-900">Any Property</option>
+            <option value="House & Lot" class="bg-gray-900">House &amp; Lot</option>
+            <option value="Condo" class="bg-gray-900">Condo</option>
+            <option value="Townhouse" class="bg-gray-900">Townhouse</option>
+            <option value="Apartment" class="bg-gray-900">Apartment</option>
+            <option value="Land & Lot" class="bg-gray-900">Land &amp; Lot</option>
+            <option value="Commercial" class="bg-gray-900">Commercial</option>
+          </select>
+        </div>
       </form>
 
       <!-- Quick type pills -->
@@ -247,18 +263,21 @@ const localBusinessJsonLd = {
 
   <!-- ═══ TESTIMONIALS ═══ -->
   <section class="py-20 bg-white max-w-7xl mx-auto px-4">
-    <div class="text-center mb-12">
+    <div class="reveal text-center mb-12">
       <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">What our clients say</p>
       <h2 class="text-3xl font-bold text-gray-900">Client Stories</h2>
     </div>
-    <div id="testimonials-grid" class="grid md:grid-cols-3 gap-6">
+    <!-- Carousel wrapper -->
+    <div class="relative">
+      <div id="testimonials-grid" class="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 md:grid md:grid-cols-3 md:overflow-visible md:snap-none" style="scrollbar-width:none;-ms-overflow-style:none;"
+        onscroll="updateTestDots && updateTestDots()">
       <!-- Static fallback — replaced by JS if WP testimonials exist -->
       {[
         { name: 'Maria Santos', role: 'First-Time Homebuyer', location: 'Metro Manila', text: 'Found my dream condo in Makati through this site. The agent was very responsive and the process was smooth from viewing to turnover.', rating: 5 },
         { name: 'Jose Reyes',   role: 'OFW Property Investor', location: 'Overseas',     text: 'As an OFW, I was worried about investing from abroad. The detailed listings and direct agent contact made buying back home easy.', rating: 5 },
         { name: 'Ana Cruz',     role: 'Property Renter',       location: 'Taguig City',  text: 'Found a great apartment in BGC within my budget. The search filters saved me so much time compared to other Philippine real estate sites.', rating: 5 },
       ].map(t => (
-        <div class="bg-white border border-gray-100 shadow-sm rounded-2xl p-7 flex flex-col">
+        <div class="shrink-0 w-[80vw] sm:w-[60vw] md:w-auto snap-start bg-white border border-gray-100 shadow-sm rounded-2xl p-7 flex flex-col">
           <div class="flex gap-0.5 mb-5">
             {Array.from({length: t.rating}).map(() => <span class="text-[#ea580c] text-sm">★</span>)}
             {Array.from({length: 5 - t.rating}).map(() => <span class="text-gray-200 text-sm">★</span>)}
@@ -273,6 +292,13 @@ const localBusinessJsonLd = {
           </div>
         </div>
       ))}
+      </div>
+      <!-- Dot indicators (mobile only) -->
+      <div id="test-dots" class="flex justify-center gap-2 mt-5 md:hidden">
+        <span class="test-dot w-2 h-2 rounded-full bg-[#ea580c] transition-all"></span>
+        <span class="test-dot w-2 h-2 rounded-full bg-gray-200 transition-all"></span>
+        <span class="test-dot w-2 h-2 rounded-full bg-gray-200 transition-all"></span>
+      </div>
     </div>
   </section>
 
@@ -346,7 +372,7 @@ const localBusinessJsonLd = {
 </script>
 
 <!-- Recently Viewed: read localStorage, show compact property cards -->
-<script>
+<script is:inline>
   (function() {
     try {
       var viewed = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
@@ -375,13 +401,12 @@ const localBusinessJsonLd = {
 </script>
 
 <!-- Scroll counters: animate stat numbers counting up when entering viewport -->
-<script>
+<script is:inline>
   (function() {
     function animateCount(el) {
       var target = parseInt(el.getAttribute('data-count-to'), 10);
       var suffix = el.getAttribute('data-count-suffix') || '';
       if (!target || isNaN(target)) return;
-      var start = 0;
       var duration = 1400;
       var startTime = null;
       function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
@@ -457,5 +482,50 @@ const localBusinessJsonLd = {
     } catch (e) {
       // keep static fallback on error
     }
+  })();
+</script>
+
+<!-- Testimonials auto-rotate (mobile scroll + dot sync) -->
+<script is:inline>
+  (function() {
+    var autoTimer = null;
+    function initCarousel() {
+      var grid = document.getElementById('testimonials-grid');
+      var dots = document.querySelectorAll('.test-dot');
+      if (!grid || !dots.length) return;
+      var cards = grid.querySelectorAll(':scope > div');
+      var total = cards.length;
+      var current = 0;
+      function goTo(idx) {
+        current = (idx + total) % total;
+        var card = cards[current];
+        if (card) grid.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
+        dots.forEach(function(d, i) {
+          d.style.background = i === current ? '#ea580c' : '#e5e7eb';
+          d.style.transform = i === current ? 'scale(1.3)' : 'scale(1)';
+        });
+      }
+      window.updateTestDots = function() {
+        var w = grid.offsetWidth;
+        if (!w) return;
+        var idx = Math.round(grid.scrollLeft / w);
+        dots.forEach(function(d, i) {
+          d.style.background = i === idx ? '#ea580c' : '#e5e7eb';
+          d.style.transform = i === idx ? 'scale(1.3)' : 'scale(1)';
+        });
+        current = idx;
+      };
+      dots.forEach(function(d, i) {
+        d.style.cursor = 'pointer';
+        d.addEventListener('click', function() { goTo(i); });
+      });
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = setInterval(function() {
+        if (window.innerWidth >= 768) return;
+        goTo(current + 1);
+      }, 4000);
+    }
+    initCarousel();
+    document.addEventListener('astro:page-load', initCarousel);
   })();
 </script>
