@@ -159,6 +159,26 @@ import { WP_API } from '../config.js';
         Load More Properties
       </button>
     </div>
+
+    <!-- Property Alerts Banner -->
+    <div id="alerts-banner" class="mt-12 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 p-6 md:p-8 text-center">
+      <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Never Miss a Deal</p>
+      <h3 class="text-xl font-bold text-gray-900 mb-1" style="font-family:'Playfair Display',serif;">Get Notified of New Listings</h3>
+      <p class="text-gray-400 text-sm mb-6">We'll email you when properties matching your search are added.</p>
+      <form id="alerts-form" action="https://formsubmit.co/info@philippine-properties.com" method="POST"
+            class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <input type="hidden" name="_subject" value="Property Alert Signup" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" id="alerts-filters" name="filters" value="" />
+        <input type="email" name="email" required placeholder="your@email.com"
+               class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]/30" />
+        <button type="submit"
+                class="px-5 py-2.5 bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold text-sm rounded-xl transition-colors whitespace-nowrap">
+          Notify Me
+        </button>
+      </form>
+      <p id="alerts-success" class="hidden mt-4 text-sm text-green-600 font-medium">✓ You're on the list! We'll notify you of new matches.</p>
+    </div>
   </div>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -853,4 +873,35 @@ import { WP_API } from '../config.js';
 
   updateCompareBar();
   fetchProperties();
+
+  // Property alerts: stamp current filters into the hidden field, show success in-page
+  (function() {
+    var form = document.getElementById('alerts-form');
+    var filtersInput = document.getElementById('alerts-filters');
+    var successMsg = document.getElementById('alerts-success');
+    if (!form) return;
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Capture active filter state as human-readable label
+      var city = document.getElementById('filter-city')?.value || '';
+      var type = document.getElementById('filter-type')?.value || '';
+      var listing = document.getElementById('filter-listing')?.value || '';
+      var minP = document.getElementById('filter-price-min')?.value || '';
+      var maxP = document.getElementById('filter-price-max')?.value || '';
+      var parts = [];
+      if (city) parts.push('City: ' + city);
+      if (type) parts.push('Type: ' + type);
+      if (listing) parts.push('Listing: ' + listing);
+      if (minP) parts.push('Min price: ₱' + Number(minP).toLocaleString('en-PH'));
+      if (maxP) parts.push('Max price: ₱' + Number(maxP).toLocaleString('en-PH'));
+      if (filtersInput) filtersInput.value = parts.length ? parts.join(' | ') : 'All listings';
+      // Submit via fetch so user stays on page
+      var data = new FormData(form);
+      fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } })
+        .finally(function() {
+          form.style.display = 'none';
+          if (successMsg) successMsg.classList.remove('hidden');
+        });
+    });
+  })();
 </script>

@@ -137,24 +137,29 @@ const localBusinessJsonLd = {
   <!-- ═══ STATS ═══ -->
   <section class="mesh-dark py-14">
     <div class="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-      {[
-        { n: totalProperties > 0 ? totalProperties + '+' : '—', l: 'Active Listings' },
-        { n: totalCities > 0 ? totalCities + '+' : '—',      l: 'Cities Covered' },
-        { n: totalAgents > 0 ? totalAgents + '+' : '—',      l: 'Active Agents' },
-        { n: '100%',                                           l: 'Free to List' },
-      ].map(s => (
-        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl py-6 px-4 hover:bg-white/10 transition-colors">
-          <p class="text-3xl font-bold gradient-text">{s.n}</p>
-          <p class="text-white/50 text-xs mt-1 tracking-widest uppercase">{s.l}</p>
-        </div>
-      ))}
+      <div class="reveal bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl py-6 px-4 hover:bg-white/10 transition-colors">
+        <p class="text-3xl font-bold gradient-text" data-count-to={totalProperties} data-count-suffix="+">{totalProperties > 0 ? totalProperties + '+' : '—'}</p>
+        <p class="text-white/50 text-xs mt-1 tracking-widest uppercase">Active Listings</p>
+      </div>
+      <div class="reveal reveal-delay-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl py-6 px-4 hover:bg-white/10 transition-colors">
+        <p class="text-3xl font-bold gradient-text" data-count-to={totalCities} data-count-suffix="+">{totalCities > 0 ? totalCities + '+' : '—'}</p>
+        <p class="text-white/50 text-xs mt-1 tracking-widest uppercase">Cities Covered</p>
+      </div>
+      <div class="reveal reveal-delay-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl py-6 px-4 hover:bg-white/10 transition-colors">
+        <p class="text-3xl font-bold gradient-text" data-count-to={totalAgents} data-count-suffix="+">{totalAgents > 0 ? totalAgents + '+' : '—'}</p>
+        <p class="text-white/50 text-xs mt-1 tracking-widest uppercase">Active Agents</p>
+      </div>
+      <div class="reveal reveal-delay-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl py-6 px-4 hover:bg-white/10 transition-colors">
+        <p class="text-3xl font-bold gradient-text" data-count-to="100" data-count-suffix="%">100%</p>
+        <p class="text-white/50 text-xs mt-1 tracking-widest uppercase">Free to List</p>
+      </div>
     </div>
   </section>
 
   <!-- ═══ FEATURED LISTINGS ═══ -->
   <section class="py-20 max-w-7xl mx-auto px-4">
     <div class="flex items-end justify-between mb-10">
-      <div>
+      <div class="reveal">
         <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Hand-picked for you</p>
         <h2 class="text-3xl font-bold text-gray-900">Featured Properties</h2>
       </div>
@@ -179,7 +184,7 @@ const localBusinessJsonLd = {
   <!-- ═══ BROWSE BY TYPE ═══ -->
   <section class="py-20 mesh-orange">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-12">
+      <div class="reveal text-center mb-12">
         <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Browse by category</p>
         <h2 class="text-3xl font-bold text-gray-900">Property Types</h2>
       </div>
@@ -206,7 +211,7 @@ const localBusinessJsonLd = {
   <!-- ═══ TRUST BADGES ═══ -->
   <section class="py-16 mesh-orange border-y border-gray-100/60">
     <div class="max-w-5xl mx-auto px-4">
-      <div class="text-center mb-10">
+      <div class="reveal text-center mb-10">
         <p class="text-[#ea580c] text-xs font-semibold tracking-widest uppercase mb-2">Why Choose Us</p>
         <h2 class="text-2xl md:text-3xl font-bold text-gray-900" style="font-family:'Playfair Display',serif;">Our Name is Our Promise</h2>
         <p class="text-gray-400 text-sm mt-2">Nearly two decades of trusted Philippine real estate service</p>
@@ -366,6 +371,42 @@ const localBusinessJsonLd = {
       }).join('');
       section.classList.remove('hidden');
     } catch(e) {}
+  })();
+</script>
+
+<!-- Scroll counters: animate stat numbers counting up when entering viewport -->
+<script>
+  (function() {
+    function animateCount(el) {
+      var target = parseInt(el.getAttribute('data-count-to'), 10);
+      var suffix = el.getAttribute('data-count-suffix') || '';
+      if (!target || isNaN(target)) return;
+      var start = 0;
+      var duration = 1400;
+      var startTime = null;
+      function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        el.textContent = Math.round(easeOut(progress) * target) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target + suffix;
+      }
+      requestAnimationFrame(step);
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          animateCount(e.target);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    function observe() {
+      document.querySelectorAll('[data-count-to]').forEach(function(el) { io.observe(el); });
+    }
+    observe();
+    document.addEventListener('astro:page-load', observe);
   })();
 </script>
 
