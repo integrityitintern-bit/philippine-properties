@@ -252,7 +252,7 @@ try {
           <div class="flex items-start justify-between gap-4 flex-wrap">
             <div class="flex-1">
               <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{title}</h1>
-              <p class="text-3xl font-bold text-[#ea580c]">{price}</p>
+              <p id="detail-price" class="text-3xl font-bold text-[#ea580c]" data-php={rawPrice}>{price}</p>
               <span id="view-counter" class="hidden text-xs text-gray-400 font-medium mt-1 block"></span>
               {(acf.location_city || acf.location_province) && (
                 <p class="text-gray-500 text-sm mt-2">
@@ -521,14 +521,6 @@ try {
     </div>
   </div>
 
-  <!-- Similar Properties -->
-  <section class="max-w-7xl mx-auto px-4 pb-14 print:hidden">
-    <div id="similar-section" class="hidden">
-      <h2 class="text-xl font-bold text-gray-900 mb-6">Similar Properties</h2>
-      <div id="similar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-    </div>
-  </section>
-
   <!-- Lightbox -->
   <div id="lightbox" style="display:none"
     class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md print:hidden"
@@ -587,7 +579,7 @@ try {
   <Footer />
 </Layout>
 
-<script define:vars={{ WP_API, propertyId, propAcf: property.acf, galleryImages, currentSlug: slug, currentTitle: title, currentPrice: price, currentImage: image, similarCity: acf.location_city || '', similarType: acf.property_type || '' }}>
+<script define:vars={{ WP_API, propertyId, propAcf: property.acf, galleryImages, currentSlug: slug, currentTitle: title, currentPrice: price, currentImage: image, similarCity: acf.location_city || '', similarType: acf.property_type || '', rawPrice }}>
   // Lightbox
   var lbIdx = 0;
 
@@ -660,7 +652,7 @@ try {
     }
   })();
 
-  // Similar Properties
+  // Similar Properties — fills existing related-grid in main content
   (async function() {
     try {
       var res = await fetch(WP_API + '/property?per_page=20&status=publish');
@@ -672,32 +664,38 @@ try {
         var type = p.acf?.property_type || '';
         return (similarCity && city === similarCity) || (similarType && type === similarType);
       }).slice(0, 3);
-      if (similar.length === 0) return;
-      var section = document.getElementById('similar-section');
-      var grid = document.getElementById('similar-grid');
-      if (!section || !grid) return;
+      var grid = document.getElementById('related-grid');
+      if (!grid) return;
+      if (similar.length === 0) {
+        var section = document.getElementById('related-section');
+        if (section) section.style.display = 'none';
+        return;
+      }
       grid.innerHTML = similar.map(function(p) {
         var img = p._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
         var cdnImg = img ? 'https://wsrv.nl/?url=' + encodeURIComponent(img) + '&w=600&q=82&output=webp' : '';
         var pAcf = p.acf || {};
-        var pPrice = pAcf.price ? '₱' + Number(pAcf.price).toLocaleString('en-PH') : 'Price on Request';
+        var phpPrice = Number(pAcf.price) || 0;
+        var pPrice = phpPrice ? '₱' + phpPrice.toLocaleString('en-PH') : 'Price on Request';
         var pTitle = p.title?.rendered || 'Property';
         var pSlug = p.slug || p.id;
         var loc = [pAcf.location_city, pAcf.location_province].filter(Boolean).join(', ');
-        return '<a href="/property/' + pSlug + '" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#ea580c]/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">' +
-          '<div class="relative h-44 overflow-hidden bg-gray-100">' +
-            (cdnImg ? '<img src="' + cdnImg + '" alt="' + pTitle + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>' : '<div class="w-full h-full flex items-center justify-center text-4xl opacity-20">🏠</div>') +
-            '<div class="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>' +
-            '<p class="absolute bottom-2 left-3 text-white font-bold text-sm" style="text-shadow:0 1px 4px rgba(0,0,0,0.5)">' + pPrice + '</p>' +
+        return '<a href="/property/' + pSlug + '" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#ea580c]/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col">' +
+          '<div class="relative h-36 overflow-hidden bg-gray-100">' +
+            (cdnImg ? '<img src="' + cdnImg + '" alt="' + pTitle + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>' : '<div class="w-full h-full flex items-center justify-center text-3xl opacity-20">🏠</div>') +
+            '<div class="absolute bottom-0 inset-x-0 h-14 bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>' +
+            '<p class="absolute bottom-2 left-2.5 text-white font-bold text-xs" style="text-shadow:0 1px 4px rgba(0,0,0,0.5)">' + pPrice + '</p>' +
           '</div>' +
-          '<div class="p-4 flex flex-col flex-1">' +
-            '<h3 class="text-gray-900 font-semibold text-sm leading-snug mb-1 line-clamp-2">' + pTitle + '</h3>' +
-            (loc ? '<p class="text-gray-400 text-xs">' + loc + '</p>' : '') +
+          '<div class="p-3">' +
+            '<h3 class="text-gray-900 font-semibold text-xs leading-snug line-clamp-2">' + pTitle + '</h3>' +
+            (loc ? '<p class="text-gray-400 text-[10px] mt-0.5">' + loc + '</p>' : '') +
           '</div>' +
         '</a>';
       }).join('');
-      section.classList.remove('hidden');
-    } catch(e) {}
+    } catch(e) {
+      var section2 = document.getElementById('related-section');
+      if (section2) section2.style.display = 'none';
+    }
   })();
 
   // Share buttons
@@ -1016,6 +1014,32 @@ try {
       }
     });
   }
+
+  // Currency conversion for property detail prices
+  (function() {
+    var RATES = { PHP: 1, USD: 1/56 };
+    var SYMBOLS = { PHP: '₱', USD: '$' };
+    function updatePrices(cur) {
+      var rate = RATES[cur] || 1;
+      var sym = SYMBOLS[cur] || '₱';
+      // Main price heading
+      var priceEl = document.getElementById('detail-price');
+      if (priceEl) {
+        var php = parseFloat(priceEl.getAttribute('data-php'));
+        if (php > 0) priceEl.textContent = sym + Math.round(php * rate).toLocaleString('en-PH');
+      }
+      // Mortgage calculator price input
+      var mcPrice = document.getElementById('mc-price');
+      if (mcPrice && rawPrice > 0) {
+        mcPrice.value = sym + Math.round(rawPrice * rate).toLocaleString('en-PH');
+      }
+    }
+    // Apply saved preference on load
+    updatePrices(localStorage.getItem('pp_currency') || 'PHP');
+    window.addEventListener('pp:currency', function(e) {
+      updatePrices(e.detail);
+    });
+  })();
 </script>
 
 <style is:global>
