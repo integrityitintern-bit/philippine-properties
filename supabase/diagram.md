@@ -46,13 +46,13 @@ flowchart TD
         C11["agent_subscriptions + listing_packages"]
     end
 
-    subgraph STORAGE["🪣 Supabase Storage"]
-        S1["property-images"]
-        S2["project-images"]
-        S3["floor-plans"]
-        S4["agent-avatars"]
-        S5["developer-assets"]
-        S6["documents (private)"]
+    subgraph STORAGE["☁️ Cloudflare Images + R2"]
+        S1["CF Images\nproperty photos"]
+        S2["CF Images\nproject photos"]
+        S3["CF Images\nfloor plans"]
+        S4["CF Images\nagent / dev avatars"]
+        S5["CF R2\ndocuments (private)"]
+        S6["CDN delivery\nimagedelivery.net"]
     end
 
     subgraph EDGE["⚡ Edge Functions"]
@@ -72,7 +72,8 @@ flowchart TD
     B2 -->|read + log| C1 & C9 & C10
     B3 -->|read| C2
     B4 -->|read| C3
-    B5 -->|write| C1 & S1
+    B5 -->|write| C1
+    B5 -->|upload via Edge Fn| S1
     B6 -->|write| C4 --> E1
     B7 -->|write| C6
     B8 -->|write| C5 --> E3
@@ -575,8 +576,65 @@ flowchart LR
     WP["WordPress\nREST API"] -->|fetch all posts| SCRIPT["migrate-wp.js\nWeek 2"]
     SCRIPT -->|INSERT| P["properties"]
     SCRIPT -->|INSERT| L["property_locations"]
-    SCRIPT -->|download + upload| ST["Supabase Storage\nproperty-images"]
-    ST -->|public URL| I["property_images"]
+    SCRIPT -->|download + re-upload| CF["Cloudflare Images API"]
+    CF -->|returns image ID| I["property_images\ncf_image_id"]
     SCRIPT -->|INSERT| LOG["migration_log\ntrack each row"]
     LOG -->|status: done/error| REPORT["Migration Report\n✅ migrated / ❌ failed"]
 ```
+
+---
+
+## 6. Cloudflare Images Architecture
+
+```mermaid
+flowchart TD
+    subgraph CF["☁️ Cloudflare"]
+        CFI["Cloudflare Images\nimage storage + transform"]
+        CDN["imagedelivery.net\nglobal CDN delivery"]
+        R2["Cloudflare R2\nprivate docs only"]
+        PAGES["Cloudflare Pages\nAstro site"]
+        WORKER["CF Worker / Edge Fn\nupload handler"]
+        CFI --> CDN
+    end
+
+    subgraph VARIANTS["🖼️ Image Variants (auto-transform)"]
+        V1["thumbnail\n400×300 · cover · q85\nSearch cards"]
+        V2["card\n800×600 · cover · q85\nDetail gallery"]
+        V3["hero\n1600×900 · cover · q90\nFull screen"]
+        V4["avatar\n200×200 · cover · q90\nAgent / Dev photo"]
+        V5["public\n1920px max · q85\nOriginal download"]
+    end
+
+    subgraph DB["🗄️ Supabase DB"]
+        T1["property_images\ncf_image_id TEXT"]
+        T2["project_images\ncf_image_id TEXT"]
+        T3["floor_plans\ncf_image_id TEXT"]
+        T4["agents\ncf_avatar_id TEXT"]
+        T5["developers\ncf_logo_id TEXT"]
+    end
+
+    AGENT["🏢 Agent uploads photo"] -->|1 request upload URL| WORKER
+    WORKER -->|2 call CF Images API| CFI
+    WORKER -->|3 return uploadURL + imageId| AGENT
+    AGENT -->|4 upload file directly| CFI
+    AGENT -->|5 confirm imageId| WORKER
+    WORKER -->|6 save imageId| T1
+
+    PAGES -->|build img URL| CDN
+    CDN -->|serve variant| VISITOR["🧑 Visitor browser"]
+
+    CFI --- VARIANTS
+
+    style CF fill:#f97316,color:#fff,stroke:#ea580c
+    style VARIANTS fill:#fff7ed,stroke:#ea580c,color:#000
+    style DB fill:#f0fdf4,stroke:#22c55e,color:#000
+```
+
+**URL pattern in code:**
+```
+https://imagedelivery.net/{CF_ACCOUNT_HASH}/{cf_image_id}/thumbnail
+https://imagedelivery.net/{CF_ACCOUNT_HASH}/{cf_image_id}/card
+https://imagedelivery.net/{CF_ACCOUNT_HASH}/{cf_image_id}/hero
+```
+
+**Private docs (contracts, titles) → Cloudflare R2 with signed URLs only.**
