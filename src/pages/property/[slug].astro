@@ -669,12 +669,13 @@ try {
         if (sec) sec.style.display = 'none';
         return;
       }
-      var similar = all.filter(function(p) {
-        if (p.id === propertyId) return false;
+      var others = all.filter(function(p) { return p.id !== propertyId; });
+      var similar = others.filter(function(p) {
         var city = p.acf?.location_city || '';
         var type = p.acf?.property_type || '';
         return (similarCity && city === similarCity) || (similarType && type === similarType);
       }).slice(0, 3);
+      if (similar.length === 0) similar = others.slice(0, 3);
       var grid = document.getElementById('related-grid');
       if (!grid) return;
       if (similar.length === 0) return;
